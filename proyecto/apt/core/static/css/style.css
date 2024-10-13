@@ -1,0 +1,38 @@
+.logo {
+  width: 100px;  /* Ajusta el ancho a 150px */
+ /* Mantén la proporción original */
+ border-radius: 30px;
+}
+
+navbar {
+    background-color: #333;
+    padding: 10px;
+    display: flex;
+    align-items: center;
+  }
+
+
+.container {
+  display: grid;
+  place-items: center; /* Centra en ambos ejes */
+  height: 100vh;
+}
+
+.login-container {
+  background-color: white; /* Fondo blanco para el formulario */
+  border-radius: 8px; /* Bordes redondeados */
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1); /* Sombra suave */
+  padding: 20px; /* Espaciado interno */
+  width: 300px; /* Ancho del contenedor */
+  text-align: center; /* Centrar texto */
+  margin-left: auto;
+  margin-top: 10%;
+  margin-right: auto;
+}
+.background{
+  background-color:  #A9D6E5;
+}
+
+.input_login::placeholder{
+  text-align: center;
+}
