@@ -71,6 +71,7 @@ class NombreIngrediente(models.Model):
 class Recetas(models.Model):
     id = models.AutoField(primary_key=True)  # Clave primaria
     descripcion = models.CharField(max_length=255)
+    link = models.CharField(max_length=255, null=True)
     nombre_receta = models.ForeignKey('NombreReceta', on_delete=models.CASCADE)
     
     class Meta:
