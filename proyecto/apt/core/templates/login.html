@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+{% block title %}Título de la Página{% endblock %}
+
+
+{% block content %}
+
+    
+
+<div class="login-container" >
+    <h1>Vista de Login</h1>
+    <form class="login-form">
+           <h5>Inicie sesión en el sistema</h5>
+            <label>Usuario</label>
+            <br><input type="text" id="username" placeholder="Ingrese su usuario" required class="input_login">
+            <label>Contraseña</label>
+            <input type="password" id="password" placeholder="Ingrese su contraseña" required class="input_login">
+            <br>
+            <a href="" style="font-size: 12px;">recuperar contraseña</a>
+            <br>
+            <br>
+            <button type="button" class="btn btn-primary btn-sm">Ingresar</button>
+    </form>
+</div>
+
+{% endblock %}
