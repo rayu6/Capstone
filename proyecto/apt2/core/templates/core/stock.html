@@ -9,6 +9,7 @@
         <thead>
             <tr>
                 <th scope="col">#</th>
+                <th scope="col">ID</th> <!-- Columna para la Primary Key -->
                 <th scope="col">Ingrediente</th>
                 <th scope="col">Cantidad</th>
                 <th scope="col">Acciones</th>
@@ -18,7 +19,8 @@
             {% for ingrediente in ingredientes %}
             <tr>
                 <th scope="row">{{ forloop.counter }}</th>
-                <td>{{ ingrediente.nombre }}</td>
+                <td>{{ ingrediente.id }}</td> <!-- Mostrar la Primary Key -->
+                <td>{{ ingrediente.nombre_ingrediente }}</td>
                 <td>{{ ingrediente.ingredientes|join:", " }}</td>
                 <td>
                     <a href="" class="btn btn-primary">Modificar</a>
@@ -27,7 +29,7 @@
             </tr>
             {% empty %}
             <tr>
-                <td colspan="4" class="text-center">No hay ingredientes disponibles.</td>
+                <td colspan="5" class="text-center">No hay ingredientes disponibles.</td> <!-- Cambiar colspan a 5 por la nueva columna -->
             </tr>
             {% endfor %}
         </tbody>

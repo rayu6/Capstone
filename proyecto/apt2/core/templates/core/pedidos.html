@@ -1,11 +1,43 @@
 {% extends 'base.html' %}
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pedidos en Restaurante</title>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+</head>
 
 {% block content %}
 
-    
+<div class="card border-info mb-3" style="max-width: 18rem;">
+    <div class="card-header">Mesa 99</div>
+    <div class="card-body">
+      <h5 class="card-title">2 Carnes mechadas con pure</h5>
+    </div>
+  </div>
 
-<div>
-    <p>pedidos</p>
-</div>
+  <div class="container mt-4">
+    <h2 class="text-center">Listado de pedidos</h2>
+    <div class="row">
+        {% if pedidos %}
+            {% for pedido in pedidos %}
+            <div class="col-md-4 mb-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ pedido.tipo_de_orden }}</h5>
+                        <p class="card-text">{{ pedido.estado|truncatechars:100 }}</p>
+                        <p class="card-text">{{ pedido.receta|truncatechars:100 }}</p>
+                        <p class="card-text">{{ pedido.usuario|truncatechars:100 }}</p>
+                        <a href="" class="btn btn-primary">Ver detalles</a>
+                        <h1 class="prueba">hola esto es una prueba de css</h1>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <p>No hay recetas disponibles</p>
+        {% endif %}
+    </div>
+    <a href="" class="btn btn-success mt-3">Agregar nuevo pedido</a>
+  </div>
 
 {% endblock %}

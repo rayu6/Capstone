@@ -2,7 +2,8 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login,logout
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-
+from .models import Recetas
+from .models import Pedido, Ingrediente
 # Create your views here.
 
 # Vista para la página de inicio
@@ -32,9 +33,12 @@ def stock(request):
 def register(request):
     return render(request, 'registration/register.html')  # Renderiza el template 'stock.html'
 
-@login_required
-def recetas(request):
-    return render(request, 'core/recetas.html')  # Renderiza el template 'recetas.html'
+# Vista para listar recetas
+login_required
+def listar_recetas(request):
+    recetas = Recetas.objects.all()  # Obtener todas las recetas de la base de datos
+    return render(request, 'core/recetas.html', {'recetas': recetas})
+
 @login_required 
 def pedidos(request):
     return render(request, 'core/pedidos.html')  # Renderiza el template 'pedidos.html'
@@ -44,3 +48,12 @@ def prueba(request):
 def logout_view(request):
     logout(request)
     return redirect('prueba')
+
+
+def listar_pedidos(request):
+    pedidos = Pedido.objects.all()  # Obtén todos los pedidos de la base de datos
+    return render(request, 'core/pedidos.html', {'pedidos': pedidos})   
+
+def listar_ingredientes(request):
+    ingredientes = Ingrediente.objects.all()  # Obtener todos los ingredientes
+    return render(request, 'core/stock.html', {'ingredientes': ingredientes})

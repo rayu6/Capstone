@@ -20,7 +20,7 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav mx-auto"> <!-- Usamos mx-auto para centrar el navbar -->
                     <li class="nav-item">
-                        <a class="nav-link" aria-current="page" href="{% url 'recetas' %}">Recetas</a> <!-- Cambié "Receta" por "Recetas" -->
+                        <a class="nav-link" aria-current="page" href="{% url 'listar_recetas' %}">Recetas</a> <!-- Cambié "Receta" por "Recetas" -->
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'stock' %}">Stock</a>
@@ -46,7 +46,7 @@
     </nav>
 </header>
   {% endblock %}
-    
+    <h1 class="prueba">prueba</h1>
     <div class="content">
         {% block content %}
         <body class="background">

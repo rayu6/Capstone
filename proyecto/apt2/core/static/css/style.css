@@ -50,3 +50,7 @@ navbar {
 .alert-custom.error {
   background-color: red; /* Color de fondo para errores */
 }
+
+.imagenreceta{
+  height: 246px;
+}

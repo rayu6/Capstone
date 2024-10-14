@@ -137,6 +137,6 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
-LOGIN_REDIRECT_URL = 'recetas'
+LOGIN_REDIRECT_URL = 'listar_recetas'
 
 LOGOUT_REDIRECT_URL = 'prueba'

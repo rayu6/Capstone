@@ -1,16 +1,34 @@
 {% extends 'base.html' %}
 
+
 {% block title %}Título de la Página{% endblock %}
   
 {% block content %}
-<div class="card" style="width: 18rem;">
-    <img src="" class="card-img-top" alt="...">
-    <div class="card-body">
-      <h5 class="card-title">Carne mechada con pure</h5>
-      <h6 class="card-subtitle mb-2 text-muted">Carne mechada</h6>
-      <p class="card-text">prueba github</p>
-      <a href="#" class="card-link">Card link</a>
-      <a href="#" class="card-link">Another link</a>
-    </div>
+
+
+<br>
+
+<div class="container mt-4">
+  <h2 class="text-center">Listado de Recetas</h2>
+  <div class="row">
+      {% if recetas %}
+          {% for receta in recetas %}
+          <div class="col-md-4 mb-4">
+              <div class="card">
+                  <div class="card-body">
+                      <h5 class="card-title">{{ receta.nombre_receta }}</h5>
+                      <img src="{{ receta.link}}" class="card-img-top imagenreceta" alt="">
+                      <p class="card-text">{{ receta.descripcion|truncatechars:84 }}</p>
+                      <a href="" class="btn btn-primary">Ver detalles</a>
+                  </div>
+              </div>
+          </div>
+          {% endfor %}
+      {% else %}
+          <p>No hay recetas disponibles</p>
+      {% endif %}
   </div>
+  <a href="" class="btn btn-success mt-3">Agregar nueva receta</a>
+</div>
+  
 {% endblock %}
