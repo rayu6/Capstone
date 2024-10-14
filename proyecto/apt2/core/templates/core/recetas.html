@@ -5,20 +5,24 @@
   
 {% block content %}
 
-
 <br>
 
-<div class="container mt-4">
+<div class="container mt-5">
   <h2 class="text-center">Listado de Recetas</h2>
   <div class="row">
       {% if recetas %}
           {% for receta in recetas %}
           <div class="col-md-4 mb-4">
-              <div class="card">
+              <div class="card " style="width: 18rem;">
                   <div class="card-body">
                       <h5 class="card-title">{{ receta.nombre_receta }}</h5>
-                      <img src="{{ receta.link}}" class="card-img-top imagenreceta" alt="">
+                      <img src="{{ receta.link}}" class="card-img-top imagenreceta" alt="" style="height: 248px;">
                       <p class="card-text">{{ receta.descripcion|truncatechars:84 }}</p>
+                      <p class="card-text">ingredientes  cantidades</p>
+                      {% for item in receta.receta_ingrediente.all %}
+                      
+                      <p class="card-text">{{item.ingrediente}}{{ item.cantidad|floatformat:"g" }} {{item.unidad}}</p>
+                      {% endfor %}
                       <a href="" class="btn btn-primary">Ver detalles</a>
                   </div>
               </div>
@@ -30,5 +34,5 @@
   </div>
   <a href="" class="btn btn-success mt-3">Agregar nueva receta</a>
 </div>
-  
+
 {% endblock %}

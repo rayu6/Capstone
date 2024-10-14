@@ -2,16 +2,11 @@ from django.contrib import admin
 from .models import Role, Usuario, TipoDeOrden, Estado, RecetaIngrediente, Pedido, RecetaPedido, Ingrediente, NombreIngrediente, Recetas, NombreReceta
 # Register your models here.
 
-class MiModeloAdmin(admin.ModelAdmin):
-    list_display = ('id')  # Agrega aquí el campo que quieres mostrar
-
-
-admin.site.register(RecetaIngrediente, MiModeloAdmin)
+admin.site.register(RecetaIngrediente)
 admin.site.register(Role)
 admin.site.register(Usuario)
 admin.site.register(TipoDeOrden)
 admin.site.register(Estado)
-admin.site.register(RecetaIngrediente)
 admin.site.register(Pedido)
 admin.site.register(RecetaPedido)
 admin.site.register(Ingrediente)

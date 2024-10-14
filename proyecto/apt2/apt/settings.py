@@ -84,10 +84,10 @@ WSGI_APPLICATION = 'apt.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',  
-        'NAME': 'musicpro1',             
-        'USER': 'musicpro1',                  
-        'PASSWORD': 'prueba12',           
-        'HOST': 'db4free.net',                 
+        'NAME': 'apt',             
+        'USER': 'root',                  
+        'PASSWORD': 'root',           
+        'HOST': 'localhost',                 
         'PORT': '3306',                        
     }
 }
