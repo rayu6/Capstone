@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login,logout
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from .models import Recetas
+from .models import Recetas,NombreReceta
 from .models import Pedido, Ingrediente
 # Create your views here.
 
@@ -34,10 +34,40 @@ def register(request):
     return render(request, 'registration/register.html')  # Renderiza el template 'stock.html'
 
 # Vista para listar recetas
-login_required
+@login_required
 def listar_recetas(request):
     recetas = Recetas.objects.all()  # Obtener todas las recetas de la base de datos
-    return render(request, 'core/recetas.html', {'recetas': recetas})
+    ingredientes = Ingrediente.objects.all()
+    return render(request, 'core/recetas.html', {'recetas': recetas,'ingredientes': ingredientes})
+
+def guardar_receta(request):
+    if request.method == 'POST':
+        nombre_receta = request.POST.get('nombre_receta')
+        descripcion_receta = request.POST.get('descripcion_receta')
+        ingredientes_seleccionados = request.POST.getlist('ingredientes.id') 
+
+        # Crear receta
+        nuevo_nombre = NombreReceta.objects.create(
+            nombre=nombre_receta
+        )
+        
+        nueva_receta = Recetas.objects.create(
+            nombre_receta=nuevo_nombre,   
+            descripcion=descripcion_receta
+  
+        )
+        ingredientes = Ingrediente.objects.filter(id__in=ingredientes_seleccionados)
+        nueva_receta.receta_ingrediente.set(ingredientes)  
+        # Agregar los ingredientes
+          # Asignar los ingredientes
+        nuevo_nombre
+        nueva_receta.save()
+
+        # Redirigir 
+        return redirect('listar_recetas')
+
+    # Si no es POST, redirigir a algún lugar
+    return redirect('listar_recetas')
 
 @login_required 
 def pedidos(request):
@@ -49,7 +79,7 @@ def logout_view(request):
     logout(request)
     return redirect('prueba')
 
-
+@login_required
 def listar_pedidos(request):
     pedidos = Pedido.objects.all()  # Obtén todos los pedidos de la base de datos
     return render(request, 'core/pedidos.html', {'pedidos': pedidos})   

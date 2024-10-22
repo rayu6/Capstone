@@ -7,7 +7,7 @@
 
 <br>
 
-<div class="container mt-5">
+<div class="container">
   <h2 class="text-center">Listado de Recetas</h2>
   <div class="row">
       {% if recetas %}
@@ -32,7 +32,43 @@
           <p>No hay recetas disponibles</p>
       {% endif %}
   </div>
-  <a href="" class="btn btn-success mt-3">Agregar nueva receta</a>
 </div>
+<div class="container mt-4">
+  <h2 class="text-center">Crear Nueva Receta</h2>
+  <form method="POST" action="{% url 'guardar_receta' %}">
+      {% csrf_token %}
+      <div class="mb-3">
+          <label for="nombre_receta" class="form-label">Nombre de la Receta</label>
+          <input type="text" class="form-control" id="nombre_receta" name="nombre_receta" placeholder="Nombre de la receta" required>
+      </div>
 
+      
+      <div class="mb-3">
+          <label for="descripcion_receta" class="form-label">Descripción</label>
+          <textarea class="form-control" id="descripcion_receta" name="descripcion_receta" placeholder="Descripción de la receta" required></textarea>
+      </div>
+
+      
+      <h3 class="mt-4">Selecciona los Ingredientes:</h3>
+      <div class="row">
+          {% if ingredientes %}
+              {% for ingrediente in ingredientes %}
+              <div class="col-md-4 mb-4">
+                  <div class="form-check">
+                      <input class="form-check-input" type="checkbox" name="ingredientes" value="{{ ingrediente.id }}" id="ingrediente-{{ ingrediente.id }}">
+                      <label class="form-check-label" for="ingrediente-{{ ingrediente.id }}">
+                          {{ ingrediente.nombre_ingrediente }} ({{ ingrediente.unidades }} unidades)
+                      </label>
+                  </div>
+              </div>
+              {% endfor %}
+          {% else %}
+              <p>No hay ingredientes disponibles</p>
+          {% endif %}
+      </div>
+
+      
+      <button type="submit" class="btn btn-success mt-4">Guardar Receta</button>
+  </form>
+</div>
 {% endblock %}

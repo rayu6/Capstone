@@ -10,6 +10,7 @@ urlpatterns = [
     path('prueba', views.prueba, name='prueba'),  # Ruta para la vista "recetas"
     path('logout/',views.logout_view, name='logout'),  # Ruta para la vista "recetas"
     path('listarecetas', views.listar_recetas, name='listar_recetas'), #Ruta para ver recetas
+    path('guardar_receta/', views.guardar_receta, name='guardar_receta'),
     #path('agregar-pedido/', views.agregar_pedido, name='agregar_pedido'),
     
 
