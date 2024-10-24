@@ -32,5 +32,17 @@
     <a href="" class="btn btn-success mt-3">Agregar nuevo pedido</a>
   </div>
 
+  <form method="POST">
+    {% csrf_token %}
+    <h3>Asignar Pedido: {{ pedido.id }}</h3>
+    <div class="form-group">
+        <label for="usuario_asignado">Asignar a:</label>
+        {{ form.usuario_asignado }}
+    </div>
+    <button type="submit" class="btn btn-primary">Asignar</button>
+</form>
+
+
+
 {% endblock %}
 

@@ -9,8 +9,9 @@
         <thead>
             <tr>
                 <th scope="col">#</th>
-                <th scope="col">ID</th> <!-- Columna para la Primary Key -->
+                <th scope="col">ID</th> 
                 <th scope="col">Ingrediente</th>
+                <th scope="col">Unidad</th>
                 <th scope="col">Cantidad</th>
                 <th scope="col">Acciones</th>
             </tr>
@@ -19,9 +20,10 @@
             {% for ingrediente in ingredientes %}
             <tr>
                 <th scope="row">{{ forloop.counter }}</th>
-                <td>{{ ingrediente.id }}</td> <!-- Mostrar la Primary Key -->
+                <td>{{ ingrediente.id }}</td> 
                 <td>{{ ingrediente.nombre_ingrediente }}</td>
-                <td>{{ ingrediente.ingredientes|join:", " }}</td>
+                <td>{{ ingrediente.unidades}}</td>
+                <td>{{ ingrediente.cantidad}}</td>
                 <td>
                     <a href="" class="btn btn-primary">Modificar</a>
                     <a href="" class="btn btn-secondary">Disponibilidad</a>
@@ -36,4 +38,38 @@
     </table>
 </div>
 
+<!-- Botón para abrir el modal -->
+<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#agregarIngredienteModal">
+    Agregar Ingrediente
+  </button>
+  
+  <!-- Modal de Bootstrap -->
+  <div class="modal fade" id="agregarIngredienteModal" tabindex="-1" aria-labelledby="agregarIngredienteLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="agregarIngredienteLabel">Agregar Ingrediente</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form method="POST" action="{% url 'guardar_ingrediente' %}">
+            {% csrf_token %}
+            <div class="mb-3">
+              <label for="nombreIngrediente" class="form-label">Nombre Ingrediente</label>
+              <input type="text" class="form-control" id="nombreIngrediente" name="nombre_ingrediente" required>
+            </div>
+            <div class="mb-3">
+              <label for="unidades" class="form-label">Unidades</label>
+              <input type="text" class="form-control" id="unidades" name="unidades" required>
+            </div>
+            <div class="mb-3">
+                <label for="cantidad" class="form-label">Cantidad</label>
+                <input type="number" class="form-control" id="cantidad" name="cantidad" required>
+              </div>
+            <button type="submit" class="btn btn-primary">Guardar Ingrediente</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
 {% endblock %}

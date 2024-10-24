@@ -51,6 +51,7 @@ class Pedido(models.Model):
 class Ingrediente(models.Model):
     id = models.AutoField(primary_key=True)  # Clave primaria
     unidades = models.CharField(max_length=255)
+    cantidad = models.IntegerField(null=False, default=0)
     nombre_ingrediente = models.ForeignKey('NombreIngrediente', on_delete=models.CASCADE)
 
     def __str__(self):
@@ -83,7 +84,6 @@ class Recetas(models.Model):
     descripcion = models.CharField(max_length=255)
     link = models.CharField(max_length=255, null=True)
     nombre_receta = models.ForeignKey('NombreReceta', on_delete=models.CASCADE)
-    
     receta_ingrediente = models.ManyToManyField(RecetaIngrediente)
     def __str__(self):
         return self.nombre_receta.nombre

@@ -2,8 +2,8 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login,logout
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from .models import Recetas,NombreReceta
-from .models import Pedido, Ingrediente
+from .models import *
+
 # Create your views here.
 
 # Vista para la página de inicio
@@ -36,38 +36,10 @@ def register(request):
 # Vista para listar recetas
 @login_required
 def listar_recetas(request):
-    recetas = Recetas.objects.all()  # Obtener todas las recetas de la base de datos
-    ingredientes = Ingrediente.objects.all()
-    return render(request, 'core/recetas.html', {'recetas': recetas,'ingredientes': ingredientes})
+    recetas = Recetas.objects.prefetch_related('receta_ingrediente__ingrediente').all()
+    return render(request, 'core/recetas.html', {'recetas': recetas})
 
-def guardar_receta(request):
-    if request.method == 'POST':
-        nombre_receta = request.POST.get('nombre_receta')
-        descripcion_receta = request.POST.get('descripcion_receta')
-        ingredientes_seleccionados = request.POST.getlist('ingredientes.id') 
 
-        # Crear receta
-        nuevo_nombre = NombreReceta.objects.create(
-            nombre=nombre_receta
-        )
-        
-        nueva_receta = Recetas.objects.create(
-            nombre_receta=nuevo_nombre,   
-            descripcion=descripcion_receta
-  
-        )
-        ingredientes = Ingrediente.objects.filter(id__in=ingredientes_seleccionados)
-        nueva_receta.receta_ingrediente.set(ingredientes)  
-        # Agregar los ingredientes
-          # Asignar los ingredientes
-        nuevo_nombre
-        nueva_receta.save()
-
-        # Redirigir 
-        return redirect('listar_recetas')
-
-    # Si no es POST, redirigir a algún lugar
-    return redirect('listar_recetas')
 
 @login_required 
 def pedidos(request):
@@ -84,6 +56,56 @@ def listar_pedidos(request):
     pedidos = Pedido.objects.all()  # Obtén todos los pedidos de la base de datos
     return render(request, 'core/pedidos.html', {'pedidos': pedidos})   
 
+def pedido_detalles(request,pedido_id):
+    if request.method == 'POST':
+        tipo_pedido = request.POST.get('tipo_orden')
+        estado_pedido = request.POST.get('estado_pedido')
+        receta_seleccionada = request.POST.get('id_receta')
+        usuario_id = request.POST.get('id_usuario')
+
+        nuevo_pedido = Pedido.objects.create(
+            tipo_orden = tipo_pedido,
+            estado = estado_pedido,
+            receta_seleccionada = receta_seleccionada,
+            usuario_id = usuario_id
+        )
+        nuevo_pedido.save() 
+
+        return redirect('pedido_detalles', pedido_id = nuevo_pedido.id)
+    
+    return redirect('listar_pedidos')
+
+def crear_pedido_view(request):
+    recetas = Recetas.objects.all()
+    usuarios = Usuario.objects.all()
+    return render(request, 'crear_pedido.html', {'recetas': recetas, 'usuarios': usuarios})
+
+def asignar_pedido(request,pedido_id):
+    try:
+        pedido = Pedido.objects.get(id = pedido_id)
+    except pedido.DoesNotExist:
+        return redirect('listar pedido')    
+    if request.method == 'POST':
+        pass
+    return render(request, 'asignar_pedido.html',{'pedido': pedido})
+
+
 def listar_ingredientes(request):
     ingredientes = Ingrediente.objects.all()  # Obtener todos los ingredientes
     return render(request, 'core/stock.html', {'ingredientes': ingredientes})
+    
+def guardar_ingrediente(request):
+    if request.method == 'POST':
+        nombre_ingrediente = request.POST.get('nombre_ingrediente')
+        unidades = request.POST.get('unidades')
+        cantidad = request.POST.get('cantidad')
+        # Crear una nueva instancia de NombreIngrediente
+        nuevo_nombre = NombreIngrediente.objects.create(nombre=nombre_ingrediente)
+
+        # Guardar el nuevo ingrediente con la relación a NombreIngrediente
+        Ingrediente.objects.create(nombre_ingrediente=nuevo_nombre, unidades=unidades, cantidad=cantidad)
+
+    return redirect('stock')
+
+
+
