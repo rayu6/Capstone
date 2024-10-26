@@ -18,7 +18,7 @@
                       <h5 class="card-title">{{ receta.nombre_receta }}</h5>
                       <img src="{{ receta.link}}" class="card-img-top imagenreceta" alt="" style="height: 248px;">
                       <p class="card-text">{{ receta.descripcion|truncatechars:84 }}</p>
-                      <p class="card-text">ingredientes  cantidades</p>
+                      <p class="card-text">ingredientes  cantidadeeeeeeeeeees</p>
                       {% for item in receta.receta_ingrediente.all %}
                       
                       <p class="card-text">{{item.ingrediente}}{{ item.cantidad|floatformat:"g" }} {{item.unidad}}</p>
