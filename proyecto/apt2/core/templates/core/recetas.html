@@ -1,36 +1,125 @@
 {% extends 'base.html' %}
 
-
-{% block title %}Título de la Página{% endblock %}
+{% block title %}Lista de recetas{% endblock %}
   
 {% block content %}
-
 <br>
-
 <div class="container">
-  <h2 class="text-center">Listado de Recetas</h2>
-  <div class="row">
-      {% if recetas %}
-          {% for receta in recetas %}
-          <div class="col-md-4 mb-4">
-              <div class="card " style="width: 18rem;">
-                  <div class="card-body">
-                      <h5 class="card-title">{{ receta.nombre_receta }}</h5>
-                      <img src="{{ receta.link}}" class="card-img-top imagenreceta" alt="" style="height: 248px;">
-                      <p class="card-text">{{ receta.descripcion|truncatechars:84 }}</p>
-                      <p class="card-text">ingredientes  cantidadeeeeeeeeeees</p>
-                      {% for item in receta.receta_ingrediente.all %}
-                      
-                      <p class="card-text">{{item.ingrediente}}{{ item.cantidad|floatformat:"g" }} {{item.unidad}}</p>
-                      {% endfor %}
-                      <a href="" class="btn btn-primary">Ver detalles</a>
-                  </div>
-              </div>
-          </div>
-          {% endfor %}
-      {% else %}
-          <p>No hay recetas disponibles</p>
-      {% endif %}
-  </div>
+    <h2 class="text-center">Listado de Recetas</h2>
+    <div class="row">
+        {% if recetas %}
+            {% for receta in recetas %}
+            <div class="col-md-4 mb-4">
+                <div class="card" style="width: 18rem;" data-receta-id="{{ receta.id }}">
+                    <div class="card-body">
+                        <h5 class="card-title" contenteditable="true" 
+                            data-original="{{ receta.nombre_receta }}"
+                            data-field="nombre_receta">{{ receta.nombre_receta }}</h5>
+                        <img src="{{ receta.link}}" class="card-img-top imagenreceta" alt="" style="height: 248px;">
+                        <p class="card-text" contenteditable="true" 
+                           data-original="{{ receta.descripcion }}"
+                           data-field="descripcion">{{ receta.descripcion|truncatechars:84 }}</p>
+                        <p class="card-text">Ingredientes y cantidades:</p>
+                        <div class="ingredientes-list">
+                            {% for item in receta.receta_ingrediente.all %}
+                            <div class="ingrediente-item" data-ingrediente-id="{{ item.id }}">
+                                <span contenteditable="true" 
+                                      data-original="{{item.ingrediente}}"
+                                      data-field="ingrediente">{{item.ingrediente}}</span>
+                                <span contenteditable="true" 
+                                      data-original="{{ item.cantidad }}"
+                                      data-field="cantidad">{{ item.cantidad|floatformat:"g" }}</span>
+                                <span contenteditable="true" 
+                                      data-original="{{item.unidad}}"
+                                      data-field="unidad">{{item.unidad}}</span>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        <a href="" class="btn btn-primary">Ver detalles</a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <p>No hay recetas disponibles</p>
+        {% endif %}
+    </div>
+</div>
 
+<script>
+    // Configuración del WebSocket
+    const recetasSocket = new WebSocket(
+        'ws://' + window.location.host + '/ws/recetas/'
+    );
+    recetasSocket.onopen = function() {
+        console.log("Conexión WebSocket establecida para recetas.");
+    };
+    console.log("clg")
+    // Manejar mensajes recibidos del WebSocket
+    recetasSocket.onmessage = function(e) {
+        const data = JSON.parse(e.data);
+        console.log(data.type)
+        if (data.type === 'db_update') {
+            // Actualizar datos cuando cambia la BD
+            updateRecetaFromDB(data.receta_id, data.data);
+        } else if (data.type === 'temp_modification') {
+            // Actualizar datos temporalmente
+            updateRecetaTemp(data.receta_id, data.modifications);
+        }
+    };
+
+    // Función para actualizar datos desde la BD
+    function updateRecetaFromDB(recetaId, data) {
+        const recetaCard = document.querySelector(`[data-receta-id="${recetaId}"]`);
+        if (!recetaCard) return;
+
+        Object.entries(data).forEach(([field, value]) => {
+            const element = recetaCard.querySelector(`[data-field="${field}"]`);
+            if (element) {
+                element.textContent = value;
+                element.dataset.original = value;
+            }
+        });
+    }
+
+    // Función para actualizar datos temporalmente
+    function updateRecetaTemp(recetaId, modifications) {
+        const recetaCard = document.querySelector(`[data-receta-id="${recetaId}"]`);
+        if (!recetaCard) return;
+
+        Object.entries(modifications).forEach(([field, value]) => {
+            const element = recetaCard.querySelector(`[data-field="${field}"]`);
+            if (element) {
+                element.textContent = value;
+            }
+        });
+    }
+
+    // Escuchar cambios en elementos editables
+    document.querySelectorAll('[contenteditable="true"]').forEach(element => {
+        element.addEventListener('input', function() {
+            const recetaCard = this.closest('[data-receta-id]');
+            const recetaId = recetaCard.dataset.recetaId;
+            const field = this.dataset.field;
+            const value = this.textContent;
+
+            // Enviar modificación temporal al WebSocket
+            recetasSocket.send(JSON.stringify({
+                action: 'temp_modify',
+                receta_id: recetaId,
+                modifications: {
+                    [field]: value
+                }
+            }));
+        });
+
+        // Restaurar valor original al presionar Escape
+        element.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                this.textContent = this.dataset.original;
+                e.preventDefault();
+            }
+        });
+    });
+</script>
 {% endblock %}

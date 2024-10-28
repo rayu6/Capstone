@@ -9,8 +9,13 @@ urlpatterns = [
     path('pedidos',views.listar_pedidos, name='pedidos'), # Ruta para la vista "pedidos"
     path('prueba', views.prueba, name='prueba'),  # Ruta para la vista "recetas"
     path('logout/',views.logout_view, name='logout'),  # Ruta para la vista "recetas"
-    path('listarecetas', views.listar_recetas, name='listar_recetas'), #Ruta para ver recetas
+    path('listarecetas/', views.listar_recetas, name='listar_recetas'), #Ruta para ver recetas
     path('guardar_ingrediente/', views.guardar_ingrediente, name='guardar_ingrediente'),
+    path('login/', views.login, name='login'),  # Asegúrate de que el nombre coincide con el usado en el HTML
+    path('home/', views.home, name='home'),     # Ruta de inicio después del login
+    path('home/usuario', views.homeUsuario, name='homeUsuario'),     # Ruta de inicio después del login
+    path('home/cliente', views.homeCliente, name='homeCliente'),     # Ruta de inicio después del login
+
     #path('agregar-pedido/', views.agregar_pedido, name='agregar_pedido'),
     #path('pedido-crear/', views.crear_pedido, name='crear_pedido'),
 

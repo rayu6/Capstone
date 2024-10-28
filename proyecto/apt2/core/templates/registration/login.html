@@ -1,30 +1,25 @@
 {% extends 'base.html' %}
 
-{% block title %}Título de la Página{% endblock %}
-
+{% block title %}Login{% endblock %}
 
 {% block content %}
-
-    
-
-<div class="login-container" >
+<div class="login-container">
     <h1>Vista de Login</h1>
     <form class="login-form" method="POST" action="{% url 'login' %}">
         {% csrf_token %}
         <h5>Inicie sesión en el sistema</h5>
         
-        <label for="username">Usuario</label><br>
-        <input type="text" id="username" name="username" placeholder="Ingrese su usuario" required class="input_login">
+        <label for="correo">Correo</label><br>
+        <input type="email" id="correo" name="correo" placeholder="Ingrese su correo" required class="input_login">
         
         <label for="password">Contraseña</label>
         <input type="password" id="password" name="password" placeholder="Ingrese su contraseña" required class="input_login">
         
         <br>
-        <a href="" style="font-size: 12px;">Recuperar contraseña</a>
+        <a href="#" style="font-size: 12px;">Recuperar contraseña</a>
         <br><br>
         
-        <button type="submit" class="btn btn-primary btn-sm">Ingresar</button>  <!-- Cambiado a type="submit" -->
+        <button type="submit" class="btn btn-primary btn-sm">Ingresar</button>
     </form>
 </div>
-
 {% endblock %}

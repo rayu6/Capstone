@@ -21,6 +21,5 @@ from core.views import logout_view
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('core.urls')),
-    path('accounts/', include('django.contrib.auth.urls')),
     path('logout/', logout_view, name='logout'),  # Ruta para la vista "recetas"
 ]

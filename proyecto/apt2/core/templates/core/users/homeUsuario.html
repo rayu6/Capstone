@@ -13,7 +13,7 @@
   <header>
     <nav class="navbar navbar-expand-lg bg-body-tertiary">
         <div class="container-fluid">
-            <a class="navbar-brand" href="#">Admin</a> <!-- Aquí puedes poner un logotipo si lo deseas -->
+            <a class="navbar-brand" href="#">Cocinero</a> <!-- Aquí puedes poner un logotipo si lo deseas -->
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
@@ -56,3 +56,28 @@
     </div>
 
 </html>
+<!-- Ejemplo de WebSocket en un archivo HTML -->
+<script>
+// En tu template HTML
+const socket = new WebSocket('ws://' + window.location.host + '/ws/pedidos/');
+
+socket.onopen = function(e) {
+    console.log("Conexión establecida!");
+    socket.send(JSON.stringify({
+        'mensaje': 'Hola desde el cliente!'
+    }));
+};
+
+socket.onmessage = function(e) {
+    const data = JSON.parse(e.data);
+    console.log('Mensaje recibido:', data.mensaje);
+};
+
+socket.onclose = function(e) {
+    console.log("Conexión cerrada!");
+};
+
+socket.onerror = function(e) {
+    console.error("Error en WebSocket:", e);
+};
+</script>

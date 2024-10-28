@@ -1,10 +1,15 @@
+import logging
+from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login,logout
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required
+
+from core.forms import UsuarioLoginForm
+from .decorators import role_required
 from .models import *
 
 # Create your views here.
+logger = logging.getLogger(__name__)
 
 # Vista para la página de inicio
 def home(request):
@@ -12,21 +17,32 @@ def home(request):
 
 # Vista para la página de login
 def login(request):
+    logger.info("Vista login activada")
     if request.method == 'POST':
-        username = request.POST.get('username')
-        password = request.POST.get('password')
-        user = authenticate(request, username=username, password=password)
+        logger.info("POST recibido en login")
+        form = UsuarioLoginForm(request.POST)
+        if form.is_valid():
+            correo = form.cleaned_data['correo']
+            password = form.cleaned_data['password']
+            logger.info(f"Correo: {correo}, Password: {password}")
 
-        if user is not None:
-            login(request, user)  # Inicia sesión para el usuario autenticado
-            return redirect('/')  # Redirige a la página de inicio o a donde quieras
+            try:
+                usuario = Usuario.objects.get(correo=correo, hash_pass=password)
+                logger.info(f"Usuario encontrado: {usuario.nombre}")
+                # Almacena el ID del usuario y su rol en la sesión
+                request.session['usuario_id'] = usuario.id
+                request.session['role'] = usuario.role.nombre_role
+
+                if usuario.role.nombre_role == 'usuario':
+                    return redirect('homeUsuario')
+            except Usuario.DoesNotExist:
+                logger.warning("Usuario o contraseña incorrectos.")
+                return HttpResponse("Correo o contraseña incorrectos.", status=401)
         else:
-            messages.error(request, 'Usuario o contraseña incorrectos.')  # Mensaje de error si las credenciales son incorrectas
-
-    return render(request, 'registration/login.html')  # Renderiza el formulario de login
+            logger.warning("Formulario no válido")
+    return render(request, 'registration/login.html')  # Renderiza el formulario de lo
 
 # Vista para la página de login
-@login_required
 def stock(request):
     return render(request, 'core/stock.html')  # Renderiza el template 'stock.html'
 
@@ -34,14 +50,19 @@ def register(request):
     return render(request, 'registration/register.html')  # Renderiza el template 'stock.html'
 
 # Vista para listar recetas
-@login_required
+@role_required(allowed_roles=['admin', 'usuario'])
 def listar_recetas(request):
     recetas = Recetas.objects.prefetch_related('receta_ingrediente__ingrediente').all()
     return render(request, 'core/recetas.html', {'recetas': recetas})
 
+@role_required(allowed_roles=['usuario'])
+def homeCliente(request):
+    return render(request, 'core/users/homeCliente.html')  # Renderiza el template 'pedidos.html'
 
+@role_required(allowed_roles=['usuario'])
+def homeUsuario(request):
+    return render(request, 'core/users/homeCliente.html')  # Renderiza el template 'pedidos.html'
 
-@login_required 
 def pedidos(request):
     return render(request, 'core/pedidos.html')  # Renderiza el template 'pedidos.html'
 def prueba(request):
@@ -49,9 +70,8 @@ def prueba(request):
 
 def logout_view(request):
     logout(request)
-    return redirect('prueba')
+    return redirect('login')
 
-@login_required
 def listar_pedidos(request):
     pedidos = Pedido.objects.all()  # Obtén todos los pedidos de la base de datos
     return render(request, 'core/pedidos.html', {'pedidos': pedidos})   
