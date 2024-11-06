@@ -63,8 +63,14 @@ navbar {
 }
 .toast-top-center{
   position: absolute !important;
-  color: red;
-  background-color: black;
-  top: 500px; /* Mueve la notificación 50 píxeles hacia abajo */
+  bottom: 500px; /* Mueve la notificación 50 píxeles hacia abajo */
   
+}
+
+.box{
+  margin-left: 100px;
+}
+
+.caja{
+  margin: 100px;
 }

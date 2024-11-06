@@ -6,6 +6,8 @@
 <br>
 <div class="container">
     <h2 class="text-center">Listado de Recetas</h2>
+
+    
     <div class="row">
         {% if recetas %}
             {% for receta in recetas %}
@@ -44,6 +46,11 @@
             <p>No hay recetas disponibles</p>
         {% endif %}
     </div>
+    {% if request.session.role == "admin" %}
+    <div class="text-end mb-4"  >
+        <a href="{% url 'crear_receta' %}" class="btn btn-success">Crear Nueva Receta</a>
+    </div>
+    {% endif %}
 </div>
 
 <script>

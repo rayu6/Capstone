@@ -7,41 +7,26 @@
 </head>
 
 {% block content %}
-  <div class="container mt-4">
-    <h2 class="text-center">Listado de pedidos</h2>
-    <div class="row">
-        {% if pedidos %}
-            {% for pedido in pedidos %}
-            <div class="col-md-4 mb-4">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">{{ pedido.tipo_de_orden }}</h5>
-                        <p class="card-text">{{ pedido.estado|truncatechars:100 }}</p>
-                        <p class="card-text">{{ pedido.receta|truncatechars:100 }}</p>
-                        <p class="card-text">{{ pedido.usuario|truncatechars:100 }}</p>
-                        <a href="" class="btn btn-primary">Ver detalles</a>
-                        <h1 class="prueba">hola esto es una prueba de css</h1>
-                    </div>
-                </div>
-            </div>
-            {% endfor %}
-        {% else %}
-            <p>No hay recetas disponibles</p>
-        {% endif %}
+<div class="container">
+    <!-- Listado de pedidos section -->
+    <h1>Listado de pedidos</h1>
+    <div class="order-list">
+        <p>No hay recetas disponibles</p>
+        <button class="btn btn-success">Agregar nuevo pedido</button>
     </div>
-    <a href="" class="btn btn-success mt-3">Agregar nuevo pedido</a>
-  </div>
 
-  <form method="POST">
-    {% csrf_token %}
-    <h3>Asignar Pedido: {{ pedido.id }}</h3>
-    <div class="form-group">
-        <label for="usuario_asignado">Asignar a:</label>
-        {{ form.usuario_asignado }}
-    </div>
-    <button type="submit" class="btn btn-primary">Asignar</button>
-</form>
-
+    <!-- Asignar Pedido form -->
+    <form method="POST" class="assign-form">
+        {% csrf_token %}
+        <h3>Asignar Pedido: {{ pedido.id }}</h3>
+        <div class="form-group">
+            <label for="usuario_asignado">Asignar a:</label>
+            {{ form.usuario_asignado }}
+        </div>
+        <br>
+        <button type="submit" class="btn btn-primary">Asignar</button>
+    </form>
+</div>
 
 
 {% endblock %}

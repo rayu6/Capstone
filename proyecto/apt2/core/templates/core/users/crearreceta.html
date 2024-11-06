@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+
+{% block title %}Crear Receta{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="text-center">Crear Nueva Receta</h2>
+    <form method="POST" action="">
+        {% csrf_token %}
+        
+        <!-- nombre receta -->
+        <div class="mb-3">
+            <label for="nombre_receta" class="form-label">Nombre de la receta:</label>
+            <input type="text" class="form-control" id="nombre_receta" name="nombre_receta" required>
+        </div>
+        
+        <!-- descripcion -->
+        <div class="mb-4">
+            <label for="descripcion_receta" class="form-label">Descripción:</label>
+            <textarea class="form-control" id="descripcion_receta" name="descripcion_receta" rows="3" required></textarea>
+        </div>
+        <!-- ingredientes -->
+        <h3 class="mt-4">Selecciona los Ingredientes:</h3>
+        <div class="row">
+            {% if ingredientes %}
+                {% for ingrediente in ingredientes %}
+                <div class="col-md-6 mb-3">
+                    <div class="d-flex align-items-center">
+                        <!-- ingrediente -->
+                        <input class="form-check-input me-2 ingrediente-checkbox" type="checkbox" 
+                               name="ingredientes" value="{{ ingrediente.id }}" id="ingrediente-{{ ingrediente.id }}">
+                        <label class="form-check-label me-2" for="ingrediente-{{ ingrediente.id }}">
+                            {{ ingrediente.nombre_ingrediente }} 
+                        </label>
+                        <!-- cantidad -->
+                        <input type="number" name="cantidad_{{ ingrediente.id }}" placeholder="Cantidad" 
+                               min="1" max="{{ ingrediente.unidades }}" class="form-control cantidad-input" 
+                               style="width: 100px; display: none;">
+                        <label class="unidad-text" style="display: none; margin-left: 10px;">{{ ingrediente.unidades }} </label>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <p>No hay ingredientes disponibles</p>
+            {% endif %}
+        </div>
+        <div class="text-center mt-4">
+            <button type="submit" class="btn btn-primary">Guardar Receta</button>
+        </div>
+    </form>
+</div>
+
+
+<script>
+    // mostrar y ocultar cantidad
+    document.querySelectorAll('.ingrediente-checkbox').forEach(function(checkbox) {
+        checkbox.addEventListener('change', function() {
+            const cantidadInput = this.parentNode.querySelector('.cantidad-input');
+            const unidadText = this.parentNode.querySelector('.unidad-text');
+            if (this.checked) {
+                cantidadInput.style.display = 'inline-block';  // muestra el campo de cantidad
+                unidadText.style.display = 'inline';
+            } else {
+                cantidadInput.style.display = 'none';          // mculta el campo de cantidad
+                cantidadInput.value = '';                      // limpia el valor cuando se oculta
+                unidadText.style.display = 'none';
+            }
+        });
+    });
+</script>
+{% endblock %}
