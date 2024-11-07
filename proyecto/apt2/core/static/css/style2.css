@@ -67,4 +67,7 @@
         left: 50%; /* Mueve la notificación al 50% de la pantalla (centro horizontal) */
         transform: translateX(-50%); /* Ajusta la notificación para que esté perfectamente centrada */
     }
-    
+
+.assign-form{
+  text-align: center;
+}

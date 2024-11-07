@@ -8,24 +8,82 @@
 
 {% block content %}
 <div class="container">
-    <!-- Listado de pedidos section -->
-    <h1>Listado de pedidos</h1>
+    <!-- Título de Listado de Pedidos -->
+    <h2 class="text-center">Listado de Pedidos</h2>
+    
     <div class="order-list">
-        <p>No hay recetas disponibles</p>
-        <button class="btn btn-success">Agregar nuevo pedido</button>
+        <!-- Verificación de pedidos existentes -->
+        {% if pedidos %}
+            <div class="row">
+                {% for pedido in pedidos %}
+                <div class="col-md-4 mb-4">
+                    <div class="card" style="width: 18rem;" data-pedido-id="{{ pedido.id }}">
+                        <div class="card-body">
+                            <!-- Nombre del Cliente -->
+                            <h5 class="card-title">{{ pedido.nombre_cliente }}</h5>
+                            <!-- Fecha del Pedido -->
+                            <p class="card-text">Fecha: {{ pedido.fecha }}</p>
+                            <!-- Total del Pedido -->
+                            <p class="card-text">Total: ${{ pedido.total }}</p>
+                            
+                            <!-- Detalles de los Productos en el Pedido -->
+                            <p class="card-text">Productos:</p>
+                            <div class="productos-list">
+                                {% for producto in pedido.productos.all %}
+                                <div class="producto-item" data-producto-id="{{ producto.id }}">
+                                    <!-- Botón para Nombre del Producto -->
+                                    <button type="button" class="btn btn-link p-0" data-toggle="modal" 
+                                            data-target="#productModal{{ producto.id }}">
+                                        {{ producto.nombre }}
+                                    </button>
+                                    <!-- Cantidad y Precio -->
+                                    <span>{{ producto.cantidad }}</span>
+                                    <span>${{ producto.precio|floatformat:"2" }}</span>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            <!-- Botón para Ver Detalles del Pedido -->
+                            <a href="" class="btn btn-primary">Ver detalles del pedido</a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <!-- Mensaje si no hay pedidos -->
+            <p>No hay pedidos disponibles</p>
+            <button class="btn btn-success">Agregar nuevo pedido</button>
+        {% endif %}
     </div>
+</div>
 
-    <!-- Asignar Pedido form -->
-    <form method="POST" class="assign-form">
-        {% csrf_token %}
-        <h3>Asignar Pedido: {{ pedido.id }}</h3>
-        <div class="form-group">
-            <label for="usuario_asignado">Asignar a:</label>
-            {{ form.usuario_asignado }}
-        </div>
-        <br>
-        <button type="submit" class="btn btn-primary">Asignar</button>
-    </form>
+ <!-- Asignar Pedido form -->
+ <form method="POST" class="assign-form">
+    {% csrf_token %}
+    <h3>Asignar Pedido: {{ pedido.id }}</h3>
+    <div class="form-group">
+        <label for="usuario_asignado">Asignar a:</label>
+        <form>
+            <label>
+              <input type="radio" name="option" value="option1">
+              Option 1
+            </label>
+            <label>
+              <input type="radio" name="option" value="option2">
+              Option 2
+            </label>
+            <label>
+              <input type="radio" name="option" value="option3">
+              Option 3
+            </label>
+          </form>
+          <br><br>
+            <button type="submit" class="btn btn-primary">Asignar</button>
+        </form>
+        {{ form.usuario_asignado }}
+    </div>
+</form>
+
 </div>
 
 

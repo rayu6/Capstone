@@ -5,38 +5,42 @@
 {% block content %}
 <div class="container mt-4">
     <h2 class="text-center">Crear Nueva Receta</h2>
-    <form method="POST" action="">
+    <form method="POST" action="{% url 'guardar_receta' %}">
         {% csrf_token %}
         
-        <!-- nombre receta -->
+        <!-- Nombre de la receta -->
         <div class="mb-3">
             <label for="nombre_receta" class="form-label">Nombre de la receta:</label>
             <input type="text" class="form-control" id="nombre_receta" name="nombre_receta" required>
         </div>
         
-        <!-- descripcion -->
+        <!-- Descripción de la receta -->
         <div class="mb-4">
             <label for="descripcion_receta" class="form-label">Descripción:</label>
             <textarea class="form-control" id="descripcion_receta" name="descripcion_receta" rows="3" required></textarea>
         </div>
-        <!-- ingredientes -->
+        
+        <!-- Selección de ingredientes -->
         <h3 class="mt-4">Selecciona los Ingredientes:</h3>
         <div class="row">
             {% if ingredientes %}
                 {% for ingrediente in ingredientes %}
                 <div class="col-md-6 mb-3">
                     <div class="d-flex align-items-center">
-                        <!-- ingrediente -->
+                        <!-- Checkbox de ingrediente -->
                         <input class="form-check-input me-2 ingrediente-checkbox" type="checkbox" 
                                name="ingredientes" value="{{ ingrediente.id }}" id="ingrediente-{{ ingrediente.id }}">
                         <label class="form-check-label me-2" for="ingrediente-{{ ingrediente.id }}">
-                            {{ ingrediente.nombre_ingrediente }} 
+                            {{ ingrediente.nombre_ingrediente }} (Stock: {{ ingrediente.cantidad }})
                         </label>
-                        <!-- cantidad -->
+                        
+                        <!-- Campo de cantidad (oculto por defecto) -->
                         <input type="number" name="cantidad_{{ ingrediente.id }}" placeholder="Cantidad" 
-                               min="1" max="{{ ingrediente.unidades }}" class="form-control cantidad-input" 
+                               min="1" max="{{ ingrediente.cantidad}}" class="form-control cantidad-input" 
                                style="width: 100px; display: none;">
-                        <label class="unidad-text" style="display: none; margin-left: 10px;">{{ ingrediente.unidades }} </label>
+                        
+                        <!-- Unidad de medida (oculta por defecto) -->
+                        <span class="unidad-text" style="display: none; margin-left: 10px;">{{ ingrediente.unidades }}</span>
                     </div>
                 </div>
                 {% endfor %}
@@ -44,10 +48,35 @@
                 <p>No hay ingredientes disponibles</p>
             {% endif %}
         </div>
+        
+        <!-- Botón de guardar -->
         <div class="text-center mt-4">
             <button type="submit" class="btn btn-primary">Guardar Receta</button>
         </div>
     </form>
+    
+    <!-- JavaScript para mostrar/ocultar cantidad y unidad cuando se selecciona un ingrediente -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const checkboxes = document.querySelectorAll('.ingrediente-checkbox');
+    
+            checkboxes.forEach(function(checkbox) {
+                checkbox.addEventListener('change', function() {
+                    const cantidadInput = this.nextElementSibling.nextElementSibling;
+                    const unidadText = cantidadInput.nextElementSibling;
+                    
+                    if (this.checked) {
+                        cantidadInput.style.display = 'block';
+                        unidadText.style.display = 'inline';
+                    } else {
+                        cantidadInput.style.display = 'none';
+                        unidadText.style.display = 'none';
+                        cantidadInput.value = '';  // Limpiar el campo de cantidad
+                    }
+                });
+            });
+        });
+    </script>
 </div>
 
 

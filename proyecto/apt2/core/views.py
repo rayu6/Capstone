@@ -1,6 +1,7 @@
 import logging
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
+from django.db import transaction
 from django.contrib.auth import authenticate, login,logout
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -144,7 +145,7 @@ def guardar_ingrediente(request):
 def crear_receta(request):
     if request.method == 'POST':
         pass
-    return render(request, 'core/users/crearreceta.html')
+    return render(request, 'core/crearreceta.html')
 
 @role_required(allowed_roles=['admin'])
 def ingredientes_receta(request):
@@ -155,6 +156,40 @@ def ingredientes_receta(request):
     context = {
         'ingredientes': ingredientes
     }
-    return render(request, 'core/users/crearreceta.html', context)
+    return render(request, 'core/crearreceta.html', context)
+
+
+@role_required(allowed_roles=['admin'])
+def guardar_receta(request):
+    if request.method == 'POST':
+        nombre_receta = request.POST.get('nombre_receta')  # El nombre de la receta desde el formulario
+        descripcion = request.POST.get('descripcion_receta')
+
+        # Obtener o crear la instancia de NombreReceta
+        nombre_receta_obj, created = NombreReceta.objects.get_or_create(nombre=nombre_receta)
+
+        # Ahora puedes crear la receta con la instancia de NombreReceta
+        receta = Recetas(nombre_receta=nombre_receta_obj, descripcion=descripcion)
+        receta.save()
+
+        ingredientes_ids = request.POST.getlist('ingredientes')
+        cantidades = request.POST.getlist('cantidad')
+        unidades = request.POST.getlist('unidad')
+
+        with transaction.atomic():
+            for ingrediente_id, cantidad, unidad in zip(ingredientes_ids, cantidades, unidades):
+                if cantidad:  # Verifica que haya una cantidad válida
+                    ingrediente = Ingrediente.objects.get(id=ingrediente_id)
+                    receta_ingrediente = RecetaIngrediente(
+                        ingrediente=ingrediente,
+                        cantidad=cantidad,
+                        unidad=unidad
+                    )
+                    receta_ingrediente.save()
+
+        return redirect('listar_recetas')  # Redirige a la vista que desees
+    else:
+        ingredientes = Ingrediente.objects.all()
+        return render(request, 'core/crearreceta.html', {'ingredientes': ingredientes})
 
 
