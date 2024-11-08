@@ -29,18 +29,18 @@
                     <div class="d-flex align-items-center">
                         <!-- Checkbox de ingrediente -->
                         <input class="form-check-input me-2 ingrediente-checkbox" type="checkbox" 
-                               name="ingredientes" value="{{ ingrediente.id }}" id="ingrediente-{{ ingrediente.id }}">
+                               name="ingredientes" value="{{ ingrediente.nombre_ingrediente }}" id="ingrediente-{{ ingrediente.id }}">
                         <label class="form-check-label me-2" for="ingrediente-{{ ingrediente.id }}">
                             {{ ingrediente.nombre_ingrediente }} (Stock: {{ ingrediente.cantidad }})
                         </label>
                         
                         <!-- Campo de cantidad (oculto por defecto) -->
-                        <input type="number" name="cantidad_{{ ingrediente.id }}" placeholder="Cantidad" 
-                               min="1" max="{{ ingrediente.cantidad}}" class="form-control cantidad-input" 
+                        <input type="number" name="cantidad_{{ ingrediente.nombre_ingrediente }}" placeholder="Cantidad" 
+                               min="1" max="{{ ingrediente.cantidad }}" class="form-control cantidad-input" 
                                style="width: 100px; display: none;">
                         
                         <!-- Unidad de medida (oculta por defecto) -->
-                        <span class="unidad-text" style="display: none; margin-left: 10px;">{{ ingrediente.unidades }}</span>
+                        <span class="unidad-text" style="display: none; margin-left: 10px;">{{ ingrediente.unidad }}</span>
                     </div>
                 </div>
                 {% endfor %}
@@ -62,11 +62,11 @@
     
             checkboxes.forEach(function(checkbox) {
                 checkbox.addEventListener('change', function() {
-                    const cantidadInput = this.nextElementSibling.nextElementSibling;
-                    const unidadText = cantidadInput.nextElementSibling;
+                    const cantidadInput = this.parentNode.querySelector('.cantidad-input');
+                    const unidadText = this.parentNode.querySelector('.unidad-text');
                     
                     if (this.checked) {
-                        cantidadInput.style.display = 'block';
+                        cantidadInput.style.display = 'inline-block';
                         unidadText.style.display = 'inline';
                     } else {
                         cantidadInput.style.display = 'none';
@@ -78,23 +78,4 @@
         });
     </script>
 </div>
-
-
-<script>
-    // mostrar y ocultar cantidad
-    document.querySelectorAll('.ingrediente-checkbox').forEach(function(checkbox) {
-        checkbox.addEventListener('change', function() {
-            const cantidadInput = this.parentNode.querySelector('.cantidad-input');
-            const unidadText = this.parentNode.querySelector('.unidad-text');
-            if (this.checked) {
-                cantidadInput.style.display = 'inline-block';  // muestra el campo de cantidad
-                unidadText.style.display = 'inline';
-            } else {
-                cantidadInput.style.display = 'none';          // mculta el campo de cantidad
-                cantidadInput.value = '';                      // limpia el valor cuando se oculta
-                unidadText.style.display = 'none';
-            }
-        });
-    });
-</script>
 {% endblock %}

@@ -16,10 +16,8 @@ urlpatterns = [
     path('home/usuario', views.homeUsuario, name='homeUsuario'),     # Ruta de inicio después del login
     path('home/cliente', views.homeCliente, name='homeCliente'),     # Ruta de inicio después del login
     path('crearreceta/', views.ingredientes_receta, name='crear_receta'),
-    path('guardar_receta/',views.guardar_receta, name='guardar_receta')
+    path('guardar_receta/',views.guardar_receta, name='guardar_receta'),
     #path('agregar-pedido/', views.agregar_pedido, name='agregar_pedido'),
     #path('pedido-crear/', views.crear_pedido, name='crear_pedido'),
-
     
-
 ]

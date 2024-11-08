@@ -1,10 +1,11 @@
 import logging
 from django.http import HttpResponse
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect,get_object_or_404
 from django.db import transaction
 from django.contrib.auth import authenticate, login,logout
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+
 
 
 from core.forms import UsuarioLoginForm
@@ -84,9 +85,27 @@ def logout_view(request):
     return redirect('login')
   
 
-def listar_pedidos(request):
-    pedidos = Pedido.objects.all()  # Obtén todos los pedidos de la base de datos
+def listar_pedidos2(request):
+    pedidos = Pedido.objects.all()
+    pedido= pedido.objects.filter(id) # Obtén todos los pedidos de la base de datos
     return render(request, 'core/pedidos.html', {'pedidos': pedidos})   
+
+
+def listar_pedidos(request):
+    pedidos = Pedido.objects.all()  # Trae todos los pedidos
+
+    # Obtener el id del pedido desde el parámetro GET
+    pedido_id = request.GET.get('pedido_id')
+
+    pedido = None
+    if pedido_id:
+        # Filtra el pedido con el id pasado como parámetro
+        pedido = get_object_or_404(Pedido, id=pedido_id)
+
+    return render(request, 'core/pedidos.html', {
+        'pedidos': pedidos,
+        'pedido': pedido,  # Si hay un pedido con el id solicitado, lo pasa a la plantilla
+    })
 
 def pedido_detalles(request,pedido_id):
     if request.method == 'POST':
@@ -193,3 +212,4 @@ def guardar_receta(request):
         return render(request, 'core/crearreceta.html', {'ingredientes': ingredientes})
 
 
+      

@@ -1,13 +1,18 @@
 {% extends 'base.html' %}
 
+{% load static %}
+
+{% block extra_styles %}
+    <link rel="stylesheet" href="{% static 'css/estilorecetas.css' %}">
+{% endblock %}
+
 {% block title %}Lista de recetas{% endblock %}
-  
+
 {% block content %}
 <br>
-<div class="container">
+<div class="container estilorecetas">
     <h2 class="text-center">Listado de Recetas</h2>
 
-    
     <div class="row">
         {% if recetas %}
             {% for receta in recetas %}
@@ -46,8 +51,9 @@
             <p>No hay recetas disponibles</p>
         {% endif %}
     </div>
+
     {% if request.session.role == "admin" %}
-    <div class="text-end mb-4"  >
+    <div class="text-end mb-4">
         <a href="{% url 'crear_receta' %}" class="btn btn-success">Crear Nueva Receta</a>
     </div>
     {% endif %}
@@ -55,31 +61,23 @@
 
 <script>
     // Configuración del WebSocket
-    const recetasSocket = new WebSocket(
-        'ws://' + window.location.host + '/ws/recetas/'
-    );
+    const recetasSocket = new WebSocket('ws://' + window.location.host + '/ws/recetas/');
     recetasSocket.onopen = function() {
         console.log("Conexión WebSocket establecida para recetas.");
     };
-    console.log("clg")
-    // Manejar mensajes recibidos del WebSocket
+
     recetasSocket.onmessage = function(e) {
         const data = JSON.parse(e.data);
-        console.log(data.type)
         if (data.type === 'db_update') {
-            // Actualizar datos cuando cambia la BD
             updateRecetaFromDB(data.receta_id, data.data);
         } else if (data.type === 'temp_modification') {
-            // Actualizar datos temporalmente
             updateRecetaTemp(data.receta_id, data.modifications);
         }
     };
 
-    // Función para actualizar datos desde la BD
     function updateRecetaFromDB(recetaId, data) {
         const recetaCard = document.querySelector(`[data-receta-id="${recetaId}"]`);
         if (!recetaCard) return;
-
         Object.entries(data).forEach(([field, value]) => {
             const element = recetaCard.querySelector(`[data-field="${field}"]`);
             if (element) {
@@ -89,11 +87,9 @@
         });
     }
 
-    // Función para actualizar datos temporalmente
     function updateRecetaTemp(recetaId, modifications) {
         const recetaCard = document.querySelector(`[data-receta-id="${recetaId}"]`);
         if (!recetaCard) return;
-
         Object.entries(modifications).forEach(([field, value]) => {
             const element = recetaCard.querySelector(`[data-field="${field}"]`);
             if (element) {
@@ -102,25 +98,19 @@
         });
     }
 
-    // Escuchar cambios en elementos editables
     document.querySelectorAll('[contenteditable="true"]').forEach(element => {
         element.addEventListener('input', function() {
             const recetaCard = this.closest('[data-receta-id]');
             const recetaId = recetaCard.dataset.recetaId;
             const field = this.dataset.field;
             const value = this.textContent;
-
-            // Enviar modificación temporal al WebSocket
             recetasSocket.send(JSON.stringify({
                 action: 'temp_modify',
                 receta_id: recetaId,
-                modifications: {
-                    [field]: value
-                }
+                modifications: { [field]: value }
             }));
         });
 
-        // Restaurar valor original al presionar Escape
         element.addEventListener('keydown', function(e) {
             if (e.key === 'Escape') {
                 this.textContent = this.dataset.original;

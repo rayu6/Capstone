@@ -8,84 +8,91 @@
 
 {% block content %}
 <div class="container">
-    <!-- Título de Listado de Pedidos -->
     <h2 class="text-center">Listado de Pedidos</h2>
-    
+
     <div class="order-list">
-        <!-- Verificación de pedidos existentes -->
         {% if pedidos %}
             <div class="row">
                 {% for pedido in pedidos %}
                 <div class="col-md-4 mb-4">
                     <div class="card" style="width: 18rem;" data-pedido-id="{{ pedido.id }}">
                         <div class="card-body">
-                            <!-- Nombre del Cliente -->
-                            <h5 class="card-title">{{ pedido.nombre_cliente }}</h5>
-                            <!-- Fecha del Pedido -->
-                            <p class="card-text">Fecha: {{ pedido.fecha }}</p>
-                            <!-- Total del Pedido -->
-                            <p class="card-text">Total: ${{ pedido.total }}</p>
-                            
-                            <!-- Detalles de los Productos en el Pedido -->
+                            <h5 class="card-title"> Usuario: {{ pedido.usuario }}</h5>
+                            <p class="card-text"> Numero de pedido: {{ pedido.id }}</p>
+                            <p class="card-text">Estado: {{ pedido.estado }}</p>
                             <p class="card-text">Productos:</p>
                             <div class="productos-list">
-                                {% for producto in pedido.productos.all %}
-                                <div class="producto-item" data-producto-id="{{ producto.id }}">
-                                    <!-- Botón para Nombre del Producto -->
-                                    <button type="button" class="btn btn-link p-0" data-toggle="modal" 
-                                            data-target="#productModal{{ producto.id }}">
-                                        {{ producto.nombre }}
-                                    </button>
-                                    <!-- Cantidad y Precio -->
-                                    <span>{{ producto.cantidad }}</span>
-                                    <span>${{ producto.precio|floatformat:"2" }}</span>
-                                </div>
+                                {% for receta in pedido.recetas.all %}
+                                    {% for producto in receta.productos.all %}
+                                    <div class="producto-item" data-producto-id="{{ producto.id }}">
+                                        <button type="button" class="btn btn-link p-0" data-toggle="modal" 
+                                                data-target="#productModal{{ producto.id }}">
+                                            {{ producto.nombre }}
+                                        </button>
+                                        <span>{{ producto.cantidad }}</span>
+                                        <span>${{ producto.precio|floatformat:"2" }}</span>
+                                    </div>
+                                    {% endfor %}
                                 {% endfor %}
                             </div>
-                            <!-- Botón para Ver Detalles del Pedido -->
-                            <a href="" class="btn btn-primary">Ver detalles del pedido</a>
+                            <!-- Botón para abrir el modal -->
+                            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#agregarIngredienteModal" onclick="mostrarId('{{ pedido.id }}', '{{ pedido.usuario }}', '{{ pedido.tipo_de_orden }}', '{{ pedido.estado }}', '{{ pedido.receta_pedido }}')">
+                                Ver detalles
+                            </button>
                         </div>
                     </div>
                 </div>
                 {% endfor %}
             </div>
         {% else %}
-            <!-- Mensaje si no hay pedidos -->
             <p>No hay pedidos disponibles</p>
-            <button class="btn btn-success">Agregar nuevo pedido</button>
         {% endif %}
     </div>
 </div>
 
- <!-- Asignar Pedido form -->
- <form method="POST" class="assign-form">
-    {% csrf_token %}
-    <h3>Asignar Pedido: {{ pedido.id }}</h3>
-    <div class="form-group">
-        <label for="usuario_asignado">Asignar a:</label>
-        <form>
-            <label>
-              <input type="radio" name="option" value="option1">
-              Option 1
-            </label>
-            <label>
-              <input type="radio" name="option" value="option2">
-              Option 2
-            </label>
-            <label>
-              <input type="radio" name="option" value="option3">
-              Option 3
-            </label>
-          </form>
-          <br><br>
-            <button type="submit" class="btn btn-primary">Asignar</button>
-        </form>
-        {{ form.usuario_asignado }}
+<!-- Modal de Bootstrap -->
+<div class="modal fade" id="agregarIngredienteModal" tabindex="-1" aria-labelledby="agregarIngredienteLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="pedido">Detalles del Pedido</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <h5 id="mostrar-id"></h5>
+                <form method="POST" action="{% url 'guardar_ingrediente' %}">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label id="usuario" class="form-label"></label>
+                    </div>
+                    <div class="mb-3">
+                        <label id="tipoorden" class="form-label"></label>
+                    </div>
+                    <div class="mb-3">
+                        <label id="estado" class="form-label"></label>
+                    </div>
+                    <div class="mb-3">
+                        <label id="recetapedido" class="form-label"></label>
+                    </div>
+                </form>
+            </div>
+        </div>
     </div>
-</form>
-
 </div>
 
+<script>
+    function mostrarId(id,usuario,tipo_de_orden,estado,receta_pedido) {
+        document.getElementById('pedido').innerText = 'Detalles del Pedido ' + id;
+        document.getElementById('mostrar-id').innerText = 'ID del pedido: ' + id;
+        document.getElementById('usuario').innerText = `Usuario: ${usuario} `;
+        document.getElementById('tipoorden').innerText = `Tipo de orden: ${tipo_de_orden} `;
+        document.getElementById('estado').innerText = `Estado de orden: ${estado} `;
+        document.getElementById('recetapedido').innerText = `nose: ${receta_pedido} `;
+    }
+</script>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
 {% endblock %}
-

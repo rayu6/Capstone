@@ -1,9 +1,15 @@
 {% extends 'base.html' %}
 
+{% load static %}
+
+{% block extra_styles %}
+    <link rel="stylesheet" href="{% static 'css/estilostock.css' %}">
+{% endblock %}
+
 {% block title %}Título de la Página{% endblock %}
 
 {% block content %}
-<div class="mt-4">
+<div class="mt-4 estilostock">
     <h2 style="text-align: center;">Listado de Ingredientes</h2>
     <table class="table">
         <thead>
@@ -39,7 +45,7 @@
 </div>
 
 <!-- Botón para abrir el modal -->
-<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#agregarIngredienteModal">
+<button type="button" class="btn btn-primary " data-bs-toggle="modal" data-bs-target="#agregarIngredienteModal">
     Agregar Ingrediente
   </button>
   
