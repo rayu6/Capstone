@@ -4,8 +4,8 @@
    border-radius: 30px;
   }
   
-  navbar {
-      background-color: #333;
+  .navbar {
+      background-color: #E27D60;
       padding: 10px;
       display: flex;
       align-items: center;
@@ -31,7 +31,7 @@
   }
   .background{
     background-color:  
-    #A9D6E5;
+    #FFFFFF;
   }
   
   .input_login::placeholder{
@@ -70,4 +70,31 @@
 
 .assign-form{
   text-align: center;
+}
+.navbar-items-color {
+  color: #FFFFFF;
+  font-family: sans-serif;
+  font-weight: 600;
+  font-size: 16px;
+}
+.bg-terracota {
+  background-color: #E27D60 !important;
+}
+
+.navbar-nav .nav-link {
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.navbar-nav .nav-link:hover {
+  background-color: #F7B267;
+  color: #333333 !important;
+}
+
+.navbar-nav .nav-link.active {
+  background-color: #85BDA6; /* Verde Oliva */
+  color: #FFFFFF !important;
+}
+
+.navbar-brand {
+  font-size: 1.25rem;
 }

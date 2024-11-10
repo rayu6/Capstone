@@ -5,9 +5,10 @@ from django.db import transaction
 from django.contrib.auth import authenticate, login,logout
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-
-
-
+from django.http import JsonResponse
+from .models import Recetas
+from asgiref.sync import async_to_sync
+from channels.layers import get_channel_layer
 from core.forms import UsuarioLoginForm
 from .decorators import role_required
 from .models import *
@@ -211,5 +212,28 @@ def guardar_receta(request):
         ingredientes = Ingrediente.objects.all()
         return render(request, 'core/crearreceta.html', {'ingredientes': ingredientes})
 
+def test_signal(request):
+    receta = Recetas.objects.first()
+    if receta:
+        print(f"🔍 Original descripcion: {receta.descripcion}")
+        receta.descripcion = "Test update at now"
+        receta.save()
+        print(f"✏️ Nueva descripcion: {receta.descripcion}")
 
+<<<<<<< HEAD
       
+=======
+        # Notificar al grupo WebSocket
+        channel_layer = get_channel_layer()
+        async_to_sync(channel_layer.group_send)(
+            "recetas_group",  # Grupo al que queremos notificar
+            {
+                "type": "broadcast_db_update",  # Método en el consumidor
+                "receta_id": receta.id,         # ID de la receta modificada
+                "data": {"descripcion": receta.descripcion},  # Nuevos datos
+            }
+        )
+        return JsonResponse({"status": "ok", "message": f"Updated receta {receta.id}"})
+
+    return JsonResponse({"status": "error", "message": "No recetas found"})
+>>>>>>> 5d06b6d ("funcion de actulizacion irl en template con sockets + bd y mejoras de diseño front")

@@ -68,21 +68,60 @@
 
     recetasSocket.onmessage = function(e) {
         const data = JSON.parse(e.data);
+        const field = data.field;
+        const value = data.value;
+
+        const fieldElement = document.getElementById(field);
+        if (fieldElement) {
+            fieldElement.textContent = value;
+        }
+        console.log("WebSocket message received:", data); // Log completo
+        console.log("Message type:", data.type);
+        console.log("Recipe ID:", data.receta_id);
+        console.log("Data:", data.data);
+        
         if (data.type === 'db_update') {
-            updateRecetaFromDB(data.receta_id, data.data);
-        } else if (data.type === 'temp_modification') {
+            const recetaId = data.receta_id;
+            const descripcion = data.data.descripcion;
+    
+            console.log(`Receta actualizada: ID ${recetaId}, Nueva descripcion: ${descripcion}`);
+    
+            // Actualizar el DOM(el html es el dom)
+            const recetaCard = document.querySelector(`[data-receta-id="${recetaId}"]`);
+            if (recetaCard) {
+                const descripcionElement = recetaCard.querySelector('[data-field="descripcion"]');
+                if (descripcionElement) {
+                    descripcionElement.textContent = descripcion;
+                    // También actualizar el valor original
+                    if (descripcionElement.hasAttribute('data-original')) {
+                        descripcionElement.dataset.original = descripcion;
+                    }
+                }
+            }
+        }
+         else if (data.type === 'temp_modification') {
+            console.log("Attempting temp modification...");
             updateRecetaTemp(data.receta_id, data.modifications);
+            console.log("Temp modification completed");
         }
     };
 
     function updateRecetaFromDB(recetaId, data) {
+        console.log("Updating recipe:", recetaId, data);
         const recetaCard = document.querySelector(`[data-receta-id="${recetaId}"]`);
-        if (!recetaCard) return;
+        if (!recetaCard) {
+            console.error("Recipe card not found:", recetaId);
+            return;
+        }
+
+        // Actualizar cada campo
         Object.entries(data).forEach(([field, value]) => {
             const element = recetaCard.querySelector(`[data-field="${field}"]`);
             if (element) {
                 element.textContent = value;
-                element.dataset.original = value;
+                if (element.hasAttribute('data-original')) {
+                    element.dataset.original = value;
+                }
             }
         });
     }

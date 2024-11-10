@@ -11,6 +11,7 @@ body {
 /* Div central con efecto de blur */
 .blur-div {
     backdrop-filter: blur(10px);
+    border: 2px solid white;
     padding: 20px;
     border-radius: 10px;
     width: 100%; /* Ocupa el 100% del ancho de la columna central */

@@ -86,7 +86,7 @@ class Recetas(models.Model):
     nombre_receta = models.ForeignKey('NombreReceta', on_delete=models.CASCADE)
     receta_ingrediente = models.ManyToManyField(RecetaIngrediente)
     def __str__(self):
-        return self.nombre_receta.nombre
+        return self.nombre_receta
     
     class Meta:
         verbose_name = "Recetas"

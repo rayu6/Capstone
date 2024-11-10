@@ -1,4 +1,5 @@
 import json
+from venv import logger
 from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.db import database_sync_to_async
 from .models import Recetas, RecetaIngrediente
@@ -43,8 +44,17 @@ class RecetasConsumer(AsyncWebsocketConsumer):
         }))
 
     async def broadcast_db_update(self, event):
-        await self.send(text_data=json.dumps({
-            'type': 'db_update',
-            'receta_id': event['receta_id'],
-            'data': event['data']
-        }))
+        print(f"📨 Processing broadcast_db_update: {event}")
+        try:
+            message = {
+                'type': 'db_update',
+                'receta_id': event['receta_id'],
+                'data': event['data']
+            }
+            print(f"📝 Preparing message: {message}")
+            await self.send(text_data=json.dumps(message))
+            print("✅ Message sent to client successfully")
+        except Exception as e:
+            print(f"❌ Error in broadcast_db_update: {str(e)}")
+            import traceback
+            print(traceback.format_exc())
