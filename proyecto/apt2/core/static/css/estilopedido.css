@@ -1,0 +1,39 @@
+.estilopedido .card{
+    border-radius: 10px; /* Bordes redondeados */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Sombra sutil */
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    opacity: 0;
+    animation: fadeIn 0.6s forwards;
+    display: flex;
+    gap: 30px; /* Ajusta este valor para definir la separación */
+    justify-content: center; /* Centra las tarjetas horizontalmente */
+    margin-right: 30px; /* Espacio entre tarjetas */
+    
+}
+
+.card:last-child {
+    margin-right: 0; /* Elimina el margen derecho en la última tarjeta */
+}
+
+.estilopedido .card-container {
+    display: flex;
+    gap: 60px; /* Ajusta este valor para definir la separación */
+    justify-content: center; /* Centra las tarjetas horizontalmente */
+    margin-right: 30px; /* Espacio entre tarjetas */
+}
+
+/* Asegura que haya suficiente espacio entre las tarjetas */
+.order-list .row {
+    margin-left: -15px; /* Ajusta el margen a la izquierda para evitar problemas de alineación */
+    margin-right: -15px; /* Ajusta el margen a la derecha */
+}
+
+.order-list .col-md-4 {
+    padding-left: 15px; /* Añadir padding izquierdo */
+    padding-right: 15px; /* Añadir padding derecho */
+}
+
+/* Si quieres más separación entre las tarjetas, puedes aumentar el margen en .card */
+.card {
+    margin-bottom: 20px; /* Espacio entre las tarjetas */
+}

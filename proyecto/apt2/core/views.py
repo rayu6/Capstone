@@ -220,9 +220,6 @@ def test_signal(request):
         receta.save()
         print(f"✏️ Nueva descripcion: {receta.descripcion}")
 
-<<<<<<< HEAD
-      
-=======
         # Notificar al grupo WebSocket
         channel_layer = get_channel_layer()
         async_to_sync(channel_layer.group_send)(
@@ -233,7 +230,7 @@ def test_signal(request):
                 "data": {"descripcion": receta.descripcion},  # Nuevos datos
             }
         )
+        
         return JsonResponse({"status": "ok", "message": f"Updated receta {receta.id}"})
 
     return JsonResponse({"status": "error", "message": "No recetas found"})
->>>>>>> 5d06b6d ("funcion de actulizacion irl en template con sockets + bd y mejoras de diseño front")

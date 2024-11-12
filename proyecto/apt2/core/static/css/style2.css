@@ -4,69 +4,168 @@
    border-radius: 30px;
   }
   
-  .navbar {
-      background-color: #E27D60;
-      padding: 10px;
-      display: flex;
-      align-items: center;
-    }
+.navbar {
+    background-color: #E27D60;
+    padding: 10px;
+    display: flex;
+    align-items: center;
+  }
+
+  .navbar-brand {
+    color: White;
+    font-size: 1.5em; /* Cambia el tamaño de la fuente */
+    font-weight: bold; /* Cambia el grosor de la fuente */
+    text-transform: uppercase; /* Transforma el texto a mayúsculas */
+    padding: 10px; /* Añade un poco de espacio alrededor */
+}
+
+/* Encabezado */
+h2 {
+  font-size: 2.5rem;
+  color: #333333; /* Gris oscuro */
+  font-weight: 600;
+  margin-bottom: 30px;
+}
+
+/* Tarjetas */
+.card {
+  border-radius: 10px; /* Bordes redondeados */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Sombra sutil */
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  opacity: 0;
+  animation: fadeIn 0.6s forwards;
   
-  
-  .container {
-    display: grid;
-    place-items: center; /* Centra en ambos ejes */
-    height: 100vh;
+}
+
+@keyframes fadeIn {
+  from {
+      opacity: 0;
   }
-  
-  .login-container {
-    background-color: white; /* Fondo blanco para el formulario */
-    border-radius: 8px; /* Bordes redondeados */
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1); /* Sombra suave */
-    padding: 20px; /* Espaciado interno */
-    width: 300px; /* Ancho del contenedor */
-    text-align: center; /* Centrar texto */
-    margin-left: auto;
-    margin-top: 10%;
-    margin-right: auto;
+  to {
+      opacity: 1;
   }
-  .background{
-    background-color:  
-    #FFFFFF;
+}
+
+
+/* Efecto al pasar el ratón por encima */
+.card:hover {
+  transform: translateY(-10px); /* Mueve la tarjeta hacia arriba */
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); /* Sombra más intensa */
+}
+
+/* Imagen */
+.card-img-top {
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+  object-fit: cover;
+  height: 200px;
+}
+
+/* Título */
+.card-title {
+  font-size: 1.5rem;
+  font-weight: 500;
+  color: #E27D60; /* Color primario: Terracota */
+  margin-bottom: 15px;
+}
+
+/* Texto */
+.card-text {
+  font-size: 1rem;
+  color: #333333; /* Texto secundario: Gris oscuro */
+  margin-bottom: 15px;
+  line-height: 1.6;
+}
+
+
+.container {
+  display: grid;
+  place-items: center; /* Centra en ambos ejes */
+  height: 100vh;
+}
+
+.login-container {
+  background-color: white; /* Fondo blanco para el formulario */
+  border-radius: 8px; /* Bordes redondeados */
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1); /* Sombra suave */
+  padding: 20px; /* Espaciado interno */
+  width: 300px; /* Ancho del contenedor */
+  text-align: center; /* Centrar texto */
+  margin-left: auto;
+  margin-top: 10%;
+  margin-right: auto;
+}
+
+body {
+  background-color:#fbf7f3;
+  font-family: 'Arial', sans-serif;
+  color: #333333; /* Texto primario: Gris oscuro */
+}
+
+.input_login::placeholder{
+  text-align: center;
+}
+
+.alert-custom {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 1050;
+  display: none; /* Oculto por defecto */
+  padding: 15px;
+  border-radius: 5px;
+  color: white;
+}
+.alert-custom.error {
+  background-color: red; /* Color de fondo para errores */
+}
+
+.imagenreceta{
+  height: 246px;
+  width: 100%;
+}
+
+/* Botones */
+.btn {
+  font-size: 1rem;
+  padding: 10px 20px;
+  border-radius: 30px;
+  transition: background-color 0.3s ease;
+}
+
+/* Botón principal (primario) */
+.btn-primary {
+  background-color: #E27D60; /* Color primario: Terracota */
+  border-color: #B85C47;
+  color: #fff;
+}
+
+.btn-primary:hover {
+  background-color: #D0654A; /* Variación oscura del terracota */
+  border-color: #B85C47;
+}
+
+/* Botón secundario */
+.btn-secondary {
+  background-color: #F7B267; /* Color secundario: Ocre */
+  color: #fff;
+}
+
+.btn-success {
+  background-color: #6F9F8B; /* Color de resaltado: Verde Oliva */
+  border-color: #6f9f7b;
+  color: #fff;
+}
+.btn-success:hover {
+  background-color: #6f9f7b; /* Verde oliva más oscuro */
+  border-color: #6f9f7b;  
+}
+.prueba {
+  position: absolute !important;
+      top: 70px; /* Mueve la notificación 70 píxeles desde la parte superior */
+      left: 50%; /* Mueve la notificación al 50% de la pantalla (centro horizontal) */
+      transform: translateX(-50%); /* Ajusta la notificación para que esté perfectamente centrada */
   }
-  
-  .input_login::placeholder{
-    text-align: center;
-  }
-  
-  .alert-custom {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    z-index: 1050;
-    display: none; /* Oculto por defecto */
-    padding: 15px;
-    border-radius: 5px;
-    color: white;
-  }
-  .alert-custom.error {
-    background-color: red; /* Color de fondo para errores */
-  }
-  
-  .imagenreceta{
-    height: 246px;
-    width: 100%;
-  }
-  
-  .btn-custom {
-    margin-top: 10px;
-    padding: 10px 20px;
-  }
-  .prueba {
-    position: absolute !important;
-        top: 70px; /* Mueve la notificación 70 píxeles desde la parte superior */
-        left: 50%; /* Mueve la notificación al 50% de la pantalla (centro horizontal) */
-        transform: translateX(-50%); /* Ajusta la notificación para que esté perfectamente centrada */
-    }
 
 .assign-form{
   text-align: center;
