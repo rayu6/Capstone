@@ -1,5 +1,5 @@
 import logging
-from django.http import HttpResponse
+from django.http import HttpResponse,HttpResponseRedirect
 from django.shortcuts import render, redirect,get_object_or_404
 from django.db import transaction
 from django.contrib.auth import authenticate, login,logout
@@ -12,7 +12,7 @@ from channels.layers import get_channel_layer
 from core.forms import UsuarioLoginForm
 from .decorators import role_required
 from .models import *
-
+from django.urls import reverse
 # Create your views here.
 logger = logging.getLogger(__name__)
 
@@ -48,8 +48,8 @@ def login(request):
                     return redirect(home)
             except Usuario.DoesNotExist:
                 logger.warning("Usuario o contraseña incorrectos.")
-                
-                return HttpResponse(messages.error(request,"Usuario o contraseña incorrectos."), status=401)
+                messages.error(request, "Usuario o contraseña incorrectos.")
+                return HttpResponseRedirect(reverse(login), status=401)
         else:
             logger.warning("Formulario no válido")
     return render(request, 'registration/login.html')  # Renderiza el formulario de lo
