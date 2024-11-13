@@ -20,6 +20,12 @@
             <textarea class="form-control" id="descripcion_receta" name="descripcion_receta" rows="3" required></textarea>
         </div>
         
+        <!-- Enlace de la imagen -->
+        <div class="mb-4">
+            <label for="link" class="form-label">Enlace de la imagen:</label>
+            <input type="url" class="form-control" id="link" name="link" placeholder="http://example.com/imagen.jpg">
+        </div>
+
         <!-- Selección de ingredientes -->
         <h3 class="mt-4">Selecciona los Ingredientes:</h3>
         <div class="row">
@@ -29,18 +35,18 @@
                     <div class="d-flex align-items-center">
                         <!-- Checkbox de ingrediente -->
                         <input class="form-check-input me-2 ingrediente-checkbox" type="checkbox" 
-                               name="ingredientes" value="{{ ingrediente.nombre_ingrediente }}" id="ingrediente-{{ ingrediente.id }}">
+                               name="ingredientes" value="{{ ingrediente.id }}" id="ingrediente-{{ ingrediente.id }}">
                         <label class="form-check-label me-2" for="ingrediente-{{ ingrediente.id }}">
                             {{ ingrediente.nombre_ingrediente }} (Stock: {{ ingrediente.cantidad }})
                         </label>
                         
                         <!-- Campo de cantidad (oculto por defecto) -->
-                        <input type="number" name="cantidad_{{ ingrediente.nombre_ingrediente }}" placeholder="Cantidad" 
+                        <input type="number" name="cantidad_{{ ingrediente.id }}" placeholder="Cantidad" 
                                min="1" max="{{ ingrediente.cantidad }}" class="form-control cantidad-input" 
                                style="width: 100px; display: none;">
                         
                         <!-- Unidad de medida (oculta por defecto) -->
-                        <span class="unidad-text" style="display: none; margin-left: 10px;">{{ ingrediente.unidad }}</span>
+                        <span class="unidad-text" style="display: none; margin-left: 10px;">{{ ingrediente.unidades }}</span>
                     </div>
                 </div>
                 {% endfor %}
@@ -58,20 +64,21 @@
     <!-- JavaScript para mostrar/ocultar cantidad y unidad cuando se selecciona un ingrediente -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const checkboxes = document.querySelectorAll('.ingrediente-checkbox');
-    
-            checkboxes.forEach(function(checkbox) {
+            document.querySelectorAll('.ingrediente-checkbox').forEach(function(checkbox) {
                 checkbox.addEventListener('change', function() {
+                    // Selecciona los elementos de cantidad y unidad correspondientes al checkbox actual
                     const cantidadInput = this.parentNode.querySelector('.cantidad-input');
                     const unidadText = this.parentNode.querySelector('.unidad-text');
                     
                     if (this.checked) {
+                        // Muestra los campos de cantidad y unidad
                         cantidadInput.style.display = 'inline-block';
                         unidadText.style.display = 'inline';
                     } else {
+                        // Oculta y limpia el campo de cantidad y oculta el texto de unidad
                         cantidadInput.style.display = 'none';
                         unidadText.style.display = 'none';
-                        cantidadInput.value = '';  // Limpiar el campo de cantidad
+                        cantidadInput.value = '';  // Limpia el campo de cantidad
                     }
                 });
             });

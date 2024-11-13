@@ -85,8 +85,9 @@ class Recetas(models.Model):
     link = models.CharField(max_length=255, null=True)
     nombre_receta = models.ForeignKey('NombreReceta', on_delete=models.CASCADE)
     receta_ingrediente = models.ManyToManyField(RecetaIngrediente)
+    
     def __str__(self):
-        return self.nombre_receta
+        return str(self.nombre_receta.nombre)  # Asegúrate de acceder al campo de texto en NombreReceta
     
     class Meta:
         verbose_name = "Recetas"

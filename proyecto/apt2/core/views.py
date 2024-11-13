@@ -179,38 +179,48 @@ def ingredientes_receta(request):
     return render(request, 'core/crearreceta.html', context)
 
 
+
 @role_required(allowed_roles=['admin'])
 def guardar_receta(request):
     if request.method == 'POST':
-        nombre_receta = request.POST.get('nombre_receta')  # El nombre de la receta desde el formulario
+        # Obtener datos del formulario
+        nombre_receta = request.POST.get('nombre_receta')
         descripcion = request.POST.get('descripcion_receta')
+        link = request.POST.get('link')  # Captura el enlace de la imagen
 
         # Obtener o crear la instancia de NombreReceta
         nombre_receta_obj, created = NombreReceta.objects.get_or_create(nombre=nombre_receta)
 
-        # Ahora puedes crear la receta con la instancia de NombreReceta
-        receta = Recetas(nombre_receta=nombre_receta_obj, descripcion=descripcion)
+        # Crear y guardar la receta con el enlace de la imagen
+        receta = Recetas(nombre_receta=nombre_receta_obj, descripcion=descripcion, link=link)
         receta.save()
 
-        ingredientes_ids = request.POST.getlist('ingredientes')
-        cantidades = request.POST.getlist('cantidad')
-        unidades = request.POST.getlist('unidad')
+        # Procesar ingredientes seleccionados
+        ingredientes_ids = request.POST.getlist('ingredientes')  # IDs de los ingredientes seleccionados
+        cantidades = request.POST.getlist('cantidad')  # Las cantidades correspondientes
+        unidades = request.POST.getlist('unidad')  # Las unidades correspondientes
 
         with transaction.atomic():
             for ingrediente_id, cantidad, unidad in zip(ingredientes_ids, cantidades, unidades):
                 if cantidad:  # Verifica que haya una cantidad válida
                     ingrediente = Ingrediente.objects.get(id=ingrediente_id)
-                    receta_ingrediente = RecetaIngrediente(
-                        ingrediente=ingrediente,
-                        cantidad=cantidad,
-                        unidad=unidad
-                    )
-                    receta_ingrediente.save()
 
-        return redirect('listar_recetas')  # Redirige a la vista que desees
+                    # Crear y guardar la instancia de RecetaIngrediente con la cantidad y unidad correspondientes
+                    receta_ingrediente = RecetaIngrediente.objects.create(
+                        ingrediente=ingrediente,
+                        cantidad=cantidad,  # Asigna la cantidad correspondiente
+                        unidad=unidad  # Asigna la unidad correspondiente
+                    )
+                    
+                    # Agregar RecetaIngrediente a la receta mediante la relación ManyToMany (si corresponde)
+                    receta.receta_ingrediente.add(receta_ingrediente)
+
+        return redirect('listar_recetas')  # Redirige a la vista deseada
+    
     else:
-        ingredientes = Ingrediente.objects.all()
+        ingredientes = Ingrediente.objects.all()  # Obtener todos los ingredientes disponibles
         return render(request, 'core/crearreceta.html', {'ingredientes': ingredientes})
+
 
 def test_signal(request):
     receta = Recetas.objects.first()
