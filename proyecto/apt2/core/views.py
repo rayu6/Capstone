@@ -48,7 +48,8 @@ def login(request):
                     return redirect(home)
             except Usuario.DoesNotExist:
                 logger.warning("Usuario o contraseña incorrectos.")
-                return HttpResponse("Correo o contraseña incorrectos.", status=401)
+                
+                return HttpResponse(messages.error(request,"Usuario o contraseña incorrectos."), status=401)
         else:
             logger.warning("Formulario no válido")
     return render(request, 'registration/login.html')  # Renderiza el formulario de lo

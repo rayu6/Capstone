@@ -95,9 +95,9 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',  
         'NAME': 'apt',             
-        'USER': 'root',                  
+        'USER': 'remote',                  
         'PASSWORD': 'root',           
-        'HOST': 'localhost',                 
+        'HOST': '4.228.63.101',                 
         'PORT': '3306',                        
     }
 }
