@@ -1,4 +1,4 @@
 proyecto/apt2/apt/.env
-proyecto/apt2/apt/_pychache_/
-proyecto/apt2/core/_pychache_/
-proyecto/apt2/core/migrations/_pychache_/
+proyecto/apt2/apt/__pychache__/
+proyecto/apt2/core/__pychache__/
+proyecto/apt2/core/migrations/__pychache__/
