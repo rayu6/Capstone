@@ -88,14 +88,17 @@
                         <label id="recetapedido" class="form-label"></label>
                     </div>
                 </form>
-                
-                <button type="button" class="btn btn-primary" id="cambiarLabelsPorInputs"  onclick="cambiarLabelsPorInputs(),prueba()" >
+                <button type="button" class="btn btn-primary" id="cambiarInputsPorLabels" style="display: none;" onclick="cambiarInputsPorLabels()" >
+                    Cancelar
+                </button>
+                <button type="button" class="btn btn-primary" id="guardar_cambios" slot="display: none;" style="display: none;" >
+                    Guardar
+                </button>
+                <button type="button" class="btn btn-primary" id="cambiarLabelsPorInputs"  onclick="cambiarLabelsPorInputs()" >
                     Modificar
                 </button>
 
-                <button type="button" class="btn btn-primary" id="cambiarInputsPorLabels" onclick="cambiarInputsPorLabels()" >
-                    Ver detalles
-                </button>
+                
             </div>
         </div>
     </div>
@@ -116,7 +119,7 @@ function cambiarLabelsPorInputs() {
             prueba()
 
             setTimeout(() => {
-            document.getElementById('detalle').innerText ='Modificar  Pedido';
+            document.getElementById('detalle').innerText ='Modificar Pedido';
             // Cambiar Nombre
                 const nameElement = document.getElementById('usuario');
                 const nameValue = nameElement.innerText;
@@ -128,11 +131,21 @@ function cambiarLabelsPorInputs() {
                 const nameInput = document.createElement('textarea');
                 nameInput.type = 'text';
                 nameInput.id = 'usuario';
-                nameInput.classList = 'form-control'
+                nameInput.classList = 'form-control';
                 nameInput.value = name2Value;
 
                 // Reemplazar el span por el input
                 nameElement.parentNode.replaceChild(nameInput, nameElement);
+
+                const boton_cancelar = document.getElementById("cambiarInputsPorLabels");
+                boton_cancelar.style.display="";
+
+                const boton_guardar= document.getElementById("guardar_cambios");
+                boton_guardar.style.display="";
+                boton_guardar.style.marginLeft="54.5%";
+
+                const boton_modificar= document.getElementById("cambiarLabelsPorInputs");
+                boton_modificar.style.display="none";
            }, 150); 
             
         }
@@ -155,7 +168,16 @@ function cambiarLabelsPorInputs() {
             const nameInput = document.createElement('span');
             nameInput.id = 'usuario';
             nameInput.textContent = name2Value;
+            
+                const boton_cancelar = document.getElementById("cambiarInputsPorLabels");
+                boton_cancelar.style.display="none";
 
+                const boton_guardar= document.getElementById("guardar_cambios");
+                boton_guardar.style.display="none";
+                boton_guardar.style.marginLeft="54.5%";
+
+                const boton_modificar= document.getElementById("cambiarLabelsPorInputs");
+                boton_modificar.style.display="";
             // Reemplazar el span por el textarea
             nameElement.parentNode.replaceChild(nameInput, nameElement);
         }, 150); 
