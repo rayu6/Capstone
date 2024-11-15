@@ -224,24 +224,24 @@ def guardar_receta(request):
 
 
 def test_signal(request):
-    receta = Recetas.objects.first()
-    if receta:
-        print(f"🔍 Original descripcion: {receta.descripcion}")
-        receta.descripcion = "Test update at now"
-        receta.save()
-        print(f"✏️ Nueva descripcion: {receta.descripcion}")
-
-        # Notificar al grupo WebSocket
-        channel_layer = get_channel_layer()
-        async_to_sync(channel_layer.group_send)(
-            "recetas_group",  # Grupo al que queremos notificar
-            {
-                "type": "broadcast_db_update",  # Método en el consumidor
-                "receta_id": receta.id,         # ID de la receta modificada
-                "data": {"descripcion": receta.descripcion},  # Nuevos datos
-            }
-        )
+    if request.method == 'POST':
+            Nid=request.POST.get('id')
+            ndescripcion=request.POST.get('usuario')
         
-        return JsonResponse({"status": "ok", "message": f"Updated receta {receta.id}"})
+            receta=Recetas.objects.filter(id=Nid).update(descripcion=ndescripcion)
 
-    return JsonResponse({"status": "error", "message": "No recetas found"})
+            # Notificar al grupo WebSocket
+            channel_layer = get_channel_layer()
+            async_to_sync(channel_layer.group_send)(
+                "recetas_group",  # Grupo al que queremos notificar
+                {
+                    "type": "broadcast_db_update",  # Método en el consumidor
+                    "receta_id": Nid,         # ID de la receta modificada
+                    "data": {"descripcion": ndescripcion},  # Nuevos datos
+                }
+            )
+            messages.success(request, f"Receta {Nid} modificada existosamente")
+            return redirect('listar_recetas')
+
+    
+        

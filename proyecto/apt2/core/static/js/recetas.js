@@ -1,0 +1,80 @@
+
+function prueba() {
+    const modal = new bootstrap.Modal(document.getElementById('agregarIngredienteModal'))
+    modal._element.classList.remove('show');
+    setTimeout(() => {
+        // Volver a mostrar el modal con el efecto fade
+        modal._element.classList.add('show');
+    }, 200);
+}
+document.addEventListener("DOMContentLoaded", function() {
+    // Encuentra el botón por su ID
+    const boton = document.getElementById("cambiarInputsPorLabels");
+
+    // Agrega un evento 'click' al botón
+    boton.addEventListener("click", function() {
+        console.log("¡Botón presionado!");
+        // Aquí puedes ejecutar tu lógica
+        cambiarInputsPorLabels();
+    });
+});
+
+
+window.cambiarInputsPorLabels= function () {
+    prueba()
+    setTimeout(() => {
+    document.getElementById('detalle').innerText ='Detalle del Pedido';
+    // Cambiar Nombre
+    const nameElement = document.getElementById('usuario');
+    const nameValue = nameElement.innerText;
+    const name2Element = document.getElementById('usuario1');
+    const name2Value = name2Element.textContent;
+
+
+    // Crear un textarea para reemplazar el span
+    const nameInput = document.createElement('span');
+    nameInput.id = 'usuario';
+    nameInput.textContent = name2Value;
+    
+        const boton_cancelar = document.getElementById("cambiarInputsPorLabels");
+        boton_cancelar.style.display="none";
+
+        const boton_guardar= document.getElementById("guardar_cambios");
+        boton_guardar.style.display="none";
+        boton_guardar.style.marginLeft="54.5%";
+
+        const boton_modificar= document.getElementById("cambiarLabelsPorInputs");
+        boton_modificar.style.display="";
+    // Reemplazar el span por el textarea
+    nameElement.parentNode.replaceChild(nameInput, nameElement);
+}, 150); 
+     
+}
+
+function cambiarLabelsPorInputs() {
+    prueba()
+
+    setTimeout(() => {
+
+        const textarea_ID_Receta = document.getElementById("M_Id");
+        const textarea_descripcion = document.getElementById("M_descripcion");
+        const textarea_M_Nombre_Receta = document.getElementById("M_Nombre_Receta");
+
+
+        textarea_ID_Receta.style=""
+        textarea_M_Nombre_Receta.style=""
+        textarea_descripcion.style=""
+
+        const boton_cancelar = document.getElementById("cambiarInputsPorLabels");
+        boton_cancelar.style.display="";
+
+        const boton_guardar= document.getElementById("guardar_cambios");
+        boton_guardar.style.display="";
+        boton_guardar.style.marginLeft="54.5%";
+
+        const boton_modificar= document.getElementById("cambiarLabelsPorInputs");
+        boton_modificar.style.display="none";
+   }, 150); 
+    
+}
+

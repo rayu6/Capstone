@@ -9,6 +9,7 @@
 {% block title %}Lista de recetas{% endblock %}
 
 {% block content %}
+<script src="{% static 'js\recetas.js' %}"></script>
 <br>
 <div class="container">
     <h2 class="text-center">Listado de Recetas</h2>
@@ -42,7 +43,7 @@
                             </div>
                             {% endfor %}
                         </div><br>
-                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#agregarIngredienteModal" onclick="mostrarId('{{ receta.id }}','{{receta.nombre_receta}}','{{receta.descripcion }}', )">
+                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#agregarIngredienteModal" onclick="mostrarId('{{ receta.id }}','{{ receta.id }}','{{ receta.nombre_receta }}','{{ receta.descripcion }}','{{ receta.descripcion }}' )">
                             Ver detalles
                         </button>
                     </div>
@@ -66,37 +67,41 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="detalle">Detalles del Pedido &nbsp;</h5><h5 class="modal-title" id="receta_id" ></h5>
+                <h5 class="modal-title" id="detalle">Detalles del Pedido &nbsp;</h5><h5 class="modal-title" id="receta_id"></h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <h5 id="mostrar-id"></h5><br>
-                <form method="POST" action="{% url 'guardar_ingrediente' %}">
+                <form method="POST" action="{% url 'test-signal' %}">
                     {% csrf_token %}
                     <div class="mb-3">
-                        <label  class="form-label">Descripcion :</label><br>
-                        <span id="usuario"> estio es una prueba</span>
-                        <h6 id="usuario1" style="display: none;"></h6>
+                        <label  class="form-label">ID receta :</label>
+                        <label id="Id_receta"></label><br>
+                        <textarea type="text" id="M_Id" style="display: none;"></textarea>
                     </div>
                     <div class="mb-3">
-                        <label id="tipoorden" class="form-label"></label>
+                        <label  class="form-label">Receta:</label><br>
+                        <label id="Nombre_receta" class="form-label"></label><br>
+                        <textarea type="text" id="M_Nombre_Receta" style="display: none;"></textarea>
                     </div>
                     <div class="mb-3">
-                        <label id="estado" class="form-label"></label>
+                        <label  class="form-label">Descripcion:</label><br>
+                        <label id="Descripcion_Receta" class="form-label"></label><br>
+                        <textarea type="text" id="M_descripcion" style="display: none;"></textarea>
                     </div>
-                    <div class="mb-3">
-                        <label id="recetapedido" class="form-label"></label>
-                    </div>
+                    <button type="submit" class="btn btn-primary" id="guardar_cambios" slot="display: none;" style="display: none;" >
+                        Guardar
+                    </button>
+                    <button type="button" class="btn btn-primary" id="cambiarInputsPorLabels" style="display: none;" >
+                        Cancelar
+                    </button>
                 </form>
-                <button type="button" class="btn btn-primary" id="cambiarInputsPorLabels" style="display: none;" onclick="cambiarInputsPorLabels()" >
-                    Cancelar
-                </button>
-                <button type="button" class="btn btn-primary" id="guardar_cambios" slot="display: none;" style="display: none;" >
-                    Guardar
-                </button>
-                <button type="button" class="btn btn-primary" id="cambiarLabelsPorInputs"  onclick="cambiarLabelsPorInputs()" >
+                
+                
+                <button type="button" class="btn btn-primary"  id="cambiarLabelsPorInputs" onclick="cambiarLabelsPorInputs()">
                     Modificar
                 </button>
+                
 
                 
             </div>
@@ -104,105 +109,15 @@
     </div>
 </div>
 
-
-
 <script>
-function prueba() {
-            const modal = new bootstrap.Modal(document.getElementById('agregarIngredienteModal'))
-            modal._element.classList.remove('show');
-            setTimeout(() => {
-                // Volver a mostrar el modal con el efecto fade
-                modal._element.classList.add('show');
-            }, 200);
-        }
-function cambiarLabelsPorInputs() {
-            prueba()
-
-            setTimeout(() => {
-            document.getElementById('detalle').innerText ='Modificar Pedido';
-            // Cambiar Nombre
-                const nameElement = document.getElementById('usuario');
-                const nameValue = nameElement.innerText;
-                const name2Element = document.getElementById('usuario1');
-                const name2Value = name2Element.innerText;
-
-
-                // Crear un input para reemplazar el span
-                const nameInput = document.createElement('textarea');
-                nameInput.type = 'text';
-                nameInput.id = 'usuario';
-                nameInput.classList = 'form-control';
-                nameInput.value = name2Value;
-
-                // Reemplazar el span por el input
-                nameElement.parentNode.replaceChild(nameInput, nameElement);
-
-                const boton_cancelar = document.getElementById("cambiarInputsPorLabels");
-                boton_cancelar.style.display="";
-
-                const boton_guardar= document.getElementById("guardar_cambios");
-                boton_guardar.style.display="";
-                boton_guardar.style.marginLeft="54.5%";
-
-                const boton_modificar= document.getElementById("cambiarLabelsPorInputs");
-                boton_modificar.style.display="none";
-           }, 150); 
-            
-        }
-
-
-
-
-        function cambiarInputsPorLabels() {
-            prueba()
-            setTimeout(() => {
-            document.getElementById('detalle').innerText ='Detalle del Pedido';
-            // Cambiar Nombre
-            const nameElement = document.getElementById('usuario');
-            const nameValue = nameElement.innerText;
-            const name2Element = document.getElementById('usuario1');
-            const name2Value = name2Element.textContent;
-
-
-            // Crear un textarea para reemplazar el span
-            const nameInput = document.createElement('span');
-            nameInput.id = 'usuario';
-            nameInput.textContent = name2Value;
-            
-                const boton_cancelar = document.getElementById("cambiarInputsPorLabels");
-                boton_cancelar.style.display="none";
-
-                const boton_guardar= document.getElementById("guardar_cambios");
-                boton_guardar.style.display="none";
-                boton_guardar.style.marginLeft="54.5%";
-
-                const boton_modificar= document.getElementById("cambiarLabelsPorInputs");
-                boton_modificar.style.display="";
-            // Reemplazar el span por el textarea
-            nameElement.parentNode.replaceChild(nameInput, nameElement);
-        }, 150); 
-             
-        }
-
-          
-
-function mostrarId(id,receta,descripcion,ingredientes) {
-        document.getElementById('receta_id').innerText =` ${id}`;
-        document.getElementById('mostrar-id').innerText = `${receta}`;
-        document.getElementById('usuario').innerText = `${descripcion} `;
-        document.getElementById('usuario1').innerText = `${descripcion} `;
+ 
+function mostrarId(id,id2,nombre_receta,descripcion,descripcion2) {
+        document.getElementById('receta_id').innerText =id;
+        document.getElementById('mostrar-id').innerText = nombre_receta;
+        document.getElementById('usuario').innerText = descripcion;
+        
     }
 
-    function mostrarPlaceHolder(id,receta,descripcion,ingredientes) {
-        document.getElementById('receta_id').innerText = 'Detalles de la Receta ' + id;
-        document.getElementById('mostrar-id').placeholder = `Receta : ${receta}`;
-        document.getElementById('usuario').placeholder = `Descripcion : ${descripcion} `;
-    }
-
-    function obtenerId() {
-            const h5Element = document.getElementById("receta_id");
-            return h5Element.innerText; // O innerText
-        }
     // Configuración del WebSocket
     const recetasSocket = new WebSocket('ws://' + window.location.host + '/ws/recetas/');
     recetasSocket.onopen = function() {
