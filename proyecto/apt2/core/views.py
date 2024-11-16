@@ -224,11 +224,11 @@ def guardar_receta(request):
 
 
 def test_signal(request):
-    if request.method == 'POST':
-            Nid=request.POST.get('id')
-            ndescripcion=request.POST.get('usuario')
+        if request.method == 'POST':
+            Nid=request.POST.get('M_Id')
+            ndescripcion=request.POST.get('M_descripcion')
         
-            receta=Recetas.objects.filter(id=Nid).update(descripcion=ndescripcion)
+            Recetas.objects.filter(id=Nid).update(descripcion=ndescripcion)
 
             # Notificar al grupo WebSocket
             channel_layer = get_channel_layer()

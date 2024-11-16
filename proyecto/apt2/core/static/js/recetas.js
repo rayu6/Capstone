@@ -31,11 +31,11 @@ function cambiarLabelsPorInputs() {
         }
         if (label_ID_nombre) {
             label_ID_nombre.classList.add('d-none');
-        }
+        }        
         if (textarea_ID_Receta) {
-            textarea_ID_Receta.classList.remove('d-none');
             textarea_ID_Receta.classList.add('w-100')
         }
+
         if (textarea_M_Nombre_Receta) {
             textarea_M_Nombre_Receta.classList.remove('d-none');
             textarea_M_Nombre_Receta.classList.add('w-100')

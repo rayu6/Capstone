@@ -75,19 +75,19 @@
                 <form method="POST" action="{% url 'test-signal' %}">
                     {% csrf_token %}
                     <div class="mb-3">
-                        <label  class="form-label">ID receta :</label>
-                        <label id="Id_receta"></label><br>
-                        <textarea type="text" id="M_Id" class="form-control d-none"></textarea>
+                        <label for="M_Id" id="M_Id_l" class="form-label">ID receta :</label>
+                        <h6 id="Id_receta"></h6><br>
+                        <textarea type="text" id="M_Id" name="M_Id" class="form-control d-none"></textarea>
                     </div>
                     <div class="mb-3">
-                        <label  class="form-label">Receta:</label><br>
+                        <label for="M_Nombre_Receta" id="M_Nombre_Recet_l" class="form-label">Receta:</label><br>
                         <label id="Nombre_receta" class="form-label"></label><br>
-                        <textarea type="text" id="M_Nombre_Receta" class="form-control d-none"></textarea>
+                        <textarea type="text" id="M_Nombre_Receta" name="M_Nombre_Receta" class="form-control d-none"></textarea>
                     </div>
                     <div class="mb-3">
-                        <label  class="form-label">Descripcion:</label><br>
+                        <label for="M_descripcion" id="M_descripcion_l" class="form-label">Descripcion:</label><br>
                         <label id="Descripcion_Receta" class="form-label"></label><br>
-                        <textarea type="text" id="M_descripcion" class="form-control d-none"></textarea>
+                        <textarea type="text" id="M_descripcion" name="M_descripcion" class="form-control d-none"></textarea>
                     </div>
                     <button type="submit" class="btn btn-primary d-none" style="margin-left: 54.5%;" id="guardar_cambios">
                         Guardar
@@ -113,6 +113,7 @@
  
 function mostrarId(id,nombre_receta,prueba123) {
         document.getElementById('receta_id').innerText =id;
+        document.getElementById('M_Id').value=id;
         document.getElementById('mostrar-id').innerText = nombre_receta;
         document.getElementById('Descripcion_Receta').innerText = prueba123;
         document.getElementById('M_descripcion').placeholder  = prueba123;
