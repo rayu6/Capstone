@@ -108,6 +108,7 @@
                     <div class="mb-3">
                         <label for="estado" class="form-label">Estado</label>
                         <select class="form-control" id="estado" name="estado">
+                            <option value="En proceso" {% if pedido.estado == 'Proceso' %}selected{% endif %}>En proceso</option>
                             <option value="Pendiente" {% if pedido.estado == 'Pendiente' %}selected{% endif %}>Pendiente</option>
                             <option value="Completado" {% if pedido.estado == 'Completado' %}selected{% endif %}>Completado</option>
                             <option value="Cancelado" {% if pedido.estado == 'Cancelado' %}selected{% endif %}>Cancelado</option>

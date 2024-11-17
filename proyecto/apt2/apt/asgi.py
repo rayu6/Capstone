@@ -20,8 +20,4 @@ application = ProtocolTypeRouter({
         URLRouter(websocket_urlpatterns)
     ),
 })
-application = ProtocolTypeRouter({
-    "http": get_asgi_application(),
-    # Si usas Daphne, puedes agregar la configuración para servir archivos estáticos en desarrollo
-})
 

@@ -10,6 +10,8 @@
 
 {% block content %}
 <script src="{% static 'js\recetas.js' %}"></script>
+<script src="{% static 'js/recetasSockets.js' %}" defer></script> <!-- El 'defer' asegura que el JS se cargue después de la carga del contenido -->
+
 <br>
 <div class="container">
     <h2 class="text-center">Listado de Recetas</h2>
@@ -67,153 +69,53 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="detalle">Detalles del Pedido &nbsp;</h5><h5 class="modal-title" id="receta_id"></h5>
+                <h5 class="modal-title" id="detalle">Detalles del Pedido &nbsp;</h5>
+                <h5 class="modal-title" id="receta_id"></h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <h5 id="mostrar-id"></h5><br>
-                <form method="POST" action="{% url 'test-signal' %}">
+                <form id="formActualizarReceta" method="POST">
                     {% csrf_token %}
                     <div class="mb-3">
-                        <label  class="form-label">ID receta :</label>
-                        <label id="Id_receta"></label><br>
-                        <textarea type="text" id="M_Id" style="display: none;"></textarea>
+                        <label class="form-label">ID receta:</label>
+                        <label id="Id_receta"></label>
+                        <textarea id="M_Id" class="form-control" style="display: none;"></textarea>
                     </div>
                     <div class="mb-3">
-                        <label  class="form-label">Receta:</label><br>
-                        <label id="Nombre_receta" class="form-label"></label><br>
-                        <textarea type="text" id="M_Nombre_Receta" style="display: none;"></textarea>
+                        <label class="form-label">Receta:</label>
+                        <label id="Nombre_receta"></label>
+                        <textarea id="M_Nombre_Receta" class="form-control" style="display: none;"></textarea>
                     </div>
                     <div class="mb-3">
-                        <label  class="form-label">Descripcion:</label><br>
-                        <label id="Descripcion_Receta" class="form-label"></label><br>
-                        <textarea type="text" id="M_descripcion" style="display: none;"></textarea>
+                        <label class="form-label">Descripción:</label>
+                        <label id="Descripcion_Receta"></label>
+                        <textarea id="M_descripcion" class="form-control" style="display: none;"></textarea>
                     </div>
-                    <button type="submit" class="btn btn-primary" id="guardar_cambios" slot="display: none;" style="display: none;" >
-                        Guardar
-                    </button>
-                    <button type="button" class="btn btn-primary" id="cambiarInputsPorLabels" style="display: none;" >
-                        Cancelar
-                    </button>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" id="cambiarLabelsPorInputs">
+                            Modificar
+                        </button>
+                        <button type="submit" class="btn btn-success" id="guardar_cambios" style="display: none;">
+                            Guardar
+                        </button>
+                        <button type="button" class="btn btn-secondary" id="cambiarInputsPorLabels" style="display: none;">
+                            Cancelar
+                        </button>
+                    </div>
                 </form>
-                
-                
-                <button type="button" class="btn btn-primary"  id="cambiarLabelsPorInputs" onclick="cambiarLabelsPorInputs()">
-                    Modificar
-                </button>
-                
-
-                
             </div>
         </div>
     </div>
 </div>
-
-<script>
- 
-function mostrarId(id,id2,nombre_receta,descripcion,descripcion2) {
-        document.getElementById('receta_id').innerText =id;
-        document.getElementById('mostrar-id').innerText = nombre_receta;
-        document.getElementById('usuario').innerText = descripcion;
-        
-    }
-
-    // Configuración del WebSocket
-    const recetasSocket = new WebSocket('ws://' + window.location.host + '/ws/recetas/');
-    recetasSocket.onopen = function() {
-        console.log("Conexión WebSocket establecida para recetas.");
-    };
-
-    recetasSocket.onmessage = function(e) {
-        const data = JSON.parse(e.data);
-        const field = data.field;
-        const value = data.value;
-
-        const fieldElement = document.getElementById(field);
-        if (fieldElement) {
-            fieldElement.textContent = value;
-        }
-        console.log("WebSocket message received:", data); // Log completo
-        console.log("Message type:", data.type);
-        console.log("Recipe ID:", data.receta_id);
-        console.log("Data:", data.data);
-        
-        if (data.type === 'db_update') {
-            const recetaId = data.receta_id;
-            const descripcion = data.data.descripcion;
+<div class="container mt-4">
+    <h2>Actualizar Receta</h2>
     
-            console.log(`Receta actualizada: ID ${recetaId}, Nueva descripcion: ${descripcion}`);
-    
-            // Actualizar el DOM(el html es el dom)
-            const recetaCard = document.querySelector(`[data-receta-id="${recetaId}"]`);
-            if (recetaCard) {
-                const descripcionElement = recetaCard.querySelector('[data-field="descripcion"]');
-                if (descripcionElement) {
-                    descripcionElement.textContent = descripcion;
-                    // También actualizar el valor original
-                    if (descripcionElement.hasAttribute('data-original')) {
-                        descripcionElement.dataset.original = descripcion;
-                    }
-                }
-            }
-        }
-         else if (data.type === 'temp_modification') {
-            console.log("Attempting temp modification...");
-            updateRecetaTemp(data.receta_id, data.modifications);
-            console.log("Temp modification completed");
-        }
-    };
+    <button onclick="actualizarReceta()" class="btn btn-primary">
+        Actualizar Receta
+    </button>
 
-    function updateRecetaFromDB(recetaId, data) {
-        console.log("Updating recipe:", recetaId, data);
-        const recetaCard = document.querySelector(`[data-receta-id="${recetaId}"]`);
-        if (!recetaCard) {
-            console.error("Recipe card not found:", recetaId);
-            return;
-        }
-
-        // Actualizar cada campo
-        Object.entries(data).forEach(([field, value]) => {
-            const element = recetaCard.querySelector(`[data-field="${field}"]`);
-            if (element) {
-                element.textContent = value;
-                if (element.hasAttribute('data-original')) {
-                    element.dataset.original = value;
-                }
-            }
-        });
-    }
-
-    function updateRecetaTemp(recetaId, modifications) {
-        const recetaCard = document.querySelector(`[data-receta-id="${recetaId}"]`);
-        if (!recetaCard) return;
-        Object.entries(modifications).forEach(([field, value]) => {
-            const element = recetaCard.querySelector(`[data-field="${field}"]`);
-            if (element) {
-                element.textContent = value;
-            }
-        });
-    }
-
-    document.querySelectorAll('[contenteditable="true"]').forEach(element => {
-        element.addEventListener('input', function() {
-            const recetaCard = this.closest('[data-receta-id]');
-            const recetaId = recetaCard.dataset.recetaId;
-            const field = this.dataset.field;
-            const value = this.textContent;
-            recetasSocket.send(JSON.stringify({
-                action: 'temp_modify',
-                receta_id: recetaId,
-                modifications: { [field]: value }
-            }));
-        });
-
-        element.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape') {
-                this.textContent = this.dataset.original;
-                e.preventDefault();
-            }
-        });
-    });
-</script>
+    <div id="responseArea" class="mt-3">
+        <pre id="responseJson" class="bg-light p-3" style="display: none;"></pre>
+    </div>
+</div>
 {% endblock %}

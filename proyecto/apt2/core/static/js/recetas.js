@@ -1,4 +1,3 @@
-
 function prueba() {
     const modal = new bootstrap.Modal(document.getElementById('agregarIngredienteModal'))
     modal._element.classList.remove('show');
@@ -52,29 +51,28 @@ window.cambiarInputsPorLabels= function () {
 }
 
 function cambiarLabelsPorInputs() {
-    prueba()
-
-    setTimeout(() => {
-
-        const textarea_ID_Receta = document.getElementById("M_Id");
-        const textarea_descripcion = document.getElementById("M_descripcion");
-        const textarea_M_Nombre_Receta = document.getElementById("M_Nombre_Receta");
-
-
-        textarea_ID_Receta.style=""
-        textarea_M_Nombre_Receta.style=""
-        textarea_descripcion.style=""
-
-        const boton_cancelar = document.getElementById("cambiarInputsPorLabels");
-        boton_cancelar.style.display="";
-
-        const boton_guardar= document.getElementById("guardar_cambios");
-        boton_guardar.style.display="";
-        boton_guardar.style.marginLeft="54.5%";
-
-        const boton_modificar= document.getElementById("cambiarLabelsPorInputs");
-        boton_modificar.style.display="none";
-   }, 150); 
-    
+    // Mostrar campos de edición y botones
+    document.getElementById('M_Id').style.display = 'block';
+    document.getElementById('M_Nombre_Receta').style.display = 'block';
+    document.getElementById('M_descripcion').style.display = 'block';
+    document.getElementById('guardar_cambios').style.display = 'block';
+    document.getElementById('cambiarInputsPorLabels').style.display = 'block';
+    document.getElementById('cambiarLabelsPorInputs').style.display = 'none';
 }
 
+function mostrarId(recetaId, id, nombre, descripcion) {
+    document.getElementById('Id_receta').textContent = recetaId;
+    document.getElementById('M_Id').value = recetaId;
+    document.getElementById('Nombre_receta').textContent = nombre;
+    document.getElementById('M_Nombre_Receta').value = nombre;
+    document.getElementById('Descripcion_Receta').textContent = descripcion;
+    document.getElementById('M_descripcion').value = descripcion;
+
+    // Reset visibility of elements
+    document.getElementById('M_Id').style.display = 'none';
+    document.getElementById('M_Nombre_Receta').style.display = 'none';
+    document.getElementById('M_descripcion').style.display = 'none';
+    document.getElementById('guardar_cambios').style.display = 'none';
+    document.getElementById('cambiarInputsPorLabels').style.display = 'none';
+    document.getElementById('cambiarLabelsPorInputs').style.display = 'block';
+}

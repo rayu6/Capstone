@@ -13,6 +13,9 @@ from core.forms import UsuarioLoginForm
 from .decorators import role_required
 from .models import *
 from django.urls import reverse
+from django.views.decorators.http import require_http_methods
+from django.views.decorators.csrf import csrf_exempt
+
 # Create your views here.
 logger = logging.getLogger(__name__)
 
@@ -224,24 +227,147 @@ def guardar_receta(request):
 
 
 def test_signal(request):
-    if request.method == 'POST':
-            Nid=request.POST.get('id')
-            ndescripcion=request.POST.get('usuario')
-        
-            receta=Recetas.objects.filter(id=Nid).update(descripcion=ndescripcion)
+    receta = Recetas.objects.first()
+    if receta:
+        print(f"🔍 Original descripcion: {receta.descripcion}")
+        receta.descripcion = "Test update at now"
+        receta.save()
+        print(f"✏️ Nueva descripcion: {receta.descripcion}")
 
-            # Notificar al grupo WebSocket
-            channel_layer = get_channel_layer()
-            async_to_sync(channel_layer.group_send)(
-                "recetas_group",  # Grupo al que queremos notificar
-                {
-                    "type": "broadcast_db_update",  # Método en el consumidor
-                    "receta_id": Nid,         # ID de la receta modificada
-                    "data": {"descripcion": ndescripcion},  # Nuevos datos
-                }
-            )
-            messages.success(request, f"Receta {Nid} modificada existosamente")
-            return redirect('listar_recetas')
+        # Notificar al grupo WebSocket
+        channel_layer = get_channel_layer()
+        async_to_sync(channel_layer.group_send)(
+            "recetas_group",  # Grupo al que queremos notificar
+            {
+                "type": "broadcast_db_update",  # Método en el consumidor
+                "receta_id": 2,         # ID de la receta modificada
+                "data": {"descripcion": receta.descripcion},  # Nuevos datos
+            }
+        )
+        return JsonResponse({"status": "ok", "message": f"Updated receta {receta.id}"})
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def update_receta(request):
+    try:
+        # Obtener datos del POST
+        receta_id = request.POST.get('id')
+        nueva_descripcion = request.POST.get('descripcion')
+        
+        # Validar que se recibieron los datos necesarios
+        if not receta_id or not nueva_descripcion:
+            return JsonResponse({
+                "status": "error",
+                "message": "Se requieren los campos 'id' y 'descripcion'"
+            }, status=400)
+            
+        # Buscar la receta
+        try:
+            receta = Recetas.objects.get(id=receta_id)
+        except Recetas.DoesNotExist:
+            return JsonResponse({
+                "status": "error",
+                "message": f"No se encontró la receta con id {receta_id}"
+            }, status=404)
+        
+        # Guardar descripción anterior para el log
+        descripcion_anterior = receta.descripcion
+        
+        # Actualizar la receta
+        receta.descripcion = nueva_descripcion
+        receta.save()
+        
+        print(f"🔍 Original descripcion: {descripcion_anterior}")
+        print(f"✏️ Nueva descripcion: {receta.descripcion}")
+        
+        # Notificar al grupo WebSocket
+        channel_layer = get_channel_layer()
+        async_to_sync(channel_layer.group_send)(
+            "recetas_group",
+            {
+                "type": "broadcast_db_update",
+                "receta_id": receta.id,
+                "data": {"descripcion": receta.descripcion}
+            }
+        )
+        
+        return JsonResponse({
+            "status": "ok",
+            "message": f"Updated receta {receta.id}",
+            "data": {
+                "id": receta.id,
+                "descripcion_anterior": descripcion_anterior,
+                "descripcion_nueva": receta.descripcion
+            }
+        })
+        
+    except Exception as e:
+        return JsonResponse({
+            "status": "error",
+            "message": f"Error: {str(e)}"
+        }, status=500)
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def update_pedido_estadp(request):
+    try:
+        # Obtener datos del POST
+        estado_id = request.POST.get('id')
+        
+        # Validar que se recibieron los datos necesarios
+        if not estado_id:
+            return JsonResponse({
+                "status": "error",
+                "message": "Se requieren los campos 'id'"
+            }, status=400)
+            
+        # Buscar el pedido
+        try:
+            receta = Pedido.objects.get(id=estado_id)
+        except Recetas.DoesNotExist:
+            return JsonResponse({
+                "status": "error",
+                "message": f"No se encontró la receta con id {receta_id}"
+            }, status=404)
+        
+        # Guardar descripción anterior para el log
+        descripcion_anterior = receta.descripcion
+        
+        # Actualizar la receta
+        receta.descripcion = nueva_descripcion
+        receta.save()
+        
+        print(f"🔍 Original descripcion: {descripcion_anterior}")
+        print(f"✏️ Nueva descripcion: {receta.descripcion}")
+        
+        # Notificar al grupo WebSocket
+        channel_layer = get_channel_layer()
+        async_to_sync(channel_layer.group_send)(
+            "recetas_group",
+            {
+                "type": "broadcast_db_update",
+                "receta_id": receta.id,
+                "data": {"descripcion": receta.descripcion}
+            }
+        )
+        
+        return JsonResponse({
+            "status": "ok",
+            "message": f"Updated receta {receta.id}",
+            "data": {
+                "id": receta.id,
+                "descripcion_anterior": descripcion_anterior,
+                "descripcion_nueva": receta.descripcion
+            }
+        })
+        
+    except Exception as e:
+        return JsonResponse({
+            "status": "error",
+            "message": f"Error: {str(e)}"
+        }, status=500)
+
+
 
     
         

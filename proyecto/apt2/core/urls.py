@@ -18,7 +18,7 @@ urlpatterns = [
     path('crearreceta/', views.ingredientes_receta, name='crear_receta'),
     path('guardar_receta/',views.guardar_receta, name='guardar_receta'),
     path('test-signal/', views.test_signal, name='test-signal'),
+    path('api/update-receta/', views.update_receta, name='update_receta'),
     #path('agregar-pedido/', views.agregar_pedido, name='agregar_pedido'),
     #path('pedido-crear/', views.crear_pedido, name='crear_pedido'),
-    
 ]
