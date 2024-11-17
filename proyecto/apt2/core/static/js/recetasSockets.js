@@ -97,10 +97,6 @@ document.querySelectorAll('[contenteditable="true"]').forEach(element => {
     });
 });
 
-
-
-
-
 function actualizarReceta(event) {
     if (event) {
         event.preventDefault();
@@ -108,6 +104,7 @@ function actualizarReceta(event) {
     
     const recetaId = document.getElementById('M_Id').value;
     const nuevaDescripcion = document.getElementById('M_descripcion').value;
+    const nuevoNombre = document.getElementById('M_Nombre_Receta').value;
 
     // Obtener el token CSRF
     const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
@@ -119,7 +116,8 @@ function actualizarReceta(event) {
         },
         body: new URLSearchParams({
             'id': recetaId,
-            'descripcion': nuevaDescripcion
+            'descripcion': nuevaDescripcion,
+            'nombre_receta': nuevoNombre
         })
     })
     .then(response => response.json())
@@ -131,10 +129,21 @@ function actualizarReceta(event) {
             if (modal) {
                 modal.hide();
             }
+            
             // Actualizar la vista
-            const descripcionElement = document.querySelector(`[data-receta-id="${recetaId}"] [data-field="descripcion"]`);
-            if (descripcionElement) {
-                descripcionElement.textContent = nuevaDescripcion;
+            const card = document.querySelector(`[data-receta-id="${recetaId}"]`);
+            if (card) {
+                // Actualizar descripción
+                const descripcionElement = card.querySelector('[data-field="descripcion"]');
+                if (descripcionElement) {
+                    descripcionElement.textContent = nuevaDescripcion;
+                }
+                
+                // Actualizar nombre
+                const nombreElement = card.querySelector('[data-field="nombre_receta"]');
+                if (nombreElement) {
+                    nombreElement.textContent = nuevoNombre;
+                }
             }
         } else {
             console.error('Error en la respuesta:', data.message);

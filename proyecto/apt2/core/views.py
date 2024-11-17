@@ -253,9 +253,11 @@ def update_receta(request):
         # Obtener datos del POST
         receta_id = request.POST.get('id')
         nueva_descripcion = request.POST.get('descripcion')
+        nuevo_nombre = request.POST.get('nombre_receta')
+
         
         # Validar que se recibieron los datos necesarios
-        if not receta_id or not nueva_descripcion:
+        if not receta_id or not (nueva_descripcion or nuevo_nombre):
             return JsonResponse({
                 "status": "error",
                 "message": "Se requieren los campos 'id' y 'descripcion'"
@@ -272,9 +274,18 @@ def update_receta(request):
         
         # Guardar descripción anterior para el log
         descripcion_anterior = receta.descripcion
-        
+        nombre_anterior = receta.nombre_receta
+
         # Actualizar la receta
-        receta.descripcion = nueva_descripcion
+        if nueva_descripcion:
+            receta.descripcion = nueva_descripcion
+        if nuevo_nombre:
+            # Buscar o crear el NombreReceta
+            nombre_obj, created = NombreReceta.objects.get_or_create(
+                nombre=nuevo_nombre
+            )
+            receta.nombre_receta = nombre_obj
+
         receta.save()
         
         print(f"🔍 Original descripcion: {descripcion_anterior}")
@@ -287,7 +298,10 @@ def update_receta(request):
             {
                 "type": "broadcast_db_update",
                 "receta_id": receta.id,
-                "data": {"descripcion": receta.descripcion}
+                "data": {
+                    "descripcion": receta.descripcion,
+                    "nombre_receta": receta.nombre_receta.nombre
+                }
             }
         )
         
