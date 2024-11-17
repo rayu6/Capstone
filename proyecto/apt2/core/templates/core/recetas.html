@@ -45,9 +45,12 @@
                             </div>
                             {% endfor %}
                         </div><br>
-                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#agregarIngredienteModal" onclick="mostrarId('{{ receta.id }}','{{ receta.id }}','{{ receta.nombre_receta }}','{{ receta.descripcion }}','{{ receta.descripcion }}' )">
-                            Ver detalles
+                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" 
+                                    data-bs-target="#agregarIngredienteModal" 
+                                    onclick="mostrarId('{{ receta.id }}')">
+                                    Ver detalles
                         </button>
+                
                     </div>
                 </div>
             </div>

@@ -60,7 +60,19 @@ function cambiarLabelsPorInputs() {
     document.getElementById('cambiarLabelsPorInputs').style.display = 'none';
 }
 
-function mostrarId(recetaId, id, nombre, descripcion) {
+function mostrarId(recetaId) {
+    // Busca la tarjeta correspondiente en el DOM
+    const recetaCard = document.querySelector(`[data-receta-id="${recetaId}"]`);
+    if (!recetaCard) {
+        console.error(`Tarjeta con ID ${recetaId} no encontrada.`);
+        return;
+    }
+
+    // Extrae los valores actualizados del DOM
+    const nombre = recetaCard.querySelector('[data-field="nombre_receta"]').textContent.trim();
+    const descripcion = recetaCard.querySelector('[data-field="descripcion"]').textContent.trim();
+
+    // Actualiza los valores en el modal
     document.getElementById('Id_receta').textContent = recetaId;
     document.getElementById('M_Id').value = recetaId;
     document.getElementById('Nombre_receta').textContent = nombre;
@@ -68,7 +80,7 @@ function mostrarId(recetaId, id, nombre, descripcion) {
     document.getElementById('Descripcion_Receta').textContent = descripcion;
     document.getElementById('M_descripcion').value = descripcion;
 
-    // Reset visibility of elements
+    // Reset visibility of elements in modal
     document.getElementById('M_Id').style.display = 'none';
     document.getElementById('M_Nombre_Receta').style.display = 'none';
     document.getElementById('M_descripcion').style.display = 'none';

@@ -124,6 +124,7 @@ function actualizarReceta(event) {
     .then(data => {
         console.log('Respuesta:', data);
         if (data.status === 'ok') {
+            toastr.success("¡Receta actualizada con éxito!");
             // Cerrar el modal
             const modal = bootstrap.Modal.getInstance(document.getElementById('agregarIngredienteModal'));
             if (modal) {
@@ -145,6 +146,7 @@ function actualizarReceta(event) {
                     nombreElement.textContent = nuevoNombre;
                 }
             }
+
         } else {
             console.error('Error en la respuesta:', data.message);
         }

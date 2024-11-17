@@ -303,7 +303,6 @@ def update_receta(request):
                 }
             }
         )
-
         return JsonResponse({
             "status": "ok",
             "message": f"Updated receta {receta.id}",
@@ -315,6 +314,7 @@ def update_receta(request):
                 "descripcion_nueva": receta.descripcion
             }
         })
+
 
     except Exception as e:
         return JsonResponse({
