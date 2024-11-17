@@ -250,20 +250,16 @@ def test_signal(request):
 @require_http_methods(["POST"])
 def update_receta(request):
     try:
-        # Obtener datos del POST
         receta_id = request.POST.get('id')
         nueva_descripcion = request.POST.get('descripcion')
         nuevo_nombre = request.POST.get('nombre_receta')
 
-        
-        # Validar que se recibieron los datos necesarios
-        if not receta_id or not (nueva_descripcion or nuevo_nombre):
+        if not receta_id:
             return JsonResponse({
                 "status": "error",
-                "message": "Se requieren los campos 'id' y 'descripcion'"
+                "message": "Se requiere el id"
             }, status=400)
-            
-        # Buscar la receta
+
         try:
             receta = Recetas.objects.get(id=receta_id)
         except Recetas.DoesNotExist:
@@ -271,27 +267,30 @@ def update_receta(request):
                 "status": "error",
                 "message": f"No se encontró la receta con id {receta_id}"
             }, status=404)
-        
-        # Guardar descripción anterior para el log
-        descripcion_anterior = receta.descripcion
-        nombre_anterior = receta.nombre_receta
 
-        # Actualizar la receta
+        # Guardar valores anteriores
+        descripcion_anterior = receta.descripcion
+        nombre_anterior = receta.nombre_receta.nombre
+
+        # Actualizar descripción si se proporcionó
         if nueva_descripcion:
             receta.descripcion = nueva_descripcion
+
+        # Actualizar el nombre existente si se proporcionó
         if nuevo_nombre:
-            # Buscar o crear el NombreReceta
-            nombre_obj, created = NombreReceta.objects.get_or_create(
-                nombre=nuevo_nombre
-            )
-            receta.nombre_receta = nombre_obj
+            # Actualizamos el nombre en el objeto NombreReceta existente
+            nombre_receta_obj = receta.nombre_receta
+            nombre_receta_obj.nombre = nuevo_nombre
+            nombre_receta_obj.save()
 
         receta.save()
-        
+
+        print(f"🔍 Original nombre: {nombre_anterior}")
+        print(f"✏️ Nuevo nombre: {receta.nombre_receta.nombre}")
         print(f"🔍 Original descripcion: {descripcion_anterior}")
         print(f"✏️ Nueva descripcion: {receta.descripcion}")
-        
-        # Notificar al grupo WebSocket
+
+        # Notificar por WebSocket
         channel_layer = get_channel_layer()
         async_to_sync(channel_layer.group_send)(
             "recetas_group",
@@ -304,17 +303,19 @@ def update_receta(request):
                 }
             }
         )
-        
+
         return JsonResponse({
             "status": "ok",
             "message": f"Updated receta {receta.id}",
             "data": {
                 "id": receta.id,
+                "nombre_anterior": nombre_anterior,
+                "nombre_nuevo": receta.nombre_receta.nombre,
                 "descripcion_anterior": descripcion_anterior,
                 "descripcion_nueva": receta.descripcion
             }
         })
-        
+
     except Exception as e:
         return JsonResponse({
             "status": "error",
