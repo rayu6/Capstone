@@ -82,30 +82,32 @@
                     <div class="mb-3">
                         <label class="form-label">ID receta:</label>
                         <label id="Id_receta"></label>
-                        <textarea id="M_Id" class="form-control" style="display: none;"></textarea>
+                        <textarea id="M_Id" class="form-control d-none" ></textarea>
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Receta:</label>
                         <label id="Nombre_receta"></label>
-                        <textarea id="M_Nombre_Receta" class="form-control" style="display: none;"></textarea>
+                        <textarea id="M_Nombre_Receta" class="form-control d-none" ></textarea>
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Descripción:</label>
                         <label id="Descripcion_Receta"></label>
-                        <textarea id="M_descripcion" class="form-control" style="display: none;"></textarea>
+                        <textarea id="M_descripcion" class="form-control d-none" ></textarea>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-primary" id="cambiarLabelsPorInputs">
-                            Modificar
-                        </button>
-                        <button type="submit" class="btn btn-success" id="guardar_cambios" style="display: none;">
+                        
+                        <button type="submit" class="btn btn-primary d-none" id="guardar_cambios" >
                             Guardar
                         </button>
-                        <button type="button" class="btn btn-secondary" id="cambiarInputsPorLabels" style="display: none;">
+                        <button type="button" class="btn btn-secondary d-none" id="cambiarInputsPorLabels" >
                             Cancelar
                         </button>
                     </div>
                 </form>
+
+                <button type="button" class="btn btn-primary" id="cambiarLabelsPorInputs" onclick="cambiarLabelsPorInputs()" >
+                    Modificar
+                </button>
             </div>
         </div>
     </div>
