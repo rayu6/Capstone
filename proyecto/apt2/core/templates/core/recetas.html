@@ -31,6 +31,7 @@
                            data-field="descripcion">{{ receta.descripcion|truncatechars:84 | capfirst}}</p>
                         <p class="card-text">Ingredientes y Cantidades:</p>
                         <div class="ingredientes-list">
+
                             {% for item in receta.receta_ingrediente.all %}
                             <div class="ingrediente-item" data-ingrediente-id="{{ item.id }}">
                                 <span contenteditable="true" 
@@ -112,15 +113,5 @@
         </div>
     </div>
 </div>
-<div class="container mt-4">
-    <h2>Actualizar Receta</h2>
-    
-    <button onclick="actualizarReceta()" class="btn btn-primary">
-        Actualizar Receta
-    </button>
 
-    <div id="responseArea" class="mt-3">
-        <pre id="responseJson" class="bg-light p-3" style="display: none;"></pre>
-    </div>
-</div>
 {% endblock %}

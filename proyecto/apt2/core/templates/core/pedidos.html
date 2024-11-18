@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -13,35 +14,27 @@
 {% endblock %}
 
 {% block content %}
+<script src="{% static 'js/pedidosSockets.js' %}" defer></script>
+
 <div class="container">
     <h2 class="text-center">Listado de Pedidos</h2>
     <div class="order-list">
+        
         {% if pedidos %}
             <div class="row">
                 {% for pedido in pedidos %}
+                
                 <div class="col-md-4 mb-4">
                     <div class="card" style="width: 18rem;" data-pedido-id="{{ pedido.id }}">
                         <div class="card-body">
-                            <h5 class="card-title"> Usuario: {{ pedido.usuario }}</h5>
-                            <p class="card-text"> Numero de pedido: {{ pedido.id }}</p>
-                            <p class="card-text">Estado: {{ pedido.estado }}</p>
-                            <p class="card-text">Productos:</p>
-                            <div class="productos-list">
-                                {% for receta in pedido.recetas.all %}
-                                    {% for producto in receta.productos.all %}
-                                    <div class="producto-item" data-producto-id="{{ producto.id }}">
-                                        <button type="button" class="btn btn-link p-0" data-toggle="modal" 
-                                                data-target="#productModal{{ producto.id }}">
-                                            {{ producto.nombre }}
-                                        </button>
-                                        <span>{{ producto.cantidad }}</span>
-                                        <span>${{ producto.precio|floatformat:"2" }}</span>
-                                    </div>
-                                    {% endfor %}
-                                {% endfor %}
-                            </div>
-                            <!-- Botón para abrir el modal -->
-                            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#agregarIngredienteModal" onclick="mostrarId('{{ pedido.id }}', '{{ pedido.usuario }}', '{{ pedido.tipo_de_orden }}', '{{ pedido.estado }}', '{{ pedido.receta_pedido }}')">
+                            <h5 class="card-title" data-field="usuario" data-original="{{ pedido.usuario }}">Usuario: {{ pedido.usuario }}</h5>
+                            <p class="card-text">Numero de pedido: {{ pedido.id }}</p>
+                            <p class="card-text"  data-field="estado" data-original="{{ pedido.estado }}">Estado: {{ pedido.estado }}</p>
+                            <p class="card-text" data-field="tipo_de_orden" data-original="{{ pedido.tipo_de_orden }}">Tipo de orden: {{ pedido.tipo_de_orden }}</p>
+                            <p class="card-text">Receta: {{ pedido.receta_pedido.recetas.nombre_receta }}</p>
+                            <button type="button" class="btn btn-primary" data-bs-toggle="modal" 
+                                    data-bs-target="#agregarIngredienteModal" 
+                                    onclick="mostrarId('{{ pedido.id }}')">
                                 Ver detalles
                             </button>
                         </div>
@@ -55,88 +48,56 @@
     </div>
 </div>
 
-<!-- Modal de Bootstrap -->
+<!-- Modal de Detalles -->
 <div class="modal fade" id="agregarIngredienteModal" tabindex="-1" aria-labelledby="agregarIngredienteLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="pedido">Detalles del Pedido</h5>
+                <h5 class="modal-title" id="pedido"></h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <h5 id="mostrar-id"></h5>
-                <form method="POST" action="{% url 'guardar_ingrediente' %}">
-                    {% csrf_token %}
-                    <div class="mb-3">
-                        <label id="usuario" class="form-label"></label>
-                    </div>
-                    <div class="mb-3">
-                        <label id="tipoorden" class="form-label"></label>
-                    </div>
-                    <div class="mb-3">
-                        <label id="estado" class="form-label"></label>
-                    </div>
-                    <div class="mb-3">
-                        <label id="recetapedido" class="form-label"></label>
-                    </div>
-                    <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#modificarIngredienteModal"></button>
-                </form>
+                <input type="hidden" id="pedido_id">
+                <div class="mb-3">
+                    <label>ID del pedido: </label>
+                    <span id="Id_pedido"></span>
+                    <input type="text" id="M_Id" style="display: none;">
+                </div>
+                <div class="mb-3">
+                    <label>Usuario: </label>
+                    <span id="Usuario_pedido"></span>
+                    <input type="text" id="M_Usuario" style="display: none;">
+                </div>
+                <div class="mb-3">
+                    <label>Tipo de orden: </label>
+                    <span id="Tipo_orden"></span>
+                    <input type="text" id="M_Tipo_orden" style="display: none;">
+                </div>
+                <div class="mb-3">
+                    <label>Estado: </label>
+                    <span id="Estado_pedido"></span>
+                    <select id="M_Estado" style="display: none;">
+                        <option value="En proceso">En proceso</option>
+                        <option value="Pendiente">Pendiente</option>
+                        <option value="Completado">Completado</option>
+                        <option value="Cancelado">Cancelado</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label>Receta: </label>
+                    <span id="Receta_pedido"></span>
+                </div>
+                <button id="cambiarLabelsPorInputs" type="button" class="btn btn-warning">Modificar</button>
+                <button id="guardar_cambios" type="button" class="btn btn-success" style="display: none;" onclick="actualizarPedido()">Guardar Cambios</button>
+                <button id="cambiarInputsPorLabels" type="button" class="btn btn-danger" style="display: none;">Cancelar</button>
             </div>
         </div>
     </div>
 </div>
-
-
-<div class="modal fade" id="modificarIngredienteModal" tabindex="-1" aria-labelledby="modificarIngredienteLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="modificarIngredienteLabel">Modificar Pedido</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <form method="POST" action="{% url 'guardar_ingrediente' %}">
-                    {% csrf_token %}    
-                    <div class="mb-3">
-                        <label for="usuario" class="form-label">Usuario</label>
-                        <input type="text" class="form-control" id="usuario" name="usuario" value="{{ pedido.usuario }}">
-                    </div>
-                    <div class="mb-3">
-                        <label for="tipoorden" class="form-label">Tipo de Orden</label>
-                        <input type="text" class="form-control" id="tipoorden" name="tipoorden" value="{{ pedido.tipoorden }}">
-                    </div>
-                    <div class="mb-3">
-                        <label for="estado" class="form-label">Estado</label>
-                        <select class="form-control" id="estado" name="estado">
-                            <option value="En proceso" {% if pedido.estado == 'Proceso' %}selected{% endif %}>En proceso</option>
-                            <option value="Pendiente" {% if pedido.estado == 'Pendiente' %}selected{% endif %}>Pendiente</option>
-                            <option value="Completado" {% if pedido.estado == 'Completado' %}selected{% endif %}>Completado</option>
-                            <option value="Cancelado" {% if pedido.estado == 'Cancelado' %}selected{% endif %}>Cancelado</option>
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label for="recetapedido" class="form-label">Receta del Pedido</label>
-                        <input type="text" class="form-control" id="recetapedido" name="recetapedido" value="{{ pedido.recetapedido }}">
-                    </div>
-                    <button type="submit" class="btn btn-primary">Guardar Cambios</button>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
-<script>
-    function mostrarId(id,usuario,tipo_de_orden,estado,receta_pedido) {
-        document.getElementById('pedido').innerText = 'Detalles del Pedido ' + id;
-        document.getElementById('mostrar-id').innerText = 'ID del pedido: ' + id;
-        document.getElementById('usuario').innerText = `Usuario: ${usuario} `;
-        document.getElementById('tipoorden').innerText = `Tipo de orden: ${tipo_de_orden} `;
-        document.getElementById('estado').innerText = `Estado de orden: ${estado} `;
-        document.getElementById('recetapedido').innerText = `Receta pedido: ${receta_pedido} `;
-    }
-</script>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 
 {% endblock %}

@@ -125,6 +125,7 @@ function actualizarReceta(event) {
         console.log('Respuesta:', data);
         if (data.status === 'ok') {
             toastr.success("¡Receta actualizada con éxito!");
+
             // Cerrar el modal
             const modal = bootstrap.Modal.getInstance(document.getElementById('agregarIngredienteModal'));
             if (modal) {

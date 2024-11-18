@@ -226,7 +226,7 @@ def guardar_receta(request):
         return render(request, 'core/crearreceta.html', {'ingredientes': ingredientes})
 
 
-def test_signal(request):
+""" def test_signal(request):
     receta = Recetas.objects.first()
     if receta:
         print(f"🔍 Original descripcion: {receta.descripcion}")
@@ -244,7 +244,7 @@ def test_signal(request):
                 "data": {"descripcion": receta.descripcion},  # Nuevos datos
             }
         )
-        return JsonResponse({"status": "ok", "message": f"Updated receta {receta.id}"})
+        return JsonResponse({"status": "ok", "message": f"Updated receta {receta.id}"}) """
 
 @csrf_exempt
 @require_http_methods(["POST"])
@@ -322,67 +322,74 @@ def update_receta(request):
             "message": f"Error: {str(e)}"
         }, status=500)
 
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_http_methods
+from asgiref.sync import async_to_sync
+from channels.layers import get_channel_layer
+from core.models import Pedido, Estado  # Asegúrate de usar los modelos correctos
+
 @csrf_exempt
 @require_http_methods(["POST"])
-def update_pedido_estadp(request):
+def update_pedido_estado(request):
     try:
-        # Obtener datos del POST
-        estado_id = request.POST.get('id')
-        
-        # Validar que se recibieron los datos necesarios
-        if not estado_id:
-            return JsonResponse({
-                "status": "error",
-                "message": "Se requieren los campos 'id'"
-            }, status=400)
-            
-        # Buscar el pedido
+        # Datos hardcoded para la prueba
+        pedido_id = request.POST.get('id') # ID del pedido
+        nuevo_estado_id = request.POST.get('estado')  # Nuevo estado ('Pendiente')
+
         try:
-            receta = Pedido.objects.get(id=estado_id)
-        except Recetas.DoesNotExist:
+            # Buscar el pedido
+            pedido = Pedido.objects.get(id=pedido_id)
+        except Pedido.DoesNotExist:
             return JsonResponse({
                 "status": "error",
-                "message": f"No se encontró la receta con id {receta_id}"
+                "message": f"No se encontró el pedido con id {pedido_id}"
             }, status=404)
-        
-        # Guardar descripción anterior para el log
-        descripcion_anterior = receta.descripcion
-        
-        # Actualizar la receta
-        receta.descripcion = nueva_descripcion
-        receta.save()
-        
-        print(f"🔍 Original descripcion: {descripcion_anterior}")
-        print(f"✏️ Nueva descripcion: {receta.descripcion}")
-        
-        # Notificar al grupo WebSocket
+
+        # Guardar valores anteriores
+        estado_anterior = pedido.estado.nombre_estado
+
+        try:
+            # Buscar el nuevo estado
+            nuevo_estado = Estado.objects.get(id=nuevo_estado_id)
+        except Estado.DoesNotExist:
+            return JsonResponse({
+                "status": "error",
+                "message": f"No se encontró el estado con id {nuevo_estado_id}"
+            }, status=404)
+
+        # Actualizar el estado del pedido
+        pedido.estado = nuevo_estado
+        pedido.save()
+
+        print(f"🔍 Estado anterior: {estado_anterior}")
+        print(f"✏️ Nuevo estado: {pedido.estado.nombre_estado}")
+
+        # Notificar por WebSocket
         channel_layer = get_channel_layer()
         async_to_sync(channel_layer.group_send)(
-            "recetas_group",
+            "pedidos_group",  # Asegúrate de que este grupo esté configurado en tu consumidor
             {
                 "type": "broadcast_db_update",
-                "receta_id": receta.id,
-                "data": {"descripcion": receta.descripcion}
+                "pedido_id": pedido.id,
+                "data": {
+                    "estado": pedido.estado.nombre_estado
+                }
             }
         )
-        
+
         return JsonResponse({
             "status": "ok",
-            "message": f"Updated receta {receta.id}",
+            "message": f"Updated pedido {pedido.id}",
             "data": {
-                "id": receta.id,
-                "descripcion_anterior": descripcion_anterior,
-                "descripcion_nueva": receta.descripcion
+                "id": pedido.id,
+                "estado_anterior": estado_anterior,
+                "estado_nuevo": pedido.estado.nombre_estado
             }
         })
-        
+
     except Exception as e:
         return JsonResponse({
             "status": "error",
             "message": f"Error: {str(e)}"
         }, status=500)
-
-
-
-    
-        
