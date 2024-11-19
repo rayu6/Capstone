@@ -9,7 +9,6 @@ function prueba() {
 
 function cambiarLabelsPorInputs() {
     setTimeout(() => {
-        console.log(document.getElementById('M_Nombre_Receta'))
         const textarea_ID_Receta = document.getElementById("M_Id");
         const textarea_descripcion = document.getElementById("M_descripcion");
         const textarea_M_Nombre_Receta = document.getElementById("M_Nombre_Receta");
@@ -23,7 +22,6 @@ function cambiarLabelsPorInputs() {
             // Asocia el evento click a un botón para ocultar el modal
             $('#cerrar').on('click', function () {
                 $('.modal.show').modal('hide'); // Cierra el modal
-                console.log('prueba')
             });
         });
         if (label_ID_nombre) {
@@ -31,6 +29,10 @@ function cambiarLabelsPorInputs() {
         }        
         if (textarea_ID_Receta) {
             textarea_ID_Receta.classList.add('w-100')
+        }
+
+        if (label_ID_descripcion) {
+            label_ID_descripcion.classList.add('d-none')
         }
 
         if (textarea_M_Nombre_Receta) {
@@ -56,6 +58,35 @@ function cambiarLabelsPorInputs() {
         if (boton_modificar) {
             boton_modificar.classList.add('d-none');
         }
+
+        const label_cantidad = document.querySelectorAll('[id^="cantidad-"]')
+        
+        label_cantidad.forEach((cantidad) => {
+            // Agrega la clase 'd-none' para ocultar el elemento
+            cantidad.classList.add('d-none');
+            
+        });
+
+        const label_unidades = document.querySelectorAll('[id^="unidad-"]')
+        
+        label_unidades.forEach((unidad) => {
+            // Agrega la clase 'd-none' para ocultar el elemento
+            unidad.classList.add('d-none');
+        });
+
+
+        const div_input = document.querySelectorAll('[id^="inputs_ingredientes-"]')
+        
+        div_input.forEach((div_input) => {
+            // Agrega la clase 'd-none' para ocultar el elemento
+            div_input.classList.remove('d-none');
+        });
+
+
+        const input_cantidades =document.querySelectorAll('[id^="input_cantidad-"]');
+        input_cantidades.forEach((cantidad) => {
+            const cantidadValue = cantidad.value  ; 
+            console.log(cantidadValue);})
    }, 150); 
     
 }
@@ -85,8 +116,6 @@ function cambiarInputsPorLabels() {
     
 
     setTimeout(() => {
-        console.log(document.getElementById('M_Nombre_Receta'))
-        console.log("si veo esto es que funciono")
         const textarea_ID_Receta = document.getElementById("M_Id");
         const textarea_descripcion = document.getElementById("M_descripcion");
         const textarea_M_Nombre_Receta = document.getElementById("M_Nombre_Receta");
@@ -135,8 +164,6 @@ function cambiarInputsPorLabels() {
     
 
     setTimeout(() => {
-        console.log(document.getElementById('M_Nombre_Receta'))
-        console.log("si veo esto es que funciono")
         const textarea_ID_Receta = document.getElementById("M_Id");
         const textarea_descripcion = document.getElementById("M_descripcion");
         const textarea_M_Nombre_Receta = document.getElementById("M_Nombre_Receta");
@@ -173,6 +200,30 @@ function cambiarInputsPorLabels() {
         if (boton_modificar) {
             boton_modificar.classList.remove('d-none');
         }
+
+        const label_cantidad = document.querySelectorAll('[id^="cantidad-"]')
+        
+        label_cantidad.forEach((cantidad) => {
+            
+            // Agrega la clase 'd-none' para ocultar el elemento
+            cantidad.classList.remove('d-none');
+            
+        });
+
+        const label_unidades = document.querySelectorAll('[id^="unidad-"]')
+        
+        label_unidades.forEach((unidad) => {
+            // Agrega la clase 'd-none' para ocultar el elemento
+            unidad.classList.remove('d-none');
+        });
+
+
+        const div_input = document.querySelectorAll('[id^="inputs_ingredientes-"]')
+        
+        div_input.forEach((div_input) => {
+            // Agrega la clase 'd-none' para ocultar el elemento
+            div_input.classList.add('d-none');
+        });
    }, 150);}
 
 
@@ -184,21 +235,13 @@ if(document.getElementById("cambiarInputsPorLabels")){
 
 
 function Cerrar() {
-    
-        console.log(document.getElementById('M_Nombre_Receta'))
-        console.log("si veo esto es que funciono")
+    setTimeout(() => {
         const textarea_ID_Receta = document.getElementById("M_Id");
         const textarea_descripcion = document.getElementById("M_descripcion");
         const textarea_M_Nombre_Receta = document.getElementById("M_Nombre_Receta");
         const label_ID_descripcion = document.getElementById("Descripcion_Receta");
         const label_ID_nombre = document.getElementById("Nombre_receta");
-        const modal_a = document.getElementById("agregarIngredienteModal");
-        console.log("prueab de presionado")
-        if (modal_a) {
-            $('#agregarIngredienteModal').modal('dispose')
-           console.log("if modal")
-
-        }
+        
         if (label_ID_descripcion) {
             label_ID_descripcion.classList.remove('d-none');
         }
@@ -229,13 +272,31 @@ function Cerrar() {
         if (boton_modificar) {
             boton_modificar.classList.remove('d-none');
         }
+        const label_cantidad = document.querySelectorAll('[id^="cantidad-"]')
+        
+        label_cantidad.forEach((cantidad) => {
+            
+            // Agrega la clase 'd-none' para ocultar el elemento
+            cantidad.classList.remove('d-none');
+            
+        });
+
+        const label_unidades = document.querySelectorAll('[id^="unidad-"]')
+        
+        label_unidades.forEach((unidad) => {
+            // Agrega la clase 'd-none' para ocultar el elemento
+            unidad.classList.remove('d-none');
+        });
+
+
+        const div_input = document.querySelectorAll('[id^="inputs_ingredientes-"]')
+        
+        div_input.forEach((div_input) => {
+            // Agrega la clase 'd-none' para ocultar el elemento
+            div_input.classList.add('d-none');
+        });
    }
-
-
-if(document.getElementById("cerrar")){
-    document.getElementById("cerrar").addEventListener("click",Cerrar );
-    console.log("prueab de presionado")
-} 
+, 150);}
 
 function mostrarId(recetaId) {
     // Busca la tarjeta correspondiente en el DOM
@@ -248,7 +309,105 @@ function mostrarId(recetaId) {
     // Extrae los valores actualizados del DOM
     const nombre = recetaCard.querySelector('[data-field="nombre_receta"]').textContent.trim();
     const descripcion = recetaCard.querySelector('[data-field="descripcion"]').textContent.trim();
+    const ingredientes = recetaCard.querySelectorAll('[data-field="ingrediente"]');
+    const cantidades =recetaCard.querySelectorAll('[data-field="cantidad"]');
+    const unidades =recetaCard.querySelectorAll('[data-field="unidad"]');
+     // Recopila los ingredientes
 
+    const contenedor = document.getElementById('ingredientes_Receta'); // Selecciona el contenedor
+    contenedor.innerHTML=''
+        
+    ingredientes.forEach((ingrediente, index) => {
+        const nombre = ingrediente.textContent.trim();
+        const cantidad = cantidades[index]?.textContent.trim() || "Sin cantidad";
+        const unidad = unidades[index]?.textContent.trim() || "Sin unidad";
+        const contenedorIngrediente = document.createElement('div');
+    
+        // Agrega nombre
+        const labelIngrediente = document.createElement('label');
+        labelIngrediente.textContent = nombre;
+        labelIngrediente.id=`nombre_ingrediente-${index+1}`
+        contenedorIngrediente.appendChild(labelIngrediente);
+    
+        // Agrega cantidad
+        const labelCantidad = document.createElement('label');
+        labelCantidad.innerHTML = `&nbsp;${cantidad} `;
+        labelCantidad.id=`cantidad-${index+1}`
+        contenedorIngrediente.appendChild(labelCantidad);
+    
+        // Agrega unidad
+        const labelUnidad = document.createElement('label');
+        labelUnidad.innerHTML= `&nbsp;${unidad} `;
+        labelUnidad.id=`unidad-${index+1}`
+        contenedorIngrediente.appendChild(labelUnidad);
+        
+
+        //CREACION INPUTS
+        const div_inputs = document.createElement('div');
+            div_inputs.id=`inputs_ingredientes-${index+1}`;
+
+            div_inputs.classList.add('d-none');
+
+            div_inputs.classList.add('input-group');
+            //span cantidades
+            const span_c = document.createElement('span');
+                span_c.classList.add('input-group-text');
+                span_c.id=`span_cantidad-${index+1}`;
+                span_c.textContent= "cantidad";
+                div_inputs.appendChild(span_c);
+
+            const input_c = document.createElement('input');
+                input_c.classList.add('form-control');
+                input_c.id=`input_cantidad-${index+1}`;
+                input_c.value= cantidad;
+                div_inputs.appendChild(input_c);
+            
+            const span_u = document.createElement('span');
+                span_u.classList.add('input-group-text');
+                span_c.id=`span_unidad-${index+1}`;
+                span_u.textContent= "unidad";
+                div_inputs.appendChild(span_u);
+
+            const input_u = document.createElement('input');
+                input_u.classList.add('form-control');
+                input_c.id=`input_cantidad-${index+1}`;
+                input_u.value= unidad;
+                div_inputs.appendChild(input_u);
+
+        // Añadir al DOM
+        contenedor.appendChild(contenedorIngrediente);
+        contenedor.appendChild(div_inputs);
+    });
+
+    const textarea_descripcion = document.getElementById("M_descripcion");
+    const textarea_M_Nombre_Receta = document.getElementById("M_Nombre_Receta");
+
+    textarea_M_Nombre_Receta.classList.add('d-none');
+    textarea_descripcion.classList.add('d-none')
+
+    const boton_cancelar = document.getElementById("cambiarInputsPorLabels");
+        if (boton_cancelar) {
+            boton_cancelar.classList.add('d-none');
+        }
+
+        const boton_guardar= document.getElementById("guardar_cambios");
+        if (boton_guardar) {
+            boton_guardar.classList.add('d-none');
+        }
+        
+
+        const boton_modificar= document.getElementById("cambiarLabelsPorInputs");
+        if (boton_modificar) {
+            boton_modificar.classList.remove('d-none');
+        }
+
+        const label_ID_descripcion = document.getElementById("Descripcion_Receta");
+        const label_ID_nombre = document.getElementById("Nombre_receta");
+
+        label_ID_descripcion.classList.remove('d-none')
+        label_ID_nombre.classList.remove('d-none')
+
+    
     // Actualiza los valores en el modal
     document.getElementById('Id_receta').textContent = recetaId;
     document.getElementById('M_Id').value = recetaId;

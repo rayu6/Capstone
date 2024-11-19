@@ -75,7 +75,7 @@
             <div class="modal-header">
                 <h5 class="modal-title" id="detalle">Detalles del Pedido &nbsp;</h5>
                 <h5 class="modal-title" id="receta_id"></h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" onclick="Cerrar()"></button>
             </div>
             <div class="modal-body">
                 <form id="formActualizarReceta" method="POST">
@@ -94,6 +94,15 @@
                         <label class="form-label">Descripción:</label>
                         <label id="Descripcion_Receta"></label>
                         <textarea id="M_descripcion" class="form-control d-none" ></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" id="ingredientes_Receta">ingredientes:
+                            
+                        </label>
+                        <label ></label>
+                            
+                        
+                        <textarea id="M_ingredientes" class="form-control d-none" ></textarea>
                     </div>
                     <div class="modal-footer">
                         

@@ -253,6 +253,7 @@ def update_receta(request):
         receta_id = request.POST.get('id')
         nueva_descripcion = request.POST.get('descripcion')
         nuevo_nombre = request.POST.get('nombre_receta')
+        nombre_receta=request.POST.get('ingrediente')
 
         if not receta_id:
             return JsonResponse({
@@ -311,7 +312,8 @@ def update_receta(request):
                 "nombre_anterior": nombre_anterior,
                 "nombre_nuevo": receta.nombre_receta.nombre,
                 "descripcion_anterior": descripcion_anterior,
-                "descripcion_nueva": receta.descripcion
+                "descripcion_nueva": receta.descripcion,
+                "ingrediente":nombre_receta
             }
         })
 

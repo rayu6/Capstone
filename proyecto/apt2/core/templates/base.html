@@ -84,13 +84,14 @@
 
                     "positionClass": "prueba",  // Cambiar la posición
                     "timeOut": "2500",                   // Tiempo en milisegundos antes de que el mensaje desaparezca
-                    "extendedTimeOut": "700",           // Tiempo de espera al pasar el cursor por encima
+                    "extendedTimeOut": "0",           // Tiempo de espera al pasar el cursor por encima
                     "closeButton": true,                 // Mostrar botón de cerrar
-                    "progressBar": true,                 // Mostrar barra de progreso
+                    "progressBar": true,         
+                    "onHoverPause": false,        // Mostrar barra de progreso
                     
                 };
                 {% for message in messages %}
-                    {% if message.tags == "success" %}
+                    {% if message.tag == "success" %}
                     toastr.success("{{ message }}");  // Para un mensaje informativo
                     {% elif message.tags == "error" %}
                     toastr.error("{{ message }}", "Error"); 
