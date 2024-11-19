@@ -312,16 +312,22 @@ function mostrarId(recetaId) {
     const ingredientes = recetaCard.querySelectorAll('[data-field="ingrediente"]');
     const cantidades =recetaCard.querySelectorAll('[data-field="cantidad"]');
     const unidades =recetaCard.querySelectorAll('[data-field="unidad"]');
+    const id_ingrediente = recetaCard.querySelectorAll('[data-field="id-ingrediente"]');
      // Recopila los ingredientes
 
     const contenedor = document.getElementById('ingredientes_Receta'); // Selecciona el contenedor
     contenedor.innerHTML=''
         
+
+    
     ingredientes.forEach((ingrediente, index) => {
+        const id = id_ingrediente[index]?.textContent
         const nombre = ingrediente.textContent.trim();
         const cantidad = cantidades[index]?.textContent.trim() || "Sin cantidad";
         const unidad = unidades[index]?.textContent.trim() || "Sin unidad";
         const contenedorIngrediente = document.createElement('div');
+
+        
     
         // Agrega nombre
         const labelIngrediente = document.createElement('label');

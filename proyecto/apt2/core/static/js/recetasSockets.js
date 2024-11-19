@@ -106,14 +106,15 @@ function actualizarReceta(event) {
     const nuevaDescripcion = document.getElementById('M_descripcion').value;
     const nuevoNombre = document.getElementById('M_Nombre_Receta').value;
     const ingredientes = document.querySelectorAll('[id^="nombre_ingrediente-"]');  // Para los ingredientes
-    const cantidades = document.querySelectorAll('[id^="cantidad-"]');  // Para las cantidades
+    const cantidades = document.querySelectorAll('[id^="input_cantidad-"]');  // Para las cantidades
     const unidades = document.querySelectorAll('[id^="unidad-"]');
+
 
     const ingredientesData = [];
 
     ingredientes.forEach((ingrediente, index) => {
         const ingredienteValue = ingrediente.textContent || "Sin ingrediente"; // Si no hay ingrediente
-        const cantidadValue = cantidades[index]?.textContent || "Sin cantidad"; // Si no hay cantidad
+        const cantidadValue = cantidades[index]?.value || "Sin cantidad"; // Si no hay cantidad
         const unidadValue = unidades[index]?.textContent || "Sin unidad"; // Si no hay unidad
         
         ingredientesData.push({
@@ -124,7 +125,7 @@ function actualizarReceta(event) {
         });
         
     });
-    console.log(cantidades)
+    console.log(JSON.stringify(ingredientesData))
     // Obtener el token CSRF
     const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
 

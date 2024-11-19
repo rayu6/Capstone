@@ -43,6 +43,10 @@
                                 <span contenteditable="true" 
                                       data-original="{{item.unidad}}"
                                       data-field="unidad">{{item.unidad | capfirst}}</span>
+                                <span contenteditable="true" 
+                                      data-original="{{item.ingrediente.id}}"
+                                      data-field="id-ingrediente"
+                                      class="d-none">{{item.ingrediente.id | capfirst}}</span>
                             </div>
                             {% endfor %}
                         </div><br>
