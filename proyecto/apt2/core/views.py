@@ -15,6 +15,7 @@ from .models import *
 from django.urls import reverse
 from django.views.decorators.http import require_http_methods
 from django.views.decorators.csrf import csrf_exempt
+import json
 
 # Create your views here.
 logger = logging.getLogger(__name__)
@@ -253,8 +254,8 @@ def update_receta(request):
         receta_id = request.POST.get('id')
         nueva_descripcion = request.POST.get('descripcion')
         nuevo_nombre = request.POST.get('nombre_receta')
-        nombre_receta=request.POST.get('ingrediente')
-
+        nombre_receta=request.POST.get('ingredientes')
+        data = json.loads(nombre_receta)
         if not receta_id:
             return JsonResponse({
                 "status": "error",
@@ -272,7 +273,25 @@ def update_receta(request):
         # Guardar valores anteriores
         descripcion_anterior = receta.descripcion
         nombre_anterior = receta.nombre_receta.nombre
-
+        
+        if data:
+            for i in data:
+                id_I=i['id']
+                cantidad_i=i['cantidad']
+                unidad_i=i['unidad']
+                try:
+                    recetaIngrediente=RecetaIngrediente.objects.get(id=id_I)
+                    try:
+                        recetaIngrediente.cantidad=cantidad_i
+                        recetaIngrediente.save()
+                    except:
+                        print('error al guardar')
+                    print(recetaIngrediente.cantidad)
+                    print(unidad_i)
+                except:
+                    print('id inexistente')
+                # recetaIngrediente.cantidad=cantidad_i
+                # recetaIngrediente.save
         # Actualizar descripción si se proporcionó
         if nueva_descripcion:
             receta.descripcion = nueva_descripcion
@@ -285,6 +304,7 @@ def update_receta(request):
             nombre_receta_obj.save()
 
         receta.save()
+        
 
         print(f"🔍 Original nombre: {nombre_anterior}")
         print(f"✏️ Nuevo nombre: {receta.nombre_receta.nombre}")
@@ -300,10 +320,12 @@ def update_receta(request):
                 "receta_id": receta.id,
                 "data": {
                     "descripcion": receta.descripcion,
-                    "nombre_receta": receta.nombre_receta.nombre
+                    "nombre_receta": receta.nombre_receta.nombre,
+                    "cantidad":recetaIngrediente.cantidad
                 }
             }
         )
+        ingrediente = receta.receta_ingrediente.first()  # Obtén un ingrediente de ejemplo
         return JsonResponse({
             "status": "ok",
             "message": f"Updated receta {receta.id}",
@@ -313,7 +335,14 @@ def update_receta(request):
                 "nombre_nuevo": receta.nombre_receta.nombre,
                 "descripcion_anterior": descripcion_anterior,
                 "descripcion_nueva": receta.descripcion,
-                "ingrediente":nombre_receta
+                "ingrediente": [
+            {   "id":ingrediente['id'],
+                "nombre":ingrediente['ingrediente'],
+                "cantidad":ingrediente['cantidad'],  # Suponiendo que tienes un campo `cantidad`
+                "unidad": ingrediente['unidad']     # Suponiendo que tienes un campo `unidad`
+            }
+            for ingrediente in data  # Itera sobre los ingredientes relacionados
+        ]
             }
         })
 

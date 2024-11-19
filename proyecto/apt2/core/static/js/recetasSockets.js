@@ -108,17 +108,19 @@ function actualizarReceta(event) {
     const ingredientes = document.querySelectorAll('[id^="nombre_ingrediente-"]');  // Para los ingredientes
     const cantidades = document.querySelectorAll('[id^="input_cantidad-"]');  // Para las cantidades
     const unidades = document.querySelectorAll('[id^="unidad-"]');
+    const id_ingrediente = document.querySelectorAll('[id^="ingrediente_id-"]')
 
 
     const ingredientesData = [];
 
     ingredientes.forEach((ingrediente, index) => {
+        const ingredienteId = id_ingrediente[index]?.textContent
         const ingredienteValue = ingrediente.textContent || "Sin ingrediente"; // Si no hay ingrediente
         const cantidadValue = cantidades[index]?.value || "Sin cantidad"; // Si no hay cantidad
         const unidadValue = unidades[index]?.textContent || "Sin unidad"; // Si no hay unidad
         
         ingredientesData.push({
-            
+            id:ingredienteId,
             ingrediente: ingredienteValue,
             cantidad: cantidadValue,
             unidad: unidadValue

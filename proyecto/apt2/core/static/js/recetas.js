@@ -327,9 +327,16 @@ function mostrarId(recetaId) {
         const unidad = unidades[index]?.textContent.trim() || "Sin unidad";
         const contenedorIngrediente = document.createElement('div');
 
-        
+        console.log(id)
     
         // Agrega nombre
+
+        const label_id_Ingrediente = document.createElement('label');
+            label_id_Ingrediente.id=`ingrediente_id-${index+1}`;
+            label_id_Ingrediente.classList.add('d-none');
+            label_id_Ingrediente.textContent=id;
+        contenedorIngrediente.appendChild(label_id_Ingrediente)
+
         const labelIngrediente = document.createElement('label');
         labelIngrediente.textContent = nombre;
         labelIngrediente.id=`nombre_ingrediente-${index+1}`
