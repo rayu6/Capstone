@@ -179,6 +179,50 @@ function actualizarReceta(event) {
         console.error('Error al actualizar:', error);
     });
 }
+function recuperar_id(id){
+    const recetaId = document.getElementById('M_Id').value;
+    
+    const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    fetch('/api/eliminar_ing_receta/', {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': csrftoken
+        },
+        body: new URLSearchParams({
+            'id': id
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log('Respuesta:', data);
+        if (data.status === 'ok') {
+            toastr.success("¡eliminado con exito!");
+
+            // Cerrar el modal
+            
+            // Actualizar la vista
+            const card = document.querySelector(`[data-receta-id="${recetaId}"]`);
+            if (card) {
+                // Actualizar descripción
+                const descripcionElement = card.querySelector('[data-field="ingrediente"]');
+                if (descripcionElement) {
+                    descripcionElement.textContent = nuevaDescripcion;
+                }
+                
+                else{
+                    console.log('no funciono el if')
+                }
+            }
+
+        } else {
+            console.error('Error en la respuesta:', data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error al actualizar:', error);
+    });
+    
+}
 
 
 // Event listeners

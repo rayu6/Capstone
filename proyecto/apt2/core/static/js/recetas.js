@@ -355,6 +355,15 @@ function mostrarId(recetaId) {
                 input_c.id=`input_cantidad-${index+1}`;
                 input_u.value= unidad;
                 div_inputs.appendChild(input_u);
+            const boton_eliminar=document.createElement('button');
+                boton_eliminar.value=id
+                boton_eliminar.type='button'
+                boton_eliminar.textContent='eliminar'
+                boton_eliminar.classList.add('btn');
+                boton_eliminar.classList.add('btn-outline-danger');
+                boton_eliminar.id=`boton_eliminar-${index+1}`;
+                boton_eliminar.setAttribute("onclick", `recuperar_id('${id}')`);
+                div_inputs.appendChild(boton_eliminar);
 
         // Añadir al DOM
         contenedor.appendChild(contenedorIngrediente);

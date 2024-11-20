@@ -249,6 +249,45 @@ def guardar_receta(request):
 
 @csrf_exempt
 @require_http_methods(["POST"])
+def eliminar_ing_receta(request):
+    try:
+        id_ingrediente= request.POST.get('id')
+        if not id_ingrediente:
+            return JsonResponse({
+                "status": "error",
+                "message": "Se requiere el id"
+            }, status=400)
+        try:
+            recetaingrediente  = get_object_or_404(RecetaIngrediente, id=id_ingrediente)
+        except Recetas.DoesNotExist:
+            return JsonResponse({
+                "status": "error",
+                "message": f"No se encontró la receta con id {id_ingrediente}"
+            }, status=404)
+        try:
+            recetaingrediente.delete()
+            return JsonResponse({
+            "status": "ok",
+            "message": f"deleted ingrediente {id_ingrediente}",
+            "data": {
+                "id": id_ingrediente
+                # Itera sobre los ingredientes relacionados
+            }
+        })
+        except:
+            return JsonResponse({
+            "status": "error",
+            "message": f"Error: {str(e)}"
+        }, status=500)
+    except Exception as e:
+        return JsonResponse({
+            "status": "error",
+            "message": f"Error: {str(e)}"
+        }, status=500)
+        
+
+@csrf_exempt
+@require_http_methods(["POST"])
 def update_receta(request):
     try:
         receta_id = request.POST.get('id')
