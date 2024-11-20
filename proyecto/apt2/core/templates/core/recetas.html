@@ -9,6 +9,7 @@
 {% block title %}Lista de recetas{% endblock %}
 
 {% block content %}
+<script src="{% static 'js\recetas.js' %}"></script>
 <br>
 <div class="container">
     <h2 class="text-center">Listado de Recetas</h2>
@@ -21,28 +22,30 @@
                     <div class="card-body">
                         <h5 class="card-title" contenteditable="true" 
                             data-original="{{ receta.nombre_receta }}"
-                            data-field="nombre_receta">{{ receta.nombre_receta }}</h5>
+                            data-field="nombre_receta">{{ receta.nombre_receta | capfirst }}</h5>
                         <img src="{{ receta.link}}" class="card-img-top imagenreceta" alt="" style="height: 248px;">
                         <p class="card-text" contenteditable="true" 
                            data-original="{{ receta.descripcion }}"
-                           data-field="descripcion">{{ receta.descripcion|truncatechars:84 }}</p>
-                        <p class="card-text">Ingredientes y cantidades:</p>
+                           data-field="descripcion">{{ receta.descripcion|truncatechars:84 | capfirst}}</p>
+                        <p class="card-text">Ingredientes y Cantidades:</p>
                         <div class="ingredientes-list">
                             {% for item in receta.receta_ingrediente.all %}
                             <div class="ingrediente-item" data-ingrediente-id="{{ item.id }}">
                                 <span contenteditable="true" 
                                       data-original="{{item.ingrediente}}"
-                                      data-field="ingrediente">{{item.ingrediente}}</span>
+                                      data-field="ingrediente">{{item.ingrediente | capfirst}}</span>
                                 <span contenteditable="true" 
                                       data-original="{{ item.cantidad }}"
                                       data-field="cantidad">{{ item.cantidad|floatformat:"g" }}</span>
                                 <span contenteditable="true" 
                                       data-original="{{item.unidad}}"
-                                      data-field="unidad">{{item.unidad}}</span>
+                                      data-field="unidad">{{item.unidad | capfirst}}</span>
                             </div>
                             {% endfor %}
-                        </div>
-                        <a href="" class="btn btn-primary">Ver detalles</a>
+                        </div><br>
+                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#agregarIngredienteModal" onclick="mostrarId('{{ receta.id }}','{{ receta.nombre_receta }}','{{ receta.descripcion }}')">
+                            Ver detalles
+                        </button>
                     </div>
                 </div>
             </div>
@@ -59,7 +62,63 @@
     {% endif %}
 </div>
 
+<!-- modal detalle -->
+<div class="modal fade" id="agregarIngredienteModal" tabindex="-1" aria-labelledby="agregarIngredienteLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="detalle">Detalles del Pedido &nbsp;</h5><h5 class="modal-title" id="receta_id"></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" onclick="cerrar()" ></button>
+            </div>
+            <div class="modal-body">
+                <h5 id="mostrar-id"></h5><br>
+                <form method="POST" action="{% url 'test-signal' %}">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="M_Id" id="M_Id_l" class="form-label">ID receta :</label>
+                        <h6 id="Id_receta"></h6><br>
+                        <textarea type="text" id="M_Id" name="M_Id" class="form-control d-none"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="M_Nombre_Receta" id="M_Nombre_Recet_l" class="form-label">Receta:</label><br>
+                        <label id="Nombre_receta" class="form-label"></label><br>
+                        <textarea type="text" id="M_Nombre_Receta" name="M_Nombre_Receta" class="form-control d-none"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="M_descripcion" id="M_descripcion_l" class="form-label">Descripcion:</label><br>
+                        <label id="Descripcion_Receta" class="form-label"></label><br>
+                        <textarea type="text" id="M_descripcion" name="M_descripcion" class="form-control d-none"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary d-none" style="margin-left: 54.5%;" id="guardar_cambios">
+                        Guardar
+                    </button>
+                    <button type="button" class="btn btn-secondary d-none" id="cambiarInputsPorLabels" onclick="cerrar()">
+                        Cancelar
+                    </button>
+                </form>
+                
+                
+                <button type="button" class="btn btn-primary"  id="cambiarLabelsPorInputs" onclick="cambiarLabelsPorInputs()">
+                    Modificar
+                </button>
+                
+
+                
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
+ 
+function mostrarId(id,nombre_receta,prueba123) {
+        document.getElementById('receta_id').innerText =id;
+        document.getElementById('M_Id').value=id;
+        document.getElementById('mostrar-id').innerText = nombre_receta;
+        document.getElementById('Descripcion_Receta').innerText = prueba123;
+        document.getElementById('M_descripcion').placeholder  = prueba123;
+    }
+
     // Configuración del WebSocket
     const recetasSocket = new WebSocket('ws://' + window.location.host + '/ws/recetas/');
     recetasSocket.onopen = function() {

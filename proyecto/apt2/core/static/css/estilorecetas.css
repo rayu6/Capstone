@@ -109,3 +109,11 @@
 .estilorecetas .text-end a:hover {
     background-color: #218838;
 }
+
+.boton{
+    display: none;
+}
+
+.textarea{
+    width: 100%;
+}

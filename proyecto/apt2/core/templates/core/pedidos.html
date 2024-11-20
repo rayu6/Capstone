@@ -79,12 +79,50 @@
                     <div class="mb-3">
                         <label id="recetapedido" class="form-label"></label>
                     </div>
+                    <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#modificarIngredienteModal"></button>
                 </form>
             </div>
         </div>
     </div>
 </div>
 
+
+<div class="modal fade" id="modificarIngredienteModal" tabindex="-1" aria-labelledby="modificarIngredienteLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modificarIngredienteLabel">Modificar Pedido</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form method="POST" action="{% url 'guardar_ingrediente' %}">
+                    {% csrf_token %}    
+                    <div class="mb-3">
+                        <label for="usuario" class="form-label">Usuario</label>
+                        <input type="text" class="form-control" id="usuario" name="usuario" value="{{ pedido.usuario }}">
+                    </div>
+                    <div class="mb-3">
+                        <label for="tipoorden" class="form-label">Tipo de Orden</label>
+                        <input type="text" class="form-control" id="tipoorden" name="tipoorden" value="{{ pedido.tipoorden }}">
+                    </div>
+                    <div class="mb-3">
+                        <label for="estado" class="form-label">Estado</label>
+                        <select class="form-control" id="estado" name="estado">
+                            <option value="Pendiente" {% if pedido.estado == 'Pendiente' %}selected{% endif %}>Pendiente</option>
+                            <option value="Completado" {% if pedido.estado == 'Completado' %}selected{% endif %}>Completado</option>
+                            <option value="Cancelado" {% if pedido.estado == 'Cancelado' %}selected{% endif %}>Cancelado</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="recetapedido" class="form-label">Receta del Pedido</label>
+                        <input type="text" class="form-control" id="recetapedido" name="recetapedido" value="{{ pedido.recetapedido }}">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
 <script>
     function mostrarId(id,usuario,tipo_de_orden,estado,receta_pedido) {
         document.getElementById('pedido').innerText = 'Detalles del Pedido ' + id;
@@ -92,7 +130,7 @@
         document.getElementById('usuario').innerText = `Usuario: ${usuario} `;
         document.getElementById('tipoorden').innerText = `Tipo de orden: ${tipo_de_orden} `;
         document.getElementById('estado').innerText = `Estado de orden: ${estado} `;
-        document.getElementById('recetapedido').innerText = `nose: ${receta_pedido} `;
+        document.getElementById('recetapedido').innerText = `Receta pedido: ${receta_pedido} `;
     }
 </script>
 
