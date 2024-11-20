@@ -42,10 +42,11 @@
                         
                         <!-- Campo de cantidad (oculto por defecto) -->
                         <input type="number" name="cantidad_{{ ingrediente.id }}" placeholder="Cantidad" 
-                               min="1" max="{{ ingrediente.cantidad }}" class="form-control cantidad-input" 
-                               style="width: 100px; display: none;">
-                        
+                        min="1" max="{{ ingrediente.cantidad }}" class="form-control cantidad-input" 
+                        style="width: 100px; display: none;">
+                                        
                         <!-- Unidad de medida (oculta por defecto) -->
+                        <input type="hidden" name="unidad_{{ ingrediente.id }}" value="{{ ingrediente.unidades }}">
                         <span class="unidad-text" style="display: none; margin-left: 10px;">{{ ingrediente.unidades }}</span>
                     </div>
                 </div>
