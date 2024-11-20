@@ -179,9 +179,10 @@ function actualizarReceta(event) {
         console.error('Error al actualizar:', error);
     });
 }
-function recuperar_id(id){
+function recuperar_id(id, div_id,label_id){
     const recetaId = document.getElementById('M_Id').value;
-    
+    const div = document.getElementById(`'${div_id}'`)
+    const label = document.getElementById(`'${label_id}'`)
     const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
     fetch('/api/eliminar_ing_receta/', {
         method: 'POST',
@@ -197,22 +198,13 @@ function recuperar_id(id){
         console.log('Respuesta:', data);
         if (data.status === 'ok') {
             toastr.success("¡eliminado con exito!");
+            
+
 
             // Cerrar el modal
             
             // Actualizar la vista
             const card = document.querySelector(`[data-receta-id="${recetaId}"]`);
-            if (card) {
-                // Actualizar descripción
-                const descripcionElement = card.querySelector('[data-field="ingrediente"]');
-                if (descripcionElement) {
-                    descripcionElement.textContent = nuevaDescripcion;
-                }
-                
-                else{
-                    console.log('no funciono el if')
-                }
-            }
 
         } else {
             console.error('Error en la respuesta:', data.message);
