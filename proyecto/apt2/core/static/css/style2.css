@@ -47,6 +47,24 @@ h2 {
 }
 
 
+
+/* Color por defecto (blanco) */
+.icon-rol {
+    color: white;
+    transition: color 0s ease; /* Para una transición suave */
+}
+
+/* Color al pasar el mouse (negro) */
+.icon-rol:hover {
+    color: black;
+}
+
+.icon-hover:hover svg path {
+  fill: black; /* Color deseado, por ejemplo, un color rojo tomate */
+}
+.icon-hover svg path {
+  fill: #ffffff; /* Color blanco por defecto */
+}
 /* Efecto al pasar el ratón por encima */
 .card:hover {
   transform: translateY(-10px); /* Mueve la tarjeta hacia arriba */
