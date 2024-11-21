@@ -26,7 +26,7 @@
                             data-original="{{ receta.nombre_receta }}"
                             data-field="nombre_receta">{{ receta.nombre_receta | capfirst }}</h5>
                         <img src="{{ receta.link}}" class="card-img-top imagenreceta" alt="" style="height: 248px;">
-                        <p class="card-text" contenteditable="true" 
+                        <p class="card-text" contenteditable="true" style="display: none;"
                            data-original="{{ receta.descripcion }}"
                            data-field="descripcion">{{ receta.descripcion|truncatechars:84 | capfirst}}</p>
                         <p class="card-text">Ingredientes y Cantidades:</p>
