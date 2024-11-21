@@ -81,6 +81,11 @@ def homeUsuario(request):
 
 def pedidos(request):
     return render(request, 'core/pedidos.html')  # Renderiza el template 'pedidos.html'
+
+def pedidos_por_usuario(request):
+    recetas = Recetas.objects.prefetch_related('receta_ingrediente__ingrediente').all()
+    return render(request, 'core/pedidosPorUsuario.html', {'recetas': recetas})
+
 @role_required(allowed_roles=[])
 def prueba(request):
     return render(request, 'core/pruebaLogin.html')  # eliminar despues 

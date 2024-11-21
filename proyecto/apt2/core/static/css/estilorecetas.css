@@ -1,118 +1,93 @@
-/* Fondo de la página */
-.estilorecetas body {
-    background-color: #fbf7f3; /* Fondo blanco suave (casi blanco, toque de marfil) */
-    font-family: 'Arial', sans-serif;
-    color: #333333; /* Texto primario: Gris oscuro */
+/* Responsive Recipe Card Layout */
+.row {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px; /* Consistent spacing between cards */
 }
 
-/* Contenedor de las recetas */
-.estilorecetas .container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 30px;
+.col-md-4 {
+    display: flex;
+    flex-direction: column;
+    width: calc(33.333% - 20px); /* Responsive width with gap consideration */
+    min-width: 280px; /* Minimum width for smaller screens */
+    max-width: 350px; /* Maximum width to prevent oversized cards */
 }
 
-
-/* Tarjetas de recetas */
-.estilorecetas .card {
-    border-radius: 10px; /* Bordes redondeados */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Sombra sutil */
+.card {
+    display: flex;
+    flex-direction: column;
+    height: 100%; /* Full height to align cards */
+    width: 100% !important; /* Ensure full width */
     transition: transform 0.3s ease, box-shadow 0.3s ease;
-    opacity: 0;
-    animation: fadeIn 0.6s forwards;
-    
 }
 
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-    }
-    to {
-        opacity: 1;
-    }
+.card-body {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1; /* Allow body to expand */
+    position: relative;
 }
 
-/* Efecto al pasar el ratón por encima */
-.estilorecetas .card:hover {
-    transform: translateY(-10px); /* Mueve la tarjeta hacia arriba */
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); /* Sombra más intensa */
+.card-img-top {
+    width: 100%;
+    height: 250px; /* Consistent image height */
+    object-fit: cover; /* Maintain image aspect ratio */
 }
 
-/* Imagen de la receta */
-.estilorecetas .card-img-top {
-    border-top-left-radius: 10px;
-    border-top-right-radius: 10px;
-    object-fit: cover;
-    height: 200px;
+.ingredientes-list {
+    flex-grow: 1; /* Allow ingredients list to expand */
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-height: 250px; /* Limit height */
+    overflow-y: auto; /* Scrollable if content is long */
+    margin-bottom: 15px; /* Space before button */
 }
 
-/* Título de la receta */
-.estilorecetas .card-title {
-    font-size: 1.5rem;
-    font-weight: 500;
-    color: #E27D60; /* Color primario: Terracota */
-    margin-bottom: 15px;
-}
-
-/* Descripción corta de la receta */
-.estilorecetas .card-text {
-    font-size: 1rem;
-    color: #333333; /* Texto secundario: Gris oscuro */
-    margin-bottom: 15px;
-    line-height: 1.6;
-}
-
-/* Estilo de los ingredientes */
-.estilorecetas .ingredientes-list {
-    margin-top: 10px;
-    background-color: #ffffff; /* Fondo muy suave para ingredientes */
-    padding: 10px;
-    border-radius: 5px;
-}
-
-.estilorecetas .ingrediente-item {
+.ingrediente-item {
     display: flex;
     justify-content: space-between;
-    margin-bottom: 8px;
-    font-size: 1rem;
-}
-
-.estilorecetas .ingrediente-item span {
-    font-size: 1rem;
-    color: #495057;
-}
-
-/* no recetas disponibles */
-.estilorecetas .no-recipes {
-    font-size: 1.2rem;
-    color: #888;
-    text-align: center;
-    margin-top: 40px;
-}
-
-/* Estilo para el botón "Crear Nueva Receta" */
-.estilorecetas .text-end a {
-    font-size: 1.2rem;
-    padding: 12px 20px;
-    border-radius: 5px;
-    background-color: #28a745;
-    color: white;
-    text-decoration: none;
-    transition: background-color 0.3s ease;
-}
-
-.estilorecetas .text-end a:hover {
-    background-color: #218838;
-}
-
-.boton{
-    display: none;
-}
-pre {
+    align-items: center;
+    padding: 5px;
     background-color: #f8f9fa;
-    padding: 15px;
     border-radius: 4px;
 }
-.row {
-    justify-content: space-around;
+
+/* Card Interaction Effects */
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+}
+
+/* Responsive Adjustments */
+@media (max-width: 992px) {
+    .col-md-4 {
+        width: calc(50% - 20px); /* Two columns on medium screens */
+    }
+}
+
+@media (max-width: 576px) {
+    .col-md-4 {
+        width: 100%; /* Single column on small screens */
+        max-width: none;
+    }
+}
+
+/* Button Styling (Maintaining existing color scheme) */
+.btn-primary {
+    background-color: #E27D60;
+    border-color: #E27D60;
+    transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+    background-color: #d1694c;
+    transform: scale(1.05);
+}
+
+.card-title {
+    color: #E27D60;
+    font-size: 1.5rem;
+    margin-bottom: 15px;
 }
