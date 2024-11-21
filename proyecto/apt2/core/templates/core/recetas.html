@@ -77,7 +77,7 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="detalle">Detalles del Pedido &nbsp;</h5>
+                <h5 class="modal-title" id="detalle">Detalles de la receta &nbsp;</h5>
                 <h5 class="modal-title" id="receta_id"></h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" onclick="Cerrar()"></button>
             </div>
@@ -85,12 +85,12 @@
                 <form id="formActualizarReceta" method="POST">
                     {% csrf_token %}
                     <div class="mb-3">
-                        <label class="form-label">ID receta:</label>
+                        <label class="form-label">Receta N°:</label>
                         <label id="Id_receta"></label>
                         <textarea id="M_Id" class="form-control d-none" ></textarea>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Receta:</label>
+                        <label class="form-label">Nombre:</label>
                         <label id="Nombre_receta"></label>
                         <textarea id="M_Nombre_Receta" class="form-control d-none" ></textarea>
                     </div>
