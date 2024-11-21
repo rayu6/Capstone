@@ -181,8 +181,10 @@ function actualizarReceta(event) {
 }
 function recuperar_id(id, div_id,label_id){
     const recetaId = document.getElementById('M_Id').value;
-    const div = document.getElementById(`'${div_id}'`)
-    const label = document.getElementById(`'${label_id}'`)
+    const div = document.getElementById(div_id)
+    const label = document.getElementById(label_id)
+    
+    
     const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
     fetch('/api/eliminar_ing_receta/', {
         method: 'POST',
@@ -198,11 +200,9 @@ function recuperar_id(id, div_id,label_id){
         console.log('Respuesta:', data);
         if (data.status === 'ok') {
             toastr.success("¡eliminado con exito!");
-            
+            div.remove()
+            label.remove()
 
-
-            // Cerrar el modal
-            
             // Actualizar la vista
             const card = document.querySelector(`[data-receta-id="${recetaId}"]`);
 

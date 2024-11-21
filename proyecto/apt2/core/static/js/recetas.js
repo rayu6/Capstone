@@ -363,7 +363,7 @@ function mostrarId(recetaId) {
                 boton_eliminar.classList.add('btn');
                 boton_eliminar.classList.add('btn-outline-danger');
                 boton_eliminar.id=`boton_eliminar-${index+1}`;
-                boton_eliminar.setAttribute("onclick", `recuperar_id('${id}','boton_eliminar-${index+1}','contenedoringrediente_id-${index+1}')`);
+                boton_eliminar.setAttribute("onclick", `recuperar_id('${id}','inputs_ingredientes-${index+1}','contenedoringrediente_id-${index+1}')`);
                 div_inputs.appendChild(boton_eliminar);
 
         // Añadir al DOM
