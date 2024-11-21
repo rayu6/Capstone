@@ -191,16 +191,16 @@ def guardar_receta(request):
         # Obtener datos del formulario
         nombre_receta = request.POST.get('nombre_receta')
         descripcion = request.POST.get('descripcion_receta')
-        link = request.POST.get('link')  # Captura el enlace de la imagen
+        link = request.POST.get('link') 
 
         # Obtener o crear la instancia de NombreReceta
         nombre_receta_obj, created = NombreReceta.objects.get_or_create(nombre=nombre_receta)
 
-        # Crear y guardar la receta con el enlace de la imagen
+        # Crear y guardar link
         receta = Recetas(nombre_receta=nombre_receta_obj, descripcion=descripcion, link=link)
         receta.save()
 
-        # Procesar ingredientes seleccionados
+        # Ingredientes seleccionados
         ingredientes_ids = request.POST.getlist('ingredientes')  # IDs de los ingredientes seleccionados
         with transaction.atomic():
             for ingrediente_id in ingredientes_ids:
@@ -210,20 +210,18 @@ def guardar_receta(request):
                 cantidad = request.POST.get(f'cantidad_{ingrediente.id}')
                 unidad = request.POST.get(f'unidad_{ingrediente.id}')
 
-                if cantidad and unidad:  # Asegurarse de que tanto la cantidad como la unidad no sean vacíos
-                    # Crear y guardar la instancia de RecetaIngrediente con la cantidad y unidad correspondientes
+                if cantidad and unidad:  # unidad no vacío
+                    # Crear y guardar 
                     receta_ingrediente = RecetaIngrediente.objects.create(
                         ingrediente=ingrediente,
-                        cantidad=cantidad,  # Asigna la cantidad correspondiente
-                        unidad=unidad  # Asigna la unidad correspondiente
+                        cantidad=cantidad,
+                        unidad=unidad  
                     )
-
-                    # Agregar RecetaIngrediente a la receta mediante la relación ManyToMany (si corresponde)
                     receta.receta_ingrediente.add(receta_ingrediente)
 
-        return redirect('listar_recetas')  # Redirige a la vista deseada
+        return redirect('listar_recetas')  
     else:
-        ingredientes = Ingrediente.objects.all()  # Obtener todos los ingredientes disponibles
+        ingredientes = Ingrediente.objects.all() 
         return render(request, 'core/crearreceta.html', {'ingredientes': ingredientes})
 
 
