@@ -468,3 +468,46 @@ def update_pedido_estado(request):
             "status": "error",
             "message": f"Error: {str(e)}"
         }, status=500)
+
+@csrf_exempt 
+def crear_pedido(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            receta_id = data.get('receta_id')
+            
+            # Obtenemos o creamos los objetos necesarios
+            usuario = get_object_or_404(Usuario, id=3)  # Cliente fijo con ID 3
+            tipo_de_orden = get_object_or_404(TipoDeOrden, id=1)  # Asumimos que existe un tipo de orden básico
+            estado = get_object_or_404(Estado, id=1)  # Asumimos que existe un estado inicial
+            receta = get_object_or_404(Recetas, id=receta_id)
+            
+            # Creamos o obtenemos RecetaPedido
+            receta_pedido = RecetaPedido.objects.create(
+                recetas=receta
+            )
+            
+            # Creamos el pedido
+            pedido = Pedido.objects.create(
+                usuario=usuario,
+                tipo_de_orden=tipo_de_orden,
+                estado=estado,
+                receta_pedido=receta_pedido
+            )
+            
+            return JsonResponse({
+                'status': 'success',
+                'message': 'Pedido creado exitosamente',
+                'pedido_id': pedido.id
+            })
+            
+        except Exception as e:
+            return JsonResponse({
+                'status': 'error',
+                'message': str(e)
+            }, status=400)
+            
+    return JsonResponse({
+        'status': 'error',
+        'message': 'Método no permitido'
+    }, status=405)
