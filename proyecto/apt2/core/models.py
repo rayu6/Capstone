@@ -84,7 +84,7 @@ class NombreIngrediente(models.Model):
 class Recetas(models.Model):
     id = models.AutoField(primary_key=True)  # Clave primaria
     descripcion = models.CharField(max_length=255)
-    link = models.CharField(max_length=255, null=True)
+    link = models.ImageField(upload_to='imagenes_recetas/', null=True, blank=True)
     nombre_receta = models.ForeignKey('NombreReceta', on_delete=models.CASCADE)
     receta_ingrediente = models.ManyToManyField(RecetaIngrediente)
     

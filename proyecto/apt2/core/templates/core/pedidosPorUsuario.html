@@ -15,34 +15,45 @@
 
 
 {% block content %}
-<div class="container">
+<div class="container py-4">
     <div class="row">
         {% for receta in recetas %}
-        <div class="col-md-4 mb-4">
-            <div class="card" style="width: 100%;" data-receta-id="{{ receta.id }}">
+        <div class="col-lg-4 col-md-6">
+            <div class="card">
                 <div class="card-header">
                     <h5 class="card-title">{{ receta.nombre_receta | capfirst }}</h5>
+                    <div class="category-tags">
+                        {% if receta.categoria %}
+                        <span class="category-tag">{{ receta.categoria }}</span>
+                        {% endif %}
+                    </div>
                 </div>
+                
+                <div class="image-container">
+                    <img src="{{ receta.link }}" class="card-img-top" alt="{{ receta.nombre_receta }}">
+                    <div class="dish-info">
+                        <span>Tiempo de preparación: 20 min</span>
+                    </div>
+                    <!-- Aquí puedes agregar la bandera del país -->
+                    <img src="{% static 'imgs/flags/italy.jpg' %}" class="origin-flag" alt="País de origen">
+                </div>
+
                 <div class="card-body">
-                    <div class="row">
-                        <div class="col-6">
-                            <img src="{{ receta.link }}" class="card-img-top imagenreceta" alt="{{ receta.nombre_receta }}" style="height: 120px;">
-                        </div>
-                        <div class="col-6">
-                            <p>{{ receta.descripcion|truncatechars:84 | capfirst }}</p>
-                            <p>Price: $5.30</p>
-                        </div>
-                    </div>
+                    <p class="dish-description">{{ receta.descripcion|truncatechars:84 | capfirst }}</p>
+                    <p class="price">$5.30</p>
                 </div>
-                <div class="card-footer">
-                    <div class="row">
-                        <div class="col-6">
-                            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#agregarIngredienteModal" onclick="mostrarId('{{ receta.id }}')">Modify</button>
-                        </div>
-                        <div class="col-6 text-right">
-                            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#agregarIngredienteModal" onclick="mostrarId('{{ receta.id }}')">Order</button>
-                        </div>
-                    </div>
+
+                <div class="button-container">
+                    <button type="button" class="btn btn-modify" data-bs-toggle="modal" 
+                            data-bs-target="#agregarIngredienteModal" 
+                            onclick="mostrarId('{{ receta.id }}')">
+                        Modificar
+                    </button>
+                    <button type="button" class="btn btn-order" data-bs-toggle="modal" 
+                            data-bs-target="#agregarIngredienteModal" 
+                            onclick="mostrarId('{{ receta.id }}')">
+                        Ordenar
+                    </button>
                 </div>
             </div>
         </div>

@@ -15,6 +15,7 @@ from .models import *
 from django.urls import reverse
 from django.views.decorators.http import require_http_methods
 from django.views.decorators.csrf import csrf_exempt
+from django.core.exceptions import ValidationError
 import json
 
 # Create your views here.
@@ -190,46 +191,47 @@ def ingredientes_receta(request):
 
 
 
-@role_required(allowed_roles=['admin'])
 def guardar_receta(request):
     if request.method == 'POST':
-        # Obtener datos del formulario
         nombre_receta = request.POST.get('nombre_receta')
         descripcion = request.POST.get('descripcion_receta')
-        link = request.POST.get('link') 
 
-        # Obtener o crear la instancia de NombreReceta
+        # imagen
+        link = request.FILES.get('link')  # Aquí es donde obtenemos el archivo subido
+
+        # validacion imagen subida
+        if not link:
+            raise ValidationError("Se debe subir una imagen para la receta")
+
+        # nombre de la erceta
         nombre_receta_obj, created = NombreReceta.objects.get_or_create(nombre=nombre_receta)
 
-        # Crear y guardar link
+        # img save
         receta = Recetas(nombre_receta=nombre_receta_obj, descripcion=descripcion, link=link)
         receta.save()
 
-        # Ingredientes seleccionados
-        ingredientes_ids = request.POST.getlist('ingredientes')  # IDs de los ingredientes seleccionados
+        # manejo de ingredientes de la receta
+        ingredientes_ids = request.POST.getlist('ingredientes')
         with transaction.atomic():
             for ingrediente_id in ingredientes_ids:
                 ingrediente = Ingrediente.objects.get(id=ingrediente_id)
-                
-                # Obtener la cantidad y unidad asociada al ingrediente
                 cantidad = request.POST.get(f'cantidad_{ingrediente.id}')
                 unidad = request.POST.get(f'unidad_{ingrediente.id}')
 
-                if cantidad and unidad:  # unidad no vacío
-                    # Crear y guardar 
+                if cantidad and unidad:
                     receta_ingrediente = RecetaIngrediente.objects.create(
                         ingrediente=ingrediente,
                         cantidad=cantidad,
-                        unidad=unidad  
+                        unidad=unidad
                     )
                     receta.receta_ingrediente.add(receta_ingrediente)
 
-        return redirect('listar_recetas')  
+        return redirect('listar_recetas')  # redirige a la lista de recetas
+
     else:
-        ingredientes = Ingrediente.objects.all() 
+        ingredientes = Ingrediente.objects.all()  # trae los ingredientes
         return render(request, 'core/crearreceta.html', {'ingredientes': ingredientes})
-
-
+    
 """ def test_signal(request):
     receta = Recetas.objects.first()
     if receta:
