@@ -17,6 +17,16 @@
     <h2 class="text-center">Listado de Recetas</h2>
 
     <div class="row">
+        {% if ingredientes %}
+            
+                
+                
+                    {% for ingrediente in ingredientes %}
+                    <span data-field="ingrediente_ingredientes" class="">{{ ingrediente.nombre_ingrediente| capfirst }}</span>
+                    {% endfor %}
+                </select>
+            
+        {% endif %}
         {% if recetas %}
             {% for receta in recetas %}
             <div class="col-md-4 mb-4">

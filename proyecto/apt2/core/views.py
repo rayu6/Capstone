@@ -70,7 +70,8 @@ def register(request):
 @role_required(allowed_roles=['admin', 'usuario','cocinero'])
 def listar_recetas(request):
     recetas = Recetas.objects.prefetch_related('receta_ingrediente__ingrediente').all()
-    return render(request, 'core/recetas.html', {'recetas': recetas})
+    ingredientes = Ingrediente.objects.all()
+    return render(request, 'core/recetas.html', {'recetas': recetas, 'ingredientes':ingredientes})
 
 @role_required(allowed_roles=['cliente'])
 def homeCliente(request):

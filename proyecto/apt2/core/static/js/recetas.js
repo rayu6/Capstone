@@ -300,7 +300,27 @@ function mostrarId(recetaId) {
         contenedorIngrediente.id=`contenedoringrediente_id-${index+1}`;
     
         // Agrega nombre
+        const br =document.createElement('br')
+        contenedorIngrediente.appendChild(br)
 
+        const ingredientes = document.querySelectorAll('[data-field="ingrediente_ingredientes"]');
+
+        const select_nombre= document.createElement('select')
+        
+        ingredientes.forEach((ingrediente, index) => {
+        
+            texto=ingrediente.textContent
+            const option=document.createElement('option')
+            option.textContent=texto
+            option.id= texto
+            option.value=texto
+            if(option.id==nombre){
+                option.selected= true
+            }
+            select_nombre.appendChild(option)
+        })
+        select_nombre.classList.add('form-select')
+        contenedorIngrediente.appendChild(select_nombre)
         const label_id_Ingrediente = document.createElement('label');
             label_id_Ingrediente.id=`ingrediente_id-${index+1}`;
             label_id_Ingrediente.classList.add('d-none');
@@ -347,13 +367,13 @@ function mostrarId(recetaId) {
             
             const span_u = document.createElement('span');
                 span_u.classList.add('input-group-text');
-                span_c.id=`span_unidad-${index+1}`;
+                span_u.id=`span_unidad-${index+1}`;
                 span_u.textContent= "unidad";
                 div_inputs.appendChild(span_u);
 
             const input_u = document.createElement('input');
                 input_u.classList.add('form-control');
-                input_c.id=`input_cantidad-${index+1}`;
+                input_u.id=`input_unidad-${index+1}`;
                 input_u.value= unidad;
                 div_inputs.appendChild(input_u);
             const boton_eliminar=document.createElement('button');
@@ -417,38 +437,56 @@ function mostrarId(recetaId) {
 
 function agregar_ing(){
     const div_inputs = document.createElement('div');
-    const index = document.getElementById('boton_agregar').value
+    const index = parseInt(document.getElementById('boton_agregar').value)
     const boton_agregar = document.getElementById('boton_agregar')
     const contenedor = document.getElementById('ingredientes_Receta');
             div_inputs.id=`inputs_ingredientes-${index+1}`;
+
+    const ingredientes = document.querySelectorAll('[data-field="ingrediente_ingredientes"]');
+
+        const select_nombre= document.createElement('select')
+        
+        ingredientes.forEach((ingrediente, index) => {
+        
+            texto=ingrediente.textContent
+            const option=document.createElement('option')
+            option.textContent=texto
+            option.id= texto
+            option.value=texto
+            console.log(option)
+            select_nombre.appendChild(option)
+        })
+        contenedor.appendChild(select_nombre)
 
 
             div_inputs.classList.add('input-group');
             //span cantidades
 
-            const select_nombre= document.createElement('select')
+            const br = document.createElement('br')
+            contenedor.appendChild(br)
+            
 
 
             const span_c = document.createElement('span');
                 span_c.classList.add('input-group-text');
-                span_c.id=`span_cantidad-${index}`;
+                span_c.id=`span_cantidad-${index+1}`;
                 span_c.textContent= "cantidad";
                 div_inputs.appendChild(span_c);
 
             const input_c = document.createElement('input');
                 input_c.classList.add('form-control');
-                input_c.id=`input_cantidad-${index}`;
+                input_c.id=`input_cantidad-${index+1}`;
                 div_inputs.appendChild(input_c);
             
             const span_u = document.createElement('span');
                 span_u.classList.add('input-group-text');
-                span_c.id=`span_unidad-${index+1}`;
+                span_u.id=`span_unidad-${index+1}`;
                 span_u.textContent= "unidad";
                 div_inputs.appendChild(span_u);
 
             const input_u = document.createElement('input');
                 input_u.classList.add('form-control');
-                input_c.id=`input_cantidad-${index}`;
+                input_u.id=`input_unidad-${index+1}`;
                 div_inputs.appendChild(input_u);
             const boton_eliminar=document.createElement('button');
                 boton_eliminar.value=
@@ -459,7 +497,7 @@ function agregar_ing(){
                 boton_eliminar.id=`boton_eliminar-${index+1}`;
                 div_inputs.appendChild(boton_eliminar);
             contenedor.appendChild(div_inputs)
-                boton_agregar.value=index+1
+                boton_agregar.value=parseInt(index)+1
 }
 
 
