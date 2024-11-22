@@ -102,8 +102,12 @@
                     <div class="mb-3">
                         <label class="form-label" id="ingredientes_Receta">ingredientes:
                             
+                        </label><br>
+                        <label >
+                            <button type="button" class="btn btn-success" id="boton_agregar" onclick="agregar_ing()">
+                                Agregar
+                            </button>
                         </label>
-                        <label ></label>
                             
                         
                         <textarea id="M_ingredientes" class="form-control d-none" ></textarea>
@@ -121,6 +125,9 @@
 
                 <button type="button" class="btn btn-primary" id="cambiarLabelsPorInputs" onclick="cambiarLabelsPorInputs()" >
                     Modificar
+                </button>
+                <button type="submit" class="btn btn-primary" id="Eliminar_receta" >
+                    Eliminar
                 </button>
             </div>
         </div>
