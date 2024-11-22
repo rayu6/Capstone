@@ -26,7 +26,7 @@
                             data-original="{{ receta.nombre_receta }}"
                             data-field="nombre_receta">{{ receta.nombre_receta | capfirst }}</h5>
                         {% if receta.link %}
-                            <img src="{{ receta.link.url }}" alt="{{ receta.nombre_receta }}" style="width: auto; height: 200px;">
+                            <img class="card-img-top" src="{{ receta.link.url }}" alt="{{ receta.nombre_receta }}">
                         {% else %}
                             <p>No hay imagen disponible</p>
                         {% endif %}
