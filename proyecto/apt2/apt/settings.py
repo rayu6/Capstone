@@ -144,6 +144,10 @@ STATICFILES_DIRS = [
     BASE_DIR, 'static',  # Directorio para tus archivos estáticos
 ]
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
+MEDIA_URL = '/media/'  # URL base para acceder a los archivos de medios
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
  # Redirige al inicio después de iniciar sesión
   # Redirige al login después de cerrar sesión
 

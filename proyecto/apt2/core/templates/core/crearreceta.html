@@ -5,7 +5,7 @@
 {% block content %}
 <div class="container mt-4">
     <h2 class="text-center">Crear Nueva Receta</h2>
-    <form method="POST" action="{% url 'guardar_receta' %}">
+    <form method="POST" enctype="multipart/form-data" action="{% url 'guardar_receta' %}" >
         {% csrf_token %}
         
         <!-- Nombre de la receta -->
@@ -22,8 +22,8 @@
         
         <!-- Enlace de la imagen -->
         <div class="mb-4">
-            <label for="link" class="form-label">Enlace de la imagen:</label>
-            <input type="url" class="form-control" id="link" name="link" placeholder="http://example.com/imagen.jpg">
+            <label for="link" class="form-label">Subir imagen:</label>
+            <input type="file" class="form-control" id="link" name="link">
         </div>
 
         <!-- Selección de ingredientes -->

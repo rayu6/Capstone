@@ -1,6 +1,8 @@
 from django.urls import path
 from . import views
 from django.contrib.auth.views import LogoutView
+from django.conf import settings
+from django.conf.urls.static import static
 
 urlpatterns = [
     path('', views.home, name='home'),  # Ruta para la vista "home"
@@ -24,4 +26,6 @@ urlpatterns = [
 
     #path('agregar-pedido/', views.agregar_pedido, name='agregar_pedido'),
     #path('pedido-crear/', views.crear_pedido, name='crear_pedido'),
-]
+] 
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
