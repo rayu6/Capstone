@@ -21,7 +21,7 @@
 
                     {% for ingrediente in ingredientes %}
 
-                    <span data-field="ingrediente_ingredientes" class="">{{ ingrediente.nombre_ingrediente| capfirst }}</span>
+                    <span data-field="ingrediente_ingredientes" class="d-none">{{ ingrediente.nombre_ingrediente| capfirst }}</span>
                     
                     {% endfor %}
                 </select>
@@ -145,7 +145,7 @@
                 <button type="button" class="btn btn-primary" id="cambiarLabelsPorInputs" onclick="cambiarLabelsPorInputs()" >
                     Modificar
                 </button>
-                <button type="submit" class="btn btn-primary" id="Eliminar_receta" >
+                <button type="submit" class="btn btn-primary d-none" id="Eliminar_receta" >
                     Eliminar
                 </button>
             </div>
