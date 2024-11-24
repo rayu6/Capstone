@@ -103,7 +103,7 @@ def listar_pedidos2(request):
     pedido= pedido.objects.filter(id) # Obtén todos los pedidos de la base de datos
     return render(request, 'core/pedidos.html', {'pedidos': pedidos})   
 
-
+@role_required(allowed_roles=['admin','cocinero'])
 def listar_pedidos(request):
     pedidos = Pedido.objects.all()  # Trae todos los pedidos
 
