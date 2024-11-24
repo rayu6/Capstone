@@ -23,7 +23,12 @@ logger = logging.getLogger(__name__)
 
 # Vista para la página de inicio
 def home(request):
-    return render(request, 'core/home.html')  # Renderiza el template 'home.html'
+    navbar_items = [
+        {'name': 'Recetas', 'link': '/listarecetas'},
+        {'name': 'Stock', 'link': '/stock'},
+        {'name': 'Pedidos', 'link': '/pedidos'},
+    ]
+    return render(request, 'core/home.html',{'navbar_items': navbar_items})  # Renderiza el template 'home.html'
 
 # Vista para la página de login
 @role_required(allowed_roles=[None])

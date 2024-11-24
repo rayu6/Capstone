@@ -18,31 +18,39 @@
 
     <div class="row">
         {% if ingredientes %}
-            
-                
-                
+
                     {% for ingrediente in ingredientes %}
+
                     <span data-field="ingrediente_ingredientes" class="">{{ ingrediente.nombre_ingrediente| capfirst }}</span>
+                    
                     {% endfor %}
                 </select>
             
         {% endif %}
+
         {% if recetas %}
+
             {% for receta in recetas %}
+
             <div class="col-md-4 mb-4">
                 <div class="card" style="width: 100%;" data-receta-id="{{ receta.id }}">
                     <div class="card-body">
                         <h5 class="card-title" contenteditable="true" 
                             data-original="{{ receta.nombre_receta }}"
                             data-field="nombre_receta">{{ receta.nombre_receta | capfirst }}</h5>
+
                         {% if receta.link %}
-                            <img class="card-img-top" src="{{ receta.link.url }}" alt="{{ receta.nombre_receta }}">
-                        {% else %}
+
+                            <img class="card-img-top" src="{{ receta.link.url }}" alt="{{ receta.nombre_receta }}" style="height: 200px;">
+                        
+                            {% else %}
+
                             <p>No hay imagen disponible</p>
+
                         {% endif %}
                         <p class="card-text" contenteditable="true" style="display: none;"
                            data-original="{{ receta.descripcion }}"
-                           data-field="descripcion">{{ receta.descripcion|truncatechars:84 | capfirst}}</p>
+                           data-field="descripcion">{{ receta.descripcion | capfirst}}</p>
                         <p class="card-text">Ingredientes y Cantidades:</p>
                         <div class="ingredientes-list">
 
