@@ -23,12 +23,7 @@ logger = logging.getLogger(__name__)
 
 # Vista para la página de inicio
 def home(request):
-    navbar_items = [
-        {'name': 'Recetas', 'link': '/listarecetas'},
-        {'name': 'Stock', 'link': '/stock'},
-        {'name': 'Pedidos', 'link': '/pedidos'},
-    ]
-    return render(request, 'core/home.html',{'navbar_items': navbar_items})  # Renderiza el template 'home.html'
+    return render(request, 'core/home.html')  # Renderiza el template 'home.html'
 
 # Vista para la página de login
 @role_required(allowed_roles=[None])
@@ -104,15 +99,24 @@ def logout_view(request):
   
 
 def listar_pedidos2(request):
-    pedidos = Pedido.objects.all()
-    pedido= pedido.objects.filter(id) # Obtén todos los pedidos de la base de datos
-    return render(request, 'core/pedidos.html', {'pedidos': pedidos})   
+    pedidos = Pedido.objects.select_related(
+        'usuario', 
+        'tipo_de_orden', 
+        'estado',
+        'receta_pedido__recetas__nombre_receta'
+    ).all()
+    
+    # Cargar los ingredientes para cada pedido
+    for pedido in pedidos:
+        pedido.ingredientes = []
+        for receta_ing in pedido.receta_pedido.recetas.receta_ingrediente.all():
+            pedido.ingredientes.append({
+                'nombre': receta_ing.ingrediente.nombre_ingrediente.nombre,
+                'cantidad': receta_ing.cantidad,
+                'unidad': receta_ing.unidad
+            })
 
-
-def listar_pedidos(request):
-    pedidos = Pedido.objects.all()  # Trae todos los pedidos
-
-    # Obtener el id del pedido desde el parámetro GET
+    # Si deseas acceder a los ingredientes de un solo pedido (con el GET de `pedido_id`)
     pedido_id = request.GET.get('pedido_id')
     
     if pedido_id:
