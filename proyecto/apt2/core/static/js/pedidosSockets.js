@@ -13,8 +13,41 @@ pedidosSocket.onmessage = function(e) {
     } else if (data.type === 'temp_modification') {
         console.log('DB UPDATEEE DATA:' ,data);
         handleTemporaryModification(data);
+    } else if (data.type === 'nuevo_pedido') {
+        handleNuevoPedido(data.pedido);
+        console.log('Nuevo pedido recibido:', data.pedido);
     }
 };
+
+
+function handleNuevoPedido(pedido) {
+    console.log(pedido);
+    const orderList = document.querySelector('.row');
+    if (!orderList) return;
+    const pedidoHTML = `
+    <div class="col-md-4 mb-4">
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title">Pedido #${pedido.id}</h5>
+            <p><strong>Estado:</strong> ${pedido.estado}</p>
+            <p><strong>Tipo de orden:</strong> ${pedido.tipo_de_orden}</p>
+            <p><strong>Receta:</strong> ${pedido.receta}</p>
+            <p class="card-text" data-field="estado" data-original="${pedido.estado}">Estado: ${pedido.estado}</p>
+
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" 
+                    data-bs-target="#detallePedidoModal" 
+                    onclick="fetchDetallePedido(${pedido.id})">
+                Ver detalles
+            </button>
+        </div>
+    </div>
+    </div>
+
+    `;
+
+    orderList.insertAdjacentHTML('afterbegin', pedidoHTML);
+
+}
 
 function handleDatabaseUpdate(data) {
     console.log("Processing DB update for pedido:", data.pedido_id);
@@ -39,7 +72,6 @@ function updatePedidoCard(pedidoId, data, isTemporary = false) {
             
             if (!isTemporary) {
                 element.dataset.original = value;
-                // Añadir clase para indicar actualización
                 element.classList.add('updated-field');
                 setTimeout(() => {
                     element.classList.remove('updated-field');
@@ -49,7 +81,21 @@ function updatePedidoCard(pedidoId, data, isTemporary = false) {
     });
 }
 
-
+function updateModalIfOpen(pedidoId, data) {
+    const modal = document.getElementById('detallePedidoModal');
+    const isModalOpen = modal.classList.contains('show');
+    
+    if (isModalOpen) {
+        const currentPedidoId = document.getElementById('pedido_id')?.value;
+        if (currentPedidoId === pedidoId.toString()) {
+            // Actualizar el estado en el modal si está abierto y es el mismo pedido
+            const estadoLabel = document.getElementById('Estado_pedido');
+            if (estadoLabel && data.estado) {
+                estadoLabel.textContent = data.estado;
+            }
+        }
+    }
+}
 pedidosSocket.onerror = function(error) {
     console.error("WebSocket error:", error);
 };
@@ -70,24 +116,12 @@ function updatePedidoFields(pedidoCard, data) {
     });
 }
 
-function updatePedidoTemp(pedidoId, modifications) {
-    const pedidoCard = document.querySelector(`[data-pedido-id="${pedidoId}"]`);
-    if (!pedidoCard) return;
-    Object.entries(modifications).forEach(([field, value]) => {
-        const element = pedidoCard.querySelector(`[data-field="${field}"]`);
-        if (element) {
-            element.textContent = `${field.charAt(0).toUpperCase() + field.slice(1).replace(/_/g, ' ')}: ${value}`;
-        }
-    });
-}
-
 function actualizarPedido(event) {
     if (event) event.preventDefault();
     
-    const pedidoId = document.getElementById('M_Id').value;
+    const pedidoId = document.getElementById('pedido_id').value;
     let nuevoEstado = document.getElementById('M_Estado').value;
     
-    // Mapear estados descriptivos a IDs si es necesario
     const estadosMap = {
         'En proceso': '1',
         'Pendiente': '2',
@@ -98,6 +132,13 @@ function actualizarPedido(event) {
     const estadoId = estadosMap[nuevoEstado] || nuevoEstado;
     
     console.log('Enviando actualización:', { pedidoId, nuevoEstado, estadoId });
+
+    // Enviar actualización por WebSocket
+    pedidosSocket.send(JSON.stringify({
+        action: 'update_estado',
+        pedido_id: pedidoId,
+        estado: estadoId
+    }));
 
     fetch('/api/update-pedido/', {
         method: 'POST',
@@ -110,32 +151,14 @@ function actualizarPedido(event) {
             'estado': estadoId
         })
     })
-    .then(response => {
-        console.log('Response status:', response.status);
-        return response.json();
-    })
+    .then(response => response.json())
     .then(data => {
-        console.log('Server response:', data);
         if (data.status === 'ok') {
             toastr.success("¡Pedido actualizado con éxito!");
             
-            // Actualizar UI inmediatamente mientras esperamos la actualización por WebSocket
-            const pedidoCard = document.querySelector(`[data-pedido-id="${pedidoId}"]`);
-            if (pedidoCard) {
-                const estadoElement = pedidoCard.querySelector('[data-field="estado"]');
-                if (estadoElement && data.data.estado) {
-                    estadoElement.textContent = `Estado: ${data.data.estado}`;
-                    estadoElement.dataset.original = data.data.estado;
-                }
-            }
-            
-            // Si el modal está abierto, actualizar sus campos también
-            const estadoLabel = document.getElementById('Estado_pedido');
-            if (estadoLabel) {
-                estadoLabel.textContent = data.data.estado;
-            }
+            // La actualización visual se manejará a través del WebSocket
+            cambiarInputsPorLabels();
         } else {
-            console.error('Error en la respuesta:', data);
             toastr.error(data.message || "Error al actualizar el pedido");
         }
     })
@@ -145,80 +168,24 @@ function actualizarPedido(event) {
     });
 }
 
-function mostrarId(pedidoId) {
-    const pedidoCard = document.querySelector(`[data-pedido-id="${pedidoId}"]`);
-    if (!pedidoCard) {
-        console.error(`Pedido con ID ${pedidoId} no encontrado`);
-        return;
-    }
-
-    document.getElementById('pedido').innerText = `Detalles del Pedido ${pedidoId}`;
-    document.getElementById('Id_pedido').textContent = pedidoId;
-    document.getElementById('M_Id').value = pedidoId;
-
-    const usuario = pedidoCard.querySelector('[data-field="usuario"]').textContent.split(': ')[1];
-    document.getElementById('Usuario_pedido').textContent = usuario;
-    document.getElementById('M_Usuario').value = usuario;
-
-    const tipoOrden = pedidoCard.querySelector('[data-field="tipo_de_orden"]').textContent.split(': ')[1];
-    document.getElementById('Tipo_orden').textContent = tipoOrden;
-    document.getElementById('M_Tipo_orden').value = tipoOrden;
-
-    const estado = pedidoCard.querySelector('[data-field="estado"]').textContent.split(': ')[1];
-    document.getElementById('Estado_pedido').textContent = estado;
-    document.getElementById('M_Estado').value = estado;
-
-    const receta = pedidoCard.querySelector('.card-text:last-child').textContent.split(': ')[1];
-    document.getElementById('Receta_pedido').textContent = receta;
-
-    // Reset visibility
-    document.getElementById('M_Id').style.display = 'none';
-    document.getElementById('M_Usuario').style.display = 'none';
-    document.getElementById('M_Tipo_orden').style.display = 'none';
-    document.getElementById('M_Estado').style.display = 'none';
-    document.getElementById('guardar_cambios').style.display = 'none';
-    document.getElementById('cambiarInputsPorLabels').style.display = 'none';
-    document.getElementById('cambiarLabelsPorInputs').style.display = 'block';
-}
-
 function cambiarLabelsPorInputs() {
-    const elementos = {
-        'M_Id': 'Id_pedido',
-        'M_Usuario': 'Usuario_pedido',
-        'M_Tipo_orden': 'Tipo_orden',
-        'M_Estado': 'Estado_pedido'
-    };
-
-    for (const [input, label] of Object.entries(elementos)) {
-        document.getElementById(input).style.display = 'block';
-        document.getElementById(label).style.display = 'none';
-    }
-
+    document.getElementById('M_Estado').style.display = 'block';
+    document.getElementById('Estado_pedido').style.display = 'none';
     document.getElementById('guardar_cambios').style.display = 'block';
     document.getElementById('cambiarInputsPorLabels').style.display = 'block';
     document.getElementById('cambiarLabelsPorInputs').style.display = 'none';
 }
 
 function cambiarInputsPorLabels() {
-    const elementos = {
-        'M_Id': 'Id_pedido',
-        'M_Usuario': 'Usuario_pedido',
-        'M_Tipo_orden': 'Tipo_orden',
-        'M_Estado': 'Estado_pedido'
-    };
-
-    for (const [input, label] of Object.entries(elementos)) {
-        document.getElementById(input).style.display = 'none';
-        document.getElementById(label).style.display = 'block';
-    }
-
+    document.getElementById('M_Estado').style.display = 'none';
+    document.getElementById('Estado_pedido').style.display = 'block';
     document.getElementById('guardar_cambios').style.display = 'none';
     document.getElementById('cambiarInputsPorLabels').style.display = 'none';
     document.getElementById('cambiarLabelsPorInputs').style.display = 'block';
 }
 
-// Event listeners
-document.addEventListener('DOMContentLoaded', function() {
+
+function initializeModalEventListeners() {
     const btnModificar = document.getElementById('cambiarLabelsPorInputs');
     if (btnModificar) {
         btnModificar.addEventListener('click', cambiarLabelsPorInputs);
@@ -233,27 +200,11 @@ document.addEventListener('DOMContentLoaded', function() {
     if (btnGuardar) {
         btnGuardar.addEventListener('click', actualizarPedido);
     }
+}
 
-    document.querySelectorAll('[contenteditable="true"]').forEach(element => {
-        element.addEventListener('input', function() {
-            const pedidoCard = this.closest('[data-pedido-id]');
-            const pedidoId = pedidoCard.dataset.pedidoId;
-            const field = this.dataset.field;
-            const value = this.textContent;
-            pedidosSocket.send(JSON.stringify({
-                action: 'temp_modify',
-                pedido_id: pedidoId,
-                modifications: { [field]: value }
-            }));
-        });
-
-        element.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape') {
-                this.textContent = this.dataset.original;
-                e.preventDefault();
-            }
-        });
-    });
+// Event listeners
+document.addEventListener('DOMContentLoaded', function() {
+    initializeModalEventListeners();
 });
 function getCookie(name) {
     let cookieValue = null;
@@ -268,4 +219,33 @@ function getCookie(name) {
         }
     }
     return cookieValue;
+}
+
+
+function fetchDetallePedido(pedidoId) {
+    const url = new URL(window.location.href);
+    url.searchParams.set('pedido_id', pedidoId);
+
+    fetch(url)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`No se pudo cargar el pedido: ${response.status} ${response.statusText}`);
+            }
+            return response.text();
+        })
+        .then(html => {
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
+            
+            const modalBody = doc.querySelector('#detallePedidoModal .modal-body');
+            if (modalBody) {
+                document.querySelector('#detallePedidoModal .modal-body').innerHTML = modalBody.innerHTML;
+                
+                // Reinicializar los event listeners después de actualizar el contenido
+                initializeModalEventListeners();
+            } else {
+                console.error('El contenido del modal no fue encontrado en la respuesta.');
+            }
+        })
+        .catch(err => console.error('Error al cargar detalles del pedido:', err));
 }

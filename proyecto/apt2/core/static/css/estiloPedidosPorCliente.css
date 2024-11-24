@@ -195,3 +195,47 @@
         height: 4.5rem; /* Ajustamos la altura para móviles */
     }
 }
+
+/* Estilos para el modal */
+.modal-header {
+    border-bottom: 1px solid #dee2e6;
+    padding: 1rem;
+}
+
+.modal-header .btn-close {
+    padding: 0.5rem;
+    margin: -0.5rem -0.5rem -0.5rem auto;
+}
+
+.ingredientes-container {
+    margin-top: 10px;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.ingrediente-item {
+    padding: 8px;
+    border-bottom: 1px solid #eee;
+}
+
+.ingrediente-item:last-child {
+    border-bottom: none;
+}
+
+/* Estilos para las etiquetas en el modal */
+.modal-body .form-label {
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.modal-body label + label {
+    margin-left: 0.5rem;
+    font-weight: normal;
+}
+
+/* Ajustes para el diseño responsivo */
+@media (max-width: 576px) {
+    .modal-dialog {
+        margin: 0.5rem;
+    }
+}

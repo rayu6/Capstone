@@ -2,7 +2,9 @@ import json
 from venv import logger
 from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.db import database_sync_to_async
-from .models import Recetas, RecetaIngrediente
+from django.shortcuts import get_object_or_404
+from .models import Recetas, RecetaIngrediente, Usuario
+from django.apps import apps
 
 class RecetasConsumer(AsyncWebsocketConsumer):
     _temp_modifications = {}  # Diccionario para almacenar modificaciones temporales
@@ -113,3 +115,94 @@ class PedidosConsumer(AsyncWebsocketConsumer):
             print(f"❌ Error in broadcast_db_update: {str(e)}")
             import traceback
             print(traceback.format_exc())
+
+    async def nuevo_pedido_mensaje(self, event):
+        # Manejar el mensaje recibido y enviarlo al cliente
+        await self.send(text_data=json.dumps({
+            'type': 'nuevo_pedido',
+            'pedido': event['pedido']
+        }))
+
+# consumers.py
+import json
+from channels.generic.websocket import AsyncWebsocketConsumer
+from channels.db import database_sync_to_async
+from django.shortcuts import get_object_or_404
+from django.apps import apps
+
+class PedidosPorUsuarioConsumer(AsyncWebsocketConsumer):
+    async def connect(self):
+        await self.channel_layer.group_add("pedidos_por_usuario_group", self.channel_name)
+        self.usuario = await self.get_usuario(1)
+        await self.accept()
+    
+    async def disconnect(self, close_code):
+        await self.channel_layer.group_discard("pedidos_por_usuario_group", self.channel_name)
+    
+    async def receive(self, text_data):
+        data = json.loads(text_data)
+        
+        if data.get('type') == 'nuevo_pedido_modificado':
+            # Crear el pedido en la base de datos
+            pedido_creado = await self.crear_pedido(
+                data['receta_id'],
+                data.get('modifications', None)
+            )
+            
+            if pedido_creado:
+                # Notificar a todos los clientes conectados
+                await self.channel_layer.group_send(
+                    "pedidos_group",  # Enviamos al grupo de pedidos general
+                    {
+                        "type": "nuevo_pedido_mensaje",  # Cambiamos el nombre del tipo
+                        "pedido": await self.serializar_pedido(pedido_creado)
+                    }
+                )
+
+    async def nuevo_pedido_mensaje(self, event):  # Añadimos este método
+        # Enviar el nuevo pedido a todos los clientes
+        await self.send(text_data=json.dumps({
+            'type': 'nuevo_pedido',
+            'pedido': event['pedido']
+        }))
+    
+    @database_sync_to_async
+    def get_usuario(self, usuario_id):
+        return get_object_or_404(Usuario, id=usuario_id)
+        
+    @database_sync_to_async
+    def crear_pedido(self, receta_id, modifications=None):
+        try:
+            # Obtenemos los modelos dinámicamente
+            Pedido = apps.get_model('core', 'Pedido')
+            RecetaPedido = apps.get_model('core', 'RecetaPedido')
+            Recetas = apps.get_model('core', 'Recetas')
+            Estado = apps.get_model('core', 'Estado')
+            TipoDeOrden = apps.get_model('core', 'TipoDeOrden')
+            
+            # Crear RecetaPedido
+            receta = Recetas.objects.get(id=receta_id)
+            receta_pedido = RecetaPedido.objects.create(recetas=receta)
+            
+            # Crear Pedido
+            pedido = Pedido.objects.create(
+                usuario=self.usuario,
+                tipo_de_orden=TipoDeOrden.objects.get(id=1),
+                estado=Estado.objects.get(id=1),
+                receta_pedido=receta_pedido
+            )
+            
+            return pedido
+        except Exception as e:
+            print(f"Error al crear pedido: {str(e)}")
+            return None
+    
+    @database_sync_to_async
+    def serializar_pedido(self, pedido):
+        return {
+            'id': pedido.id,
+            'usuario': str(pedido.usuario),
+            'estado': str(pedido.estado),
+            'tipo_de_orden': str(pedido.tipo_de_orden),
+            'receta': str(pedido.receta_pedido.recetas.nombre_receta)
+        }

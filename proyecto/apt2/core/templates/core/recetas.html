@@ -25,7 +25,7 @@
                     
                     {% endfor %}
                 </select>
-            
+ 
         {% endif %}
 
         {% if recetas %}
@@ -40,11 +40,8 @@
                             data-field="nombre_receta">{{ receta.nombre_receta | capfirst }}</h5>
 
                         {% if receta.link %}
-
-                            <img class="card-img-top" src="{{ receta.link.url }}" alt="{{ receta.nombre_receta }}" style="height: 200px;">
-                        
-                            {% else %}
-
+                            <img class="card-img-top" src="{{ receta.link }}" alt="{{ receta.nombre_receta }}">
+                        {% else %}
                             <p>No hay imagen disponible</p>
 
                         {% endif %}

@@ -83,47 +83,6 @@ function cambiarLabelsPorInputs() {
 
 
 
-function cambiarInputsPorLabels() {
-    
-
-    setTimeout(() => {
-        const textarea_ID_Receta = document.getElementById("M_Id");
-        const textarea_descripcion = document.getElementById("M_descripcion");
-        const textarea_M_Nombre_Receta = document.getElementById("M_Nombre_Receta");
-        const label_ID_descripcion = document.getElementById("Descripcion_Receta");
-        const label_ID_nombre = document.getElementById("Nombre_receta");
-
-        if (label_ID_descripcion) {
-            label_ID_descripcion.classList.remove('d-none');
-        }
-        if (label_ID_nombre) {
-            label_ID_nombre.classList.remove('d-none');
-        }
-        if (textarea_ID_Receta) {
-            textarea_ID_Receta.classList.add('d-none');
-        }
-        if (textarea_M_Nombre_Receta) {
-            textarea_M_Nombre_Receta.classList.add('d-none');
-        }
-        if (textarea_descripcion) {
-            textarea_descripcion.classList.add('d-none');
-        }
-        const boton_cancelar = document.getElementById("cambiarInputsPorLabels");
-        if (boton_cancelar) {
-            boton_cancelar.classList.add('d-none');
-        }
-
-        const boton_guardar= document.getElementById("guardar_cambios");
-        if (boton_guardar) {
-            boton_guardar.classList.add('d-none');
-        }
-        
-
-        const boton_modificar= document.getElementById("cambiarLabelsPorInputs");
-        if (boton_modificar) {
-            boton_modificar.classList.remove('d-none');
-        }
-   }, 150);}
 
 
 if(document.getElementById("cambiarInputsPorLabels")){

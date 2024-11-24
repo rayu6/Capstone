@@ -86,7 +86,7 @@ class RecetaIngrediente(models.Model):
     ingrediente = models.ForeignKey('Ingrediente', on_delete=models.CASCADE,)
     
     def __str__(self):
-         return f"{self.ingrediente.nombre_ingrediente.nombre} - {self.cantidad} -{self.unidad}"
+        return f"{self.ingrediente.nombre_ingrediente.nombre} - {self.cantidad} - {self.unidad}"
     
 class RecetaPedido(models.Model):
     id = models.AutoField(primary_key=True)  

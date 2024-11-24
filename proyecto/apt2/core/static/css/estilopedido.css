@@ -37,3 +37,11 @@
 .card {
     margin-bottom: 20px; /* Espacio entre las tarjetas */
 }
+.new-order-animation {
+    animation: highlightNew 2s ease-out;
+}
+
+@keyframes highlightNew {
+    0% { transform: scale(0.95); background-color: #e3f2fd; }
+    100% { transform: scale(1); background-color: transparent; }
+}

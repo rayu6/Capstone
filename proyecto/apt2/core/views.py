@@ -80,14 +80,14 @@ def listar_recetas(request):
 
 @role_required(allowed_roles=['cliente'])
 def homeCliente(request):
-    return render(request, 'core/users/homeCliente.html')  # Renderiza el template 'pedidos.html'
+    return render(request, 'core/users/homeCliente.html')  # Renderiza el template 
 
 @role_required(allowed_roles=['cocinero'])
 def homeUsuario(request):
-    return render(request, 'core/users/homeUsuario.html')  # Renderiza el template 'pedidos.html'
+    return render(request, 'core/users/homeUsuario.html')  # Renderiza el template
 
 def pedidos(request):
-    return render(request, 'core/pedidos.html')  # Renderiza el template 'pedidos.html'
+    return render(request, 'core/pedidos.html')  # Renderiza el template 
 
 def pedidos_por_usuario(request):
     recetas = Recetas.objects.prefetch_related('receta_ingrediente__ingrediente').all()
@@ -108,22 +108,43 @@ def listar_pedidos2(request):
     pedido= pedido.objects.filter(id) # Obtén todos los pedidos de la base de datos
     return render(request, 'core/pedidos.html', {'pedidos': pedidos})   
 
-@role_required(allowed_roles=['admin','cocinero'])
+
 def listar_pedidos(request):
     pedidos = Pedido.objects.all()  # Trae todos los pedidos
 
     # Obtener el id del pedido desde el parámetro GET
     pedido_id = request.GET.get('pedido_id')
-
-    pedido = None
+    
     if pedido_id:
-        # Filtra el pedido con el id pasado como parámetro
-        pedido = get_object_or_404(Pedido, id=pedido_id)
+        try:
+            pedido = Pedido.objects.get(id=pedido_id)
+            ingredientes = []
+            for receta_ing in pedido.receta_pedido.recetas.receta_ingrediente.all():
+                ingredientes.append({
+                    'nombre': receta_ing.ingrediente.nombre_ingrediente.nombre,
+                    'cantidad': receta_ing.cantidad,
+                    'unidad': receta_ing.unidad
+                })
+        except Pedido.DoesNotExist:
+            pedido = None
+            ingredientes = []
+    else:
+        pedido = None
+        ingredientes = []
+
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        return JsonResponse({
+            'ingredientes': ingredientes,
+            'estado': pedido.estado.nombre_estado if pedido else None
+        })
 
     return render(request, 'core/pedidos.html', {
-        'pedidos': pedidos,
-        'pedido': pedido,  # Si hay un pedido con el id solicitado, lo pasa a la plantilla
+        'pedidos': pedidos,  # Pasa todos los pedidos
+        'pedido': pedido,    # Pasa el pedido único si hay
+        'ingredientes': ingredientes  # Pasa los ingredientes para el pedido seleccionado
     })
+
+
 
 def pedido_detalles(request,pedido_id):
     if request.method == 'POST':
@@ -483,7 +504,7 @@ def crear_pedido(request):
             receta_id = data.get('receta_id')
             
             # Obtenemos o creamos los objetos necesarios
-            usuario = get_object_or_404(Usuario, id=3)  # Cliente fijo con ID 3
+            usuario = get_object_or_404(Usuario, id=1)  # Cliente fijo con ID 1
             tipo_de_orden = get_object_or_404(TipoDeOrden, id=1)  # Asumimos que existe un tipo de orden básico
             estado = get_object_or_404(Estado, id=1)  # Asumimos que existe un estado inicial
             receta = get_object_or_404(Recetas, id=receta_id)

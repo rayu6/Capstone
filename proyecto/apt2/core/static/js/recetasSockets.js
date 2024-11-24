@@ -4,6 +4,9 @@ const recetasSocket = new WebSocket('ws://' + window.location.host + '/ws/receta
 recetasSocket.onopen = function() {
     console.log("Conexión WebSocket establecida para recetas.");
 };
+recetasSocket.onclose = function() {
+    console.log("Conexión WebSocket cerrada para recetas.");
+};
 
 recetasSocket.onmessage = function(e) {
     const data = JSON.parse(e.data);

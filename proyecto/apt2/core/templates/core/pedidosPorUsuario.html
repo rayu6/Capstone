@@ -14,14 +14,15 @@
     <link rel="stylesheet" href="{% static 'css/estiloPedidosPorCliente.css' %}">
 {% endblock %}
 
-
-
 {% block content %}
+
+<script src="{% static 'js/pedidosPorUsuario.js' %}" defer></script> <!-- El 'defer' asegura que el JS se cargue después de la carga del contenido -->
+
 <div class="container py-4">
     <div class="row">
         {% for receta in recetas %}
         <div class="col-lg-4 col-md-6">
-            <div class="card">
+            <div class="card" data-receta-id="{{ receta.id }}">
                 <div class="card-header">
                     <h5 class="card-title">{{ receta.nombre_receta | capfirst }}</h5>
                     <div class="category-tags">
@@ -30,9 +31,9 @@
                         {% endif %}
                     </div>
                 </div>
-                
+        
                 <div class="image-container">
-                    <img src="{{ receta.link.url }}" class="card-img-top" alt="{{ receta.nombre_receta }}">
+                    <img src="{{ receta.link }}" class="card-img-top" alt="{{ receta.nombre_receta }}">
                     <div class="dish-info">
                         <span>Tiempo de preparación: 20 min</span>
                     </div>
@@ -42,13 +43,24 @@
                 <div class="card-body">
                     <p class="dish-description">{{ receta.descripcion|truncatechars:84 | capfirst }}</p>
                     <p class="price">$5.30</p>
+                    
+                    <!-- Agregamos los ingredientes ocultos aquí -->
+                    <div class="ingredientes-list" style="display: none;">
+                        {% for item in receta.receta_ingrediente.all %}
+                        <div class="ingrediente-item" data-ingrediente-id="{{ item.id }}">
+                            <span data-field="ingrediente">{{item.ingrediente | capfirst}}</span>
+                            <span data-field="cantidad">{{ item.cantidad|floatformat:"g" }}</span>
+                            <span data-field="unidad">{{item.unidad | capfirst}}</span>
+                        </div>
+                        {% endfor %}
+                    </div>
                 </div>
                 
                 <div class="button-container">
-                    <button type="button" class="btn btn-modify" data-bs-toggle="modal"
-                            data-bs-target="#agregarIngredienteModal"
-                            onclick="mostrarId('{{ receta.id }}')">
-                        Personalizar
+                    <button type="button" class="btn btn-modify" data-bs-toggle="modal" 
+                        data-bs-target="#agregarIngredienteModal" 
+                        onclick="mostrarId('{{ receta.id }}')">
+                        Modificar
                     </button>
                     <button type="button" class="btn btn-order" 
                             onclick="crearPedido('{{ receta.id }}')">
@@ -61,6 +73,44 @@
     </div>
 </div>
 
+<!-- Modal para cada receta -->
+<div class="modal fade" id="agregarIngredienteModal" tabindex="-1" aria-labelledby="agregarIngredienteLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="detalle">Detalles de la receta</h5>
+                <h5 class="modal-title" id="receta_id"></h5>
+                <!-- Corregimos el botón de cerrar -->
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3 d-none">
+                    <label class="form-label">Receta N°: </label>
+                    <label id="Id_receta" ></label>
+                </div>
+                <div class="mb-3 d-none">
+                    <label class="form-label">Nombre: </label>
+                    <label id="Nombre_receta"></label>
+                </div>
+                <div class="mb-3 d-none">
+                    <label class="form-label">Descripción: </label>
+                    <label id="Descripcion_Receta"></label>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Ingredientes:</label>
+                    <div id="ingredientes_Receta" class="ingredientes-container" contenteditable="true">
+                        <!-- Los ingredientes se cargarán aquí dinámicamente -->
+                    </div>
+                </div>
+                <button type="button" class="btn btn-order" 
+                        onclick="crearPedido(document.getElementById('Id_receta').textContent)">
+                    Ordenar
+                </button>
+        </button>
+            </div>
+        </div>
+    </div>
+</div>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
@@ -71,32 +121,6 @@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"rel="stylesheet"/>
 
-<script>
-    function crearPedido(recetaId) {
-        fetch('/api/crear-pedido/', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                receta_id: recetaId
-            })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.status === 'success') {
-                toastr.success("¡Pedido actualizado con éxito!");
-            } else {
-                toastr.error("Error al actualizar");
-            }
-        })
-        .catch(error => {
-            toastr.error('Error al crear el pedido', 'error');
-            console.error('Error:', error);
-        });
-    }
-    
-    </script>
 {% endblock %}
 
 
