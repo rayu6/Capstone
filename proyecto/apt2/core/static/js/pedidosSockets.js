@@ -29,10 +29,9 @@ function handleNuevoPedido(pedido) {
     <div class="card">
         <div class="card-body">
             <h5 class="card-title">Pedido #${pedido.id}</h5>
-            <p><strong>Estado:</strong> ${pedido.estado}</p>
+            <p><strong>Estado:</strong> <span class="estado-pedido" data-pedido-id="${pedido.id}">${pedido.estado}</span></p>
             <p><strong>Tipo de orden:</strong> ${pedido.tipo_de_orden}</p>
             <p><strong>Receta:</strong> ${pedido.receta}</p>
-            <p class="card-text" data-field="estado" data-original="${pedido.estado}">Estado: ${pedido.estado}</p>
 
             <button type="button" class="btn btn-primary" data-bs-toggle="modal" 
                     data-bs-target="#detallePedidoModal" 
@@ -53,6 +52,16 @@ function handleDatabaseUpdate(data) {
     console.log("Processing DB update for pedido:", data.pedido_id);
     updatePedidoCard(data.pedido_id, data.data);
     updateModalIfOpen(data.pedido_id, data.data);
+        // Actualizar todos los elementos que muestran el estado para este pedido
+        const estadoElements = document.querySelectorAll(`.estado-pedido[data-pedido-id="${data.pedido_id}"]`);
+        estadoElements.forEach(element => {
+            element.textContent = data.data.estado;
+            // Añadir una clase temporal para mostrar la actualización
+            element.classList.add('estado-actualizado');
+            setTimeout(() => {
+                element.classList.remove('estado-actualizado');
+            }, 2000);
+        });
 }
 
 function handleTemporaryModification(data) {
@@ -167,7 +176,18 @@ function actualizarPedido(event) {
         toastr.error("Error al actualizar el pedido");
     });
 }
-
+const style = document.createElement('style');
+style.textContent = `
+    .estado-actualizado {
+        animation: highlight 2s ease-out;
+    }
+    
+    @keyframes highlight {
+        0% { background-color: #ffeb3b; }
+        100% { background-color: transparent; }
+    }
+`;
+document.head.appendChild(style);
 function cambiarLabelsPorInputs() {
     document.getElementById('M_Estado').style.display = 'block';
     document.getElementById('Estado_pedido').style.display = 'none';

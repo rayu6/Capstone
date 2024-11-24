@@ -20,14 +20,13 @@
     <h2 class="text-center">Listado de Pedidos</h2>
     <div class="row">
         {% for pedido in pedidos %}
-            <div class="col-md-4 mb-4">
+            <div class="col-md-4 mb-4" data-pedido-id="{{ pedido.id }}">
                 <div class="card">
                     <div class="card-body">
                         <h5 class="card-title">Pedido #{{ pedido.id }}</h5>
-                        <p><strong>Estado:</strong> {{ pedido.estado.nombre_estado }}</p>
+                        <p><strong>Estado:</strong> <span class="estado-pedido" data-pedido-id="{{ pedido.id }}">{{ pedido.estado.nombre_estado }}</span></p>
                         <p><strong>Tipo de orden:</strong> {{ pedido.tipo_de_orden.nombre_tipo_de_orden }}</p>
                         <p><strong>Receta:</strong> {{ pedido.receta_pedido.recetas.nombre_receta.nombre }}</p>
-                        <p class="card-text" data-field="estado" data-original="{{ pedido.estado }}">Estado: {{ pedido.estado }}</p>
 
                         <button type="button" class="btn btn-primary" data-bs-toggle="modal" 
                                 data-bs-target="#detallePedidoModal" 
@@ -61,12 +60,12 @@
                     </ul>
                     <div class="mb-3">
                         <label>Estado: </label>
-                        <span id="Estado_pedido">{{ pedido.estado.nombre_estado }}</span>
+                        <span id="Estado_pedido" class="estado-pedido" data-pedido-id="{{ pedido.id }}">{{ pedido.estado.nombre_estado }}</span>
                         <select id="M_Estado" style="display: none;">
-                            <option value="En proceso" {% if pedido.estado.nombre_estado == "Proceso" %}selected{% endif %}>En proceso</option>
-                            <option value="Pendiente" {% if pedido.estado.nombre_estado == "Pendiente" %}selected{% endif %}>Pendiente</option>
-                            <option value="Completado" {% if pedido.estado.nombre_estado == "Completado" %}selected{% endif %}>Completado</option>
-                            <option value="Cancelado" {% if pedido.estado.nombre_estado == "Cancelado" %}selected{% endif %}>Cancelado</option>
+                            <option value="En proceso">En proceso</option>
+                            <option value="Pendiente">Pendiente</option>
+                            <option value="Completado">Completado</option>
+                            <option value="Cancelado">Cancelado</option>
                         </select>
                     </div>
                     <button id="cambiarLabelsPorInputs" type="button" class="btn btn-warning">Modificar</button>
