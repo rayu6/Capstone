@@ -67,6 +67,9 @@ class Pedido(models.Model):
         # aplicar fucnion descontar 
         self.descontar_ingredientes_del_stock()
 
+    def __str__(self):
+        return self.receta_pedido.recetas.nombre_receta.nombre
+
 
     
 

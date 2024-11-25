@@ -31,7 +31,7 @@
 
 .card-img-top {
     width: 100%;
-    height: auto; /* Consistent image height */
+    height: 100px; /* Consistent image height */
     object-fit: cover; /* Maintain image aspect ratio */
 }
 
