@@ -259,12 +259,11 @@ function mostrarId(recetaId) {
         contenedorIngrediente.id=`contenedoringrediente_id-${index+1}`;
     
         // Agrega nombre
-        const br =document.createElement('br')
-        contenedorIngrediente.appendChild(br)
 
         const ingredientes = document.querySelectorAll('[data-field="ingrediente_ingredientes"]');
 
         const select_nombre= document.createElement('select')
+        select_nombre.classList.add('d-none')
         
         ingredientes.forEach((ingrediente, index) => {
         
