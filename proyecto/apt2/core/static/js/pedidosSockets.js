@@ -1,8 +1,9 @@
 // Configuración del WebSocket
-const pedidosSocket = new WebSocket('ws://' + window.location.host + '/ws/pedidos/');
+const pedidosSocket = new WebSocket('ws://' + window.location.host + '/ws/pedidos-por-usuario/');
 pedidosSocket.onopen = function() {
     console.log("Conexión WebSocket establecida para pedidos.");
 };
+const processedPedidos = new Set(); // Conjunto para trackear pedidos procesados
 
 pedidosSocket.onmessage = function(e) {
     const data = JSON.parse(e.data);
@@ -14,18 +15,32 @@ pedidosSocket.onmessage = function(e) {
         console.log('DB UPDATEEE DATA:' ,data);
         handleTemporaryModification(data);
     } else if (data.type === 'nuevo_pedido') {
-        handleNuevoPedido(data.pedido);
-        console.log('Nuevo pedido recibido:', data.pedido);
+        // Verificar si el pedido ya ha sido procesado
+        if (!processedPedidos.has(data.pedido.id)) {
+            handleNuevoPedido(data.pedido);
+            processedPedidos.add(data.pedido.id); // Agregar el ID al conjunto de procesados
+            console.log('Nuevo pedido procesado:', data.pedido);
+        } else {
+            console.log('Pedido duplicado ignorado:', data.pedido);
+        }
     }
 };
 
 
 function handleNuevoPedido(pedido) {
-    console.log(pedido);
+    // Verificar si el pedido ya existe en el DOM
+    const existingPedido = document.querySelector(`[data-pedido-id="${pedido.id}"]`);
+    if (existingPedido) {
+        console.log(`Pedido #${pedido.id} ya existe en el DOM`);
+        return;
+    }
+
+    console.log('Insertando nuevo pedido:', pedido);
     const orderList = document.querySelector('.row');
     if (!orderList) return;
+    
     const pedidoHTML = `
-    <div class="col-md-4 mb-4">
+    <div class="col-md-4 mb-4" data-pedido-id="${pedido.id}">
     <div class="card">
         <div class="card-body">
             <h5 class="card-title">Pedido #${pedido.id}</h5>
@@ -41,11 +56,9 @@ function handleNuevoPedido(pedido) {
         </div>
     </div>
     </div>
-
     `;
 
     orderList.insertAdjacentHTML('afterbegin', pedidoHTML);
-
 }
 
 function handleDatabaseUpdate(data) {

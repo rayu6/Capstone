@@ -61,68 +61,6 @@ class RecetasConsumer(AsyncWebsocketConsumer):
             import traceback
             print(traceback.format_exc())
 
-class PedidosConsumer(AsyncWebsocketConsumer):
-    _temp_modifications = {}  # Diccionario para almacenar modificaciones temporales
-
-    async def connect(self):
-        await self.channel_layer.group_add("pedidos_group", self.channel_name)
-        await self.accept()
-
-    async def disconnect(self, close_code):
-        await self.channel_layer.group_discard("pedidos_group", self.channel_name)
-
-    async def receive(self, text_data):
-        data = json.loads(text_data)
-        action = data.get('action')
-        
-        if action == 'temp_modify':
-            # Maneja modificaciones temporales
-            pedido_id = data.get('pedido_id')
-            modifications = data.get('modifications')
-            
-            # Almacena las modificaciones temporales
-            self._temp_modifications[pedido_id] = modifications
-            
-            # Transmite las modificaciones a todos los clientes
-            await self.channel_layer.group_send(
-                "pedidos_group",
-                {
-                    "type": "broadcast_temp_modification",
-                    "pedido_id": pedido_id,
-                    "modifications": modifications
-                }
-            )
-
-    async def broadcast_temp_modification(self, event):
-        await self.send(text_data=json.dumps({
-            'type': 'temp_modification',
-            'pedido_id': event['pedido_id'],
-            'modifications': event['modifications']
-        }))
-
-    async def broadcast_db_update(self, event):
-        print(f"📨 Processing broadcast_db_update: {event}")
-        try:
-            message = {
-                'type': 'db_update',
-                'pedido_id': event['pedido_id'],
-                'data': event['data']
-            }
-            print(f"📝 Preparing message: {message}")
-            await self.send(text_data=json.dumps(message))
-            print("✅ Message sent to client successfully")
-        except Exception as e:
-            print(f"❌ Error in broadcast_db_update: {str(e)}")
-            import traceback
-            print(traceback.format_exc())
-
-    async def nuevo_pedido_mensaje(self, event):
-        # Manejar el mensaje recibido y enviarlo al cliente
-        await self.send(text_data=json.dumps({
-            'type': 'nuevo_pedido',
-            'pedido': event['pedido']
-        }))
-
 # consumers.py
 import json
 from channels.generic.websocket import AsyncWebsocketConsumer
@@ -131,7 +69,12 @@ from django.shortcuts import get_object_or_404
 from django.apps import apps
 
 class PedidosPorUsuarioConsumer(AsyncWebsocketConsumer):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.processed_uuids = set()  # Aquí almacenaremos los UUIDs procesados
+
     async def connect(self):
+        # Usamos solo este grupo
         await self.channel_layer.group_add("pedidos_por_usuario_group", self.channel_name)
         self.usuario = await self.get_usuario(1)
         await self.accept()
@@ -139,9 +82,18 @@ class PedidosPorUsuarioConsumer(AsyncWebsocketConsumer):
     async def disconnect(self, close_code):
         await self.channel_layer.group_discard("pedidos_por_usuario_group", self.channel_name)
     
+
     async def receive(self, text_data):
         data = json.loads(text_data)
-        
+        uuid = data.get('uuid')
+
+        # Validar UUID y evitar procesarlo más de una vez
+        if uuid and uuid in self.processed_uuids:
+            await self.send(json.dumps({"error": "UUID ya procesado"}))
+            return
+        elif uuid:
+            self.processed_uuids.add(uuid)
+
         if data.get('type') == 'nuevo_pedido_modificado':
             # Crear el pedido en la base de datos
             pedido_creado = await self.crear_pedido(
@@ -150,26 +102,29 @@ class PedidosPorUsuarioConsumer(AsyncWebsocketConsumer):
             )
             
             if pedido_creado:
-                # Notificar a todos los clientes conectados
+                # Enviamos solo una vez al grupo
                 await self.channel_layer.group_send(
-                    "pedidos_group",  # Enviamos al grupo de pedidos general
+                    "pedidos_por_usuario_group",
                     {
-                        "type": "nuevo_pedido_mensaje",  # Cambiamos el nombre del tipo
-                        "pedido": await self.serializar_pedido(pedido_creado)
+                        "type": "nuevo_pedido_mensaje",
+                        "pedido": await self.serializar_pedido(pedido_creado),
+                        "uuid": uuid,  # Añadimos el UUID al evento
                     }
                 )
-
-    async def nuevo_pedido_mensaje(self, event):  # Añadimos este método
-        # Enviar el nuevo pedido a todos los clientes
+    
+    async def nuevo_pedido_mensaje(self, event):
+        # Enviamos el mensaje una sola vez
         await self.send(text_data=json.dumps({
             'type': 'nuevo_pedido',
-            'pedido': event['pedido']
+            'pedido': event['pedido'],
+            'uuid': event['uuid'],  # Incluir el UUID en la respuesta
+
         }))
-    
+
     @database_sync_to_async
     def get_usuario(self, usuario_id):
         return get_object_or_404(Usuario, id=usuario_id)
-        
+    
     @database_sync_to_async
     def crear_pedido(self, receta_id, modifications=None):
         try:

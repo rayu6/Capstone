@@ -2,46 +2,25 @@
 function crearPedido(recetaId) {
     // Obtener modificaciones guardadas
     const tempMods = LocalStorageManager.getModifications(recetaId);
+
+
     
-    const pedidoData = {
-        receta_id: recetaId,
-        modificaciones: tempMods ? tempMods.modifications : null
-    };
-    
-    fetch('/api/crear-pedido/', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': getCookie('csrftoken') // Asegúrate de tener esta función
-        },
-        body: JSON.stringify(pedidoData)
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.status === 'success') {
+  
             // Si tienes WebSocket configurado
             if (typeof pedidosPorUsuarioSocket !== 'undefined') {
                 pedidosPorUsuarioSocket.send(JSON.stringify({
                     type: 'nuevo_pedido_modificado',
-                    pedido_id: data.pedido_id,
                     receta_id: recetaId,
                     modifications: tempMods ? tempMods.modifications : null
                 }));
             }
+            console.log(uuid);
             
             // Limpiar modificaciones temporales
             LocalStorageManager.clearModifications(recetaId);
             
             toastr.success("¡Pedido creado con éxito!");
-        } else {
-            toastr.error("Error al crear el pedido");
         }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        toastr.error("Error al procesar el pedido");
-    });
-}
 
 
 const pedidosPorUsuarioSocket = new WebSocket('ws://' + window.location.host + '/ws/pedidos-por-usuario/');
@@ -54,10 +33,7 @@ const pedidosPorUsuarioSocket = new WebSocket('ws://' + window.location.host + '
 pedidosPorUsuarioSocket.onmessage = function(e) {
     const data = JSON.parse(e.data);
     console.log("WebSocket message received:", data);
-
-    if (data.type === 'db_update') {
-        handleDatabaseUpdate(data);
-    } else if (data.type === 'temp_modification') {
+     if (data.type === 'temp_modification') {
         console.log('DB UPDATEEE DATA:' ,data);
         handleTemporaryModification(data);
     }
