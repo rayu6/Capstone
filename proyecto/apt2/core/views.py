@@ -1,5 +1,5 @@
 import logging
-from django.http import HttpResponse
+from django.http import HttpResponse,HttpResponseRedirect
 from django.shortcuts import render, redirect,get_object_or_404
 from django.db import transaction
 from django.contrib.auth import authenticate, login,logout
@@ -12,6 +12,11 @@ from channels.layers import get_channel_layer
 from core.forms import UsuarioLoginForm
 from .decorators import role_required
 from .models import *
+from django.urls import reverse
+from django.views.decorators.http import require_http_methods
+from django.views.decorators.csrf import csrf_exempt
+from django.core.exceptions import ValidationError
+import json
 
 # Create your views here.
 logger = logging.getLogger(__name__)
@@ -48,7 +53,8 @@ def login(request):
                     return redirect(home)
             except Usuario.DoesNotExist:
                 logger.warning("Usuario o contraseña incorrectos.")
-                return HttpResponse("Correo o contraseña incorrectos.", status=401)
+                messages.error(request, "Usuario o contraseña incorrectos.")
+                return HttpResponseRedirect(reverse(login))
         else:
             logger.warning("Formulario no válido")
     return render(request, 'registration/login.html')  # Renderiza el formulario de lo
@@ -64,18 +70,24 @@ def register(request):
 @role_required(allowed_roles=['admin', 'usuario','cocinero'])
 def listar_recetas(request):
     recetas = Recetas.objects.prefetch_related('receta_ingrediente__ingrediente').all()
-    return render(request, 'core/recetas.html', {'recetas': recetas})
+    ingredientes = Ingrediente.objects.all()
+    return render(request, 'core/recetas.html', {'recetas': recetas, 'ingredientes':ingredientes})
 
 @role_required(allowed_roles=['cliente'])
 def homeCliente(request):
-    return render(request, 'core/users/homeCliente.html')  # Renderiza el template 'pedidos.html'
+    return render(request, 'core/users/homeCliente.html')  # Renderiza el template 
 
 @role_required(allowed_roles=['cocinero'])
 def homeUsuario(request):
-    return render(request, 'core/users/homeUsuario.html')  # Renderiza el template 'pedidos.html'
+    return render(request, 'core/users/homeUsuario.html')  # Renderiza el template
 
 def pedidos(request):
-    return render(request, 'core/pedidos.html')  # Renderiza el template 'pedidos.html'
+    return render(request, 'core/pedidos.html')  # Renderiza el template 
+
+def pedidos_por_usuario(request):
+    recetas = Recetas.objects.prefetch_related('receta_ingrediente__ingrediente').all()
+    return render(request, 'core/pedidosPorUsuario.html', {'recetas': recetas})
+
 @role_required(allowed_roles=[])
 def prueba(request):
     return render(request, 'core/pruebaLogin.html')  # eliminar despues 
@@ -87,26 +99,56 @@ def logout_view(request):
   
 
 def listar_pedidos2(request):
-    pedidos = Pedido.objects.all()
-    pedido= pedido.objects.filter(id) # Obtén todos los pedidos de la base de datos
-    return render(request, 'core/pedidos.html', {'pedidos': pedidos})   
+    pedidos = Pedido.objects.select_related(
+        'usuario', 
+        'tipo_de_orden', 
+        'estado',
+        'receta_pedido__recetas__nombre_receta'
+    ).all()
+    
+    # Cargar los ingredientes para cada pedido
+    for pedido in pedidos:
+        pedido.ingredientes = []
+        for receta_ing in pedido.receta_pedido.recetas.receta_ingrediente.all():
+            pedido.ingredientes.append({
+                'nombre': receta_ing.ingrediente.nombre_ingrediente.nombre,
+                'cantidad': receta_ing.cantidad,
+                'unidad': receta_ing.unidad
+            })
 
-
-def listar_pedidos(request):
-    pedidos = Pedido.objects.all()  # Trae todos los pedidos
-
-    # Obtener el id del pedido desde el parámetro GET
+    # Si deseas acceder a los ingredientes de un solo pedido (con el GET de `pedido_id`)
     pedido_id = request.GET.get('pedido_id')
-
-    pedido = None
+    
     if pedido_id:
-        # Filtra el pedido con el id pasado como parámetro
-        pedido = get_object_or_404(Pedido, id=pedido_id)
+        try:
+            pedido = Pedido.objects.get(id=pedido_id)
+            ingredientes = []
+            for receta_ing in pedido.receta_pedido.recetas.receta_ingrediente.all():
+                ingredientes.append({
+                    'nombre': receta_ing.ingrediente.nombre_ingrediente.nombre,
+                    'cantidad': receta_ing.cantidad,
+                    'unidad': receta_ing.unidad
+                })
+        except Pedido.DoesNotExist:
+            pedido = None
+            ingredientes = []
+    else:
+        pedido = None
+        ingredientes = []
+
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        return JsonResponse({
+            'ingredientes': ingredientes,
+            'estado': pedido.estado.nombre_estado if pedido else None
+        })
 
     return render(request, 'core/pedidos.html', {
-        'pedidos': pedidos,
-        'pedido': pedido,  # Si hay un pedido con el id solicitado, lo pasa a la plantilla
+        'pedidos': pedidos,  # Pasa todos los pedidos
+        'pedido': pedido,    # Pasa el pedido único si hay
+        'ingredientes': ingredientes  # Pasa los ingredientes para el pedido seleccionado
     })
+
+
 
 def pedido_detalles(request,pedido_id):
     if request.method == 'POST':
@@ -180,49 +222,48 @@ def ingredientes_receta(request):
 
 
 
-@role_required(allowed_roles=['admin'])
 def guardar_receta(request):
     if request.method == 'POST':
-        # Obtener datos del formulario
         nombre_receta = request.POST.get('nombre_receta')
         descripcion = request.POST.get('descripcion_receta')
-        link = request.POST.get('link')  # Captura el enlace de la imagen
 
-        # Obtener o crear la instancia de NombreReceta
+        # imagen
+        link = request.FILES.get('link')  # Aquí es donde obtenemos el archivo subido
+
+        # validacion imagen subida
+        if not link:
+            raise ValidationError("Se debe subir una imagen para la receta")
+
+        # nombre de la erceta
         nombre_receta_obj, created = NombreReceta.objects.get_or_create(nombre=nombre_receta)
 
-        # Crear y guardar la receta con el enlace de la imagen
+        # img save
         receta = Recetas(nombre_receta=nombre_receta_obj, descripcion=descripcion, link=link)
         receta.save()
 
-        # Procesar ingredientes seleccionados
-        ingredientes_ids = request.POST.getlist('ingredientes')  # IDs de los ingredientes seleccionados
-        cantidades = request.POST.getlist('cantidad')  # Las cantidades correspondientes
-        unidades = request.POST.getlist('unidad')  # Las unidades correspondientes
-
+        # manejo de ingredientes de la receta
+        ingredientes_ids = request.POST.getlist('ingredientes')
         with transaction.atomic():
-            for ingrediente_id, cantidad, unidad in zip(ingredientes_ids, cantidades, unidades):
-                if cantidad:  # Verifica que haya una cantidad válida
-                    ingrediente = Ingrediente.objects.get(id=ingrediente_id)
+            for ingrediente_id in ingredientes_ids:
+                ingrediente = Ingrediente.objects.get(id=ingrediente_id)
+                cantidad = request.POST.get(f'cantidad_{ingrediente.id}')
+                unidad = request.POST.get(f'unidad_{ingrediente.id}')
 
-                    # Crear y guardar la instancia de RecetaIngrediente con la cantidad y unidad correspondientes
+                if cantidad and unidad:
                     receta_ingrediente = RecetaIngrediente.objects.create(
                         ingrediente=ingrediente,
-                        cantidad=cantidad,  # Asigna la cantidad correspondiente
-                        unidad=unidad  # Asigna la unidad correspondiente
+                        cantidad=cantidad,
+                        unidad=unidad
                     )
-                    
-                    # Agregar RecetaIngrediente a la receta mediante la relación ManyToMany (si corresponde)
                     receta.receta_ingrediente.add(receta_ingrediente)
 
-        return redirect('listar_recetas')  # Redirige a la vista deseada
-    
+        return redirect('listar_recetas')  # redirige a la lista de recetas
+
     else:
-        ingredientes = Ingrediente.objects.all()  # Obtener todos los ingredientes disponibles
+        ingredientes = Ingrediente.objects.all()  # trae los ingredientes
         return render(request, 'core/crearreceta.html', {'ingredientes': ingredientes})
-
-
-def test_signal(request):
+    
+""" def test_signal(request):
     receta = Recetas.objects.first()
     if receta:
         print(f"🔍 Original descripcion: {receta.descripcion}")
@@ -236,11 +277,268 @@ def test_signal(request):
             "recetas_group",  # Grupo al que queremos notificar
             {
                 "type": "broadcast_db_update",  # Método en el consumidor
-                "receta_id": receta.id,         # ID de la receta modificada
+                "receta_id": 2,         # ID de la receta modificada
                 "data": {"descripcion": receta.descripcion},  # Nuevos datos
             }
         )
-        
-        return JsonResponse({"status": "ok", "message": f"Updated receta {receta.id}"})
+        return JsonResponse({"status": "ok", "message": f"Updated receta {receta.id}"}) """
 
-    return JsonResponse({"status": "error", "message": "No recetas found"})
+@csrf_exempt
+@require_http_methods(["POST"])
+def eliminar_ing_receta(request):
+    try:
+        id_ingrediente= request.POST.get('id')
+        if not id_ingrediente:
+            return JsonResponse({
+                "status": "error",
+                "message": "Se requiere el id"
+            }, status=400)
+        try:
+            recetaingrediente  = get_object_or_404(RecetaIngrediente, id=id_ingrediente)
+        except Recetas.DoesNotExist:
+            return JsonResponse({
+                "status": "error",
+                "message": f"No se encontró la receta con id {id_ingrediente}"
+            }, status=404)
+        try:
+            recetaingrediente.delete()
+            return JsonResponse({
+            "status": "ok",
+            "message": f"deleted ingrediente {id_ingrediente}",
+            "data": {
+                "id": id_ingrediente
+                # Itera sobre los ingredientes relacionados
+            }
+        })
+        except:
+            return JsonResponse({
+            "status": "error",
+            "message": f"Error: {str(e)}"
+        }, status=500)
+    except Exception as e:
+        return JsonResponse({
+            "status": "error",
+            "message": f"Error: {str(e)}"
+        }, status=500)
+        
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def update_receta(request):
+    try:
+        receta_id = request.POST.get('id')
+        nueva_descripcion = request.POST.get('descripcion')
+        nuevo_nombre = request.POST.get('nombre_receta')
+        nombre_receta=request.POST.get('ingredientes')
+        data = json.loads(nombre_receta)
+        if not receta_id:
+            return JsonResponse({
+                "status": "error",
+                "message": "Se requiere el id"
+            }, status=400)
+
+        try:
+            receta = Recetas.objects.get(id=receta_id)
+        except Recetas.DoesNotExist:
+            return JsonResponse({
+                "status": "error",
+                "message": f"No se encontró la receta con id {receta_id}"
+            }, status=404)
+
+        # Guardar valores anteriores
+        descripcion_anterior = receta.descripcion
+        nombre_anterior = receta.nombre_receta.nombre
+        
+        if data:
+            for i in data:
+                id_I=i['id']
+                cantidad_i=i['cantidad']
+                unidad_i=i['unidad']
+                try:
+                    recetaIngrediente=RecetaIngrediente.objects.get(id=id_I)
+                    try:
+                        recetaIngrediente.cantidad=cantidad_i
+                        recetaIngrediente.save()
+                    except:
+                        print('error al guardar')
+                    print(recetaIngrediente.cantidad)
+                    print(unidad_i)
+                except:
+                    print('id inexistente')
+                # recetaIngrediente.cantidad=cantidad_i
+                # recetaIngrediente.save
+        # Actualizar descripción si se proporcionó
+        if nueva_descripcion:
+            receta.descripcion = nueva_descripcion
+
+        # Actualizar el nombre existente si se proporcionó
+        if nuevo_nombre:
+            # Actualizamos el nombre en el objeto NombreReceta existente
+            nombre_receta_obj = receta.nombre_receta
+            nombre_receta_obj.nombre = nuevo_nombre
+            nombre_receta_obj.save()
+
+        receta.save()
+        
+
+        print(f"🔍 Original nombre: {nombre_anterior}")
+        print(f"✏️ Nuevo nombre: {receta.nombre_receta.nombre}")
+        print(f"🔍 Original descripcion: {descripcion_anterior}")
+        print(f"✏️ Nueva descripcion: {receta.descripcion}")
+
+        # Notificar por WebSocket
+        channel_layer = get_channel_layer()
+        async_to_sync(channel_layer.group_send)(
+            "recetas_group",
+            {
+                "type": "broadcast_db_update",
+                "receta_id": receta.id,
+                "data": {
+                    "descripcion": receta.descripcion,
+                    "nombre_receta": receta.nombre_receta.nombre,
+                    "cantidad":recetaIngrediente.cantidad
+                }
+            }
+        )
+        ingrediente = receta.receta_ingrediente.first()  # Obtén un ingrediente de ejemplo
+        return JsonResponse({
+            "status": "ok",
+            "message": f"Updated receta {receta.id}",
+            "data": {
+                "id": receta.id,
+                "nombre_anterior": nombre_anterior,
+                "nombre_nuevo": receta.nombre_receta.nombre,
+                "descripcion_anterior": descripcion_anterior,
+                "descripcion_nueva": receta.descripcion,
+                "ingrediente": [
+            {   "id":ingrediente['id'],
+                "nombre":ingrediente['ingrediente'],
+                "cantidad":ingrediente['cantidad'],  # Suponiendo que tienes un campo `cantidad`
+                "unidad": ingrediente['unidad']     # Suponiendo que tienes un campo `unidad`
+            }
+            for ingrediente in data  # Itera sobre los ingredientes relacionados
+        ]
+            }
+        })
+
+
+    except Exception as e:
+        return JsonResponse({
+            "status": "error",
+            "message": f"Error: {str(e)}"
+        }, status=500)
+
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_http_methods
+from asgiref.sync import async_to_sync
+from channels.layers import get_channel_layer
+from core.models import Pedido, Estado  # Asegúrate de usar los modelos correctos
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def update_pedido_estado(request):
+    try:
+        # Datos hardcoded para la prueba
+        pedido_id = request.POST.get('id') # ID del pedido
+        nuevo_estado_id = request.POST.get('estado')  # Nuevo estado ('Pendiente')
+
+        try:
+            # Buscar el pedido
+            pedido = Pedido.objects.get(id=pedido_id)
+        except Pedido.DoesNotExist:
+            return JsonResponse({
+                "status": "error",
+                "message": f"No se encontró el pedido con id {pedido_id}"
+            }, status=404)
+
+        # Guardar valores anteriores
+        estado_anterior = pedido.estado.nombre_estado
+
+        try:
+            # Buscar el nuevo estado
+            nuevo_estado = Estado.objects.get(id=nuevo_estado_id)
+        except Estado.DoesNotExist:
+            return JsonResponse({
+                "status": "error",
+                "message": f"No se encontró el estado con id {nuevo_estado_id}"
+            }, status=404)
+
+        # Actualizar el estado del pedido
+        pedido.estado = nuevo_estado
+        pedido.save()
+
+        print(f"🔍 Estado anterior: {estado_anterior}")
+        print(f"✏️ Nuevo estado: {pedido.estado.nombre_estado}")
+
+        # Notificar por WebSocket
+        channel_layer = get_channel_layer()
+        async_to_sync(channel_layer.group_send)(
+            "pedidos_group",  # Asegúrate de que este grupo esté configurado en tu consumidor
+            {
+                "type": "broadcast_db_update",
+                "pedido_id": pedido.id,
+                "data": {
+                    "estado": pedido.estado.nombre_estado
+                }
+            }
+        )
+
+        return JsonResponse({
+            "status": "ok",
+            "message": f"Updated pedido {pedido.id}",
+            "data": {
+                "id": pedido.id,
+                "estado_anterior": estado_anterior,
+                "estado_nuevo": pedido.estado.nombre_estado
+            }
+        })
+
+    except Exception as e:
+        return JsonResponse({
+            "status": "error",
+            "message": f"Error: {str(e)}"
+        }, status=500)
+
+@csrf_exempt 
+def crear_pedido(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            receta_id = data.get('receta_id')
+            
+            # Obtenemos o creamos los objetos necesarios
+            usuario = get_object_or_404(Usuario, id=1)  # Cliente fijo con ID 1
+            tipo_de_orden = get_object_or_404(TipoDeOrden, id=1)  # Asumimos que existe un tipo de orden básico
+            estado = get_object_or_404(Estado, id=1)  # Asumimos que existe un estado inicial
+            receta = get_object_or_404(Recetas, id=receta_id)
+            
+            # Creamos o obtenemos RecetaPedido
+            receta_pedido = RecetaPedido.objects.create(
+                recetas=receta
+            )
+            
+            # Creamos el pedido
+            pedido = Pedido.objects.create(
+                usuario=usuario,
+                tipo_de_orden=tipo_de_orden,
+                estado=estado,
+                receta_pedido=receta_pedido
+            )
+            
+            return JsonResponse({
+                'status': 'success',
+                'message': 'Pedido creado exitosamente',
+                'pedido_id': pedido.id
+            })
+            
+        except Exception as e:
+            return JsonResponse({
+                'status': 'error',
+                'message': str(e)
+            }, status=400)
+            
+    return JsonResponse({
+        'status': 'error',
+        'message': 'Método no permitido'
+    }, status=405)

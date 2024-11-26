@@ -5,7 +5,7 @@ class CoreConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
     name = 'core'
 
-class TuAppConfig(AppConfig):
+class AptConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
     name = 'apt'
 

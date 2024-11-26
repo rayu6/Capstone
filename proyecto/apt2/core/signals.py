@@ -3,7 +3,7 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
-from .models import Recetas, RecetaIngrediente
+from .models import Recetas, Pedido
 
 @receiver(post_save, sender=Recetas)
 def broadcast_receta_update(sender, instance, created, **kwargs):
@@ -36,5 +36,37 @@ def broadcast_receta_update(sender, instance, created, **kwargs):
         print("✅ Message sent to channel layer successfully")
     except Exception as e:
         print(f"❌ Error in broadcast_receta_update: {str(e)}")
+        import traceback
+        print(traceback.format_exc())
+
+@receiver(post_save, sender=Pedido)
+def broadcast_pedido_update(sender, instance, created, **kwargs):
+    print(f"🔔 Signal received - Pedido ID: {instance.id}")
+    
+    channel_layer = get_channel_layer()
+    print(f"📡 Channel layer type: {type(channel_layer)}")
+    
+    data = {
+        "estado": str(instance.estado.nombre_estado),  # Acceder al nombre
+    }
+    
+    try:
+        print("🚀 Sending to channel layer:", {
+            "type": "broadcast_db_update",
+            "pedido_id": instance.id,
+            "data": data
+        })
+        
+        async_to_sync(channel_layer.group_send)(
+            "pedidos_group",
+            {
+                "type": "broadcast_db_update",
+                "pedido_id": instance.id,
+                "data": data
+            }
+        )
+        print("✅ Message sent to channel layer successfully")
+    except Exception as e:
+        print(f"❌ Error in broadcast_pedido_update: {str(e)}")
         import traceback
         print(traceback.format_exc())

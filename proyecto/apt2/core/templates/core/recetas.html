@@ -9,40 +9,72 @@
 {% block title %}Lista de recetas{% endblock %}
 
 {% block content %}
+<script src="{% static 'js\recetas.js' %}"></script>
+<script src="{% static 'js/recetasSockets.js' %}" defer></script> <!-- El 'defer' asegura que el JS se cargue después de la carga del contenido -->
+
 <br>
 <div class="container">
     <h2 class="text-center">Listado de Recetas</h2>
 
     <div class="row">
+        {% if ingredientes %}
+
+                    {% for ingrediente in ingredientes %}
+                    <span data-field="ingrediente_ingredientes" class="d-none" >{{ ingrediente.nombre_ingrediente| capfirst }}</span>
+
+                    <span data-field="ingrediente_ingredientes" class="d-none">{{ ingrediente.nombre_ingrediente| capfirst }}</span>
+                    {% endfor %}
+                </select>
+ 
+        {% endif %}
+
         {% if recetas %}
+
             {% for receta in recetas %}
+
             <div class="col-md-4 mb-4">
-                <div class="card" style="width: 18rem;" data-receta-id="{{ receta.id }}">
+                <div class="card" style="width: 100%;" data-receta-id="{{ receta.id }}">
                     <div class="card-body">
                         <h5 class="card-title" contenteditable="true" 
                             data-original="{{ receta.nombre_receta }}"
-                            data-field="nombre_receta">{{ receta.nombre_receta }}</h5>
-                        <img src="{{ receta.link}}" class="card-img-top imagenreceta" alt="" style="height: 248px;">
-                        <p class="card-text" contenteditable="true" 
+                            data-field="nombre_receta">{{ receta.nombre_receta | capfirst }}</h5>
+
+                        {% if receta.link %}
+                            <img class="card-img-top" src="{{ receta.link.url }}" alt="{{ receta.nombre_receta }}" style="height: 200px;">
+                        {% else %}
+                            <p>No hay imagen disponible</p>
+
+                        {% endif %}
+                        <p class="card-text" contenteditable="true" style="display: none;"
                            data-original="{{ receta.descripcion }}"
-                           data-field="descripcion">{{ receta.descripcion|truncatechars:84 }}</p>
-                        <p class="card-text">Ingredientes y cantidades:</p>
+                           data-field="descripcion">{{ receta.descripcion | capfirst}}</p>
+                        <p class="card-text">Ingredientes y Cantidades:</p>
                         <div class="ingredientes-list">
+
                             {% for item in receta.receta_ingrediente.all %}
                             <div class="ingrediente-item" data-ingrediente-id="{{ item.id }}">
                                 <span contenteditable="true" 
                                       data-original="{{item.ingrediente}}"
-                                      data-field="ingrediente">{{item.ingrediente}}</span>
+                                      data-field="ingrediente">{{item.ingrediente | capfirst}}</span>
                                 <span contenteditable="true" 
                                       data-original="{{ item.cantidad }}"
                                       data-field="cantidad">{{ item.cantidad|floatformat:"g" }}</span>
                                 <span contenteditable="true" 
                                       data-original="{{item.unidad}}"
-                                      data-field="unidad">{{item.unidad}}</span>
+                                      data-field="unidad"> {{item.unidad | capfirst}}</span>
+                                <span contenteditable="true" 
+                                      data-original="{{item.ingrediente.id}}"
+                                      data-field="id-ingrediente"
+                                      class="d-none">{{item.id | capfirst}}</span>
                             </div>
                             {% endfor %}
-                        </div>
-                        <a href="" class="btn btn-primary">Ver detalles</a>
+                        </div><br>
+                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" 
+                                    data-bs-target="#agregarIngredienteModal" 
+                                    onclick="mostrarId('{{ receta.id }}')">
+                                    Ver detalles
+                        </button>
+                
                     </div>
                 </div>
             </div>
@@ -59,103 +91,66 @@
     {% endif %}
 </div>
 
-<script>
-    // Configuración del WebSocket
-    const recetasSocket = new WebSocket('ws://' + window.location.host + '/ws/recetas/');
-    recetasSocket.onopen = function() {
-        console.log("Conexión WebSocket establecida para recetas.");
-    };
+<!-- modal detalle -->
+<div class="modal fade" id="agregarIngredienteModal" tabindex="-1" aria-labelledby="agregarIngredienteLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="detalle">Detalles de la receta &nbsp;</h5>
+                <h5 class="modal-title" id="receta_id"></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" onclick="Cerrar()"></button>
+            </div>
+            <div class="modal-body">
+                <form id="formActualizarReceta" method="POST">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label class="form-label">Receta N°:</label>
+                        <label id="Id_receta"></label>
+                        <textarea id="M_Id" class="form-control d-none" ></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Nombre:</label>
+                        <label id="Nombre_receta"></label>
+                        <textarea id="M_Nombre_Receta" class="form-control d-none" ></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Descripción:</label>
+                        <label id="Descripcion_Receta"></label>
+                        <textarea id="M_descripcion" class="form-control d-none" ></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" id="ingredientes_Receta">ingredientes:
+                            
+                        </label><br>
+                        <label >
+                            <button type="button" class="btn btn-success" id="boton_agregar" onclick="agregar_ing()">
+                                Agregar
+                            </button>
+                        </label>
+                            
+                        
+                        <textarea id="M_ingredientes" class="form-control d-none" ></textarea>
+                    </div>
+                    <div class="modal-footer">
+                        
+                        <button type="submit" class="btn btn-primary d-none" id="guardar_cambios" >
+                            Guardar
+                        </button>
+                        <button type="button" class="btn btn-secondary d-none" id="cambiarInputsPorLabels" >
+                            Cancelar
+                        </button>
+                    </div>
+                </form>
 
-    recetasSocket.onmessage = function(e) {
-        const data = JSON.parse(e.data);
-        const field = data.field;
-        const value = data.value;
+                <button type="button" class="btn btn-primary" id="cambiarLabelsPorInputs" onclick="cambiarLabelsPorInputs()" >
+                    Modificar
+                </button>
+                <button type="submit" class="btn btn-primary d-none" id="Eliminar_receta" >
+                    Eliminar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
 
-        const fieldElement = document.getElementById(field);
-        if (fieldElement) {
-            fieldElement.textContent = value;
-        }
-        console.log("WebSocket message received:", data); // Log completo
-        console.log("Message type:", data.type);
-        console.log("Recipe ID:", data.receta_id);
-        console.log("Data:", data.data);
-        
-        if (data.type === 'db_update') {
-            const recetaId = data.receta_id;
-            const descripcion = data.data.descripcion;
-    
-            console.log(`Receta actualizada: ID ${recetaId}, Nueva descripcion: ${descripcion}`);
-    
-            // Actualizar el DOM(el html es el dom)
-            const recetaCard = document.querySelector(`[data-receta-id="${recetaId}"]`);
-            if (recetaCard) {
-                const descripcionElement = recetaCard.querySelector('[data-field="descripcion"]');
-                if (descripcionElement) {
-                    descripcionElement.textContent = descripcion;
-                    // También actualizar el valor original
-                    if (descripcionElement.hasAttribute('data-original')) {
-                        descripcionElement.dataset.original = descripcion;
-                    }
-                }
-            }
-        }
-         else if (data.type === 'temp_modification') {
-            console.log("Attempting temp modification...");
-            updateRecetaTemp(data.receta_id, data.modifications);
-            console.log("Temp modification completed");
-        }
-    };
-
-    function updateRecetaFromDB(recetaId, data) {
-        console.log("Updating recipe:", recetaId, data);
-        const recetaCard = document.querySelector(`[data-receta-id="${recetaId}"]`);
-        if (!recetaCard) {
-            console.error("Recipe card not found:", recetaId);
-            return;
-        }
-
-        // Actualizar cada campo
-        Object.entries(data).forEach(([field, value]) => {
-            const element = recetaCard.querySelector(`[data-field="${field}"]`);
-            if (element) {
-                element.textContent = value;
-                if (element.hasAttribute('data-original')) {
-                    element.dataset.original = value;
-                }
-            }
-        });
-    }
-
-    function updateRecetaTemp(recetaId, modifications) {
-        const recetaCard = document.querySelector(`[data-receta-id="${recetaId}"]`);
-        if (!recetaCard) return;
-        Object.entries(modifications).forEach(([field, value]) => {
-            const element = recetaCard.querySelector(`[data-field="${field}"]`);
-            if (element) {
-                element.textContent = value;
-            }
-        });
-    }
-
-    document.querySelectorAll('[contenteditable="true"]').forEach(element => {
-        element.addEventListener('input', function() {
-            const recetaCard = this.closest('[data-receta-id]');
-            const recetaId = recetaCard.dataset.recetaId;
-            const field = this.dataset.field;
-            const value = this.textContent;
-            recetasSocket.send(JSON.stringify({
-                action: 'temp_modify',
-                receta_id: recetaId,
-                modifications: { [field]: value }
-            }));
-        });
-
-        element.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape') {
-                this.textContent = this.dataset.original;
-                e.preventDefault();
-            }
-        });
-    });
-</script>
 {% endblock %}

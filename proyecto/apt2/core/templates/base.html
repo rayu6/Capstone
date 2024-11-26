@@ -16,6 +16,7 @@
     <!-- Incluir los scripts de Toastr -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <body class="background">
   {% block nav %}
   <header>
@@ -50,12 +51,18 @@
                             <i class="fas fa-shopping-cart"></i> Pedidos
                         </a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link navbar-items-color" href="{% url 'pedidosPorUsuario' %}">
+                            <i class="fas fa-shopping-cart"></i> Pedir por Cliente
+                        </a>
+                    </li>
                     {% if request.session.role %}
                     <li class="nav-item">
                         <a class="nav-link navbar-items-color" href="{% url 'logout' %}">
                             <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
                         </a>
                     </li>
+                    
                     {% else %}
                     {% endif %}
                 </ul>
@@ -83,13 +90,14 @@
 
                     "positionClass": "prueba",  // Cambiar la posición
                     "timeOut": "2500",                   // Tiempo en milisegundos antes de que el mensaje desaparezca
-                    "extendedTimeOut": "700",           // Tiempo de espera al pasar el cursor por encima
+                    "extendedTimeOut": "0",           // Tiempo de espera al pasar el cursor por encima
                     "closeButton": true,                 // Mostrar botón de cerrar
-                    "progressBar": true,                 // Mostrar barra de progreso
+                    "progressBar": true,         
+                    "onHoverPause": false,        // Mostrar barra de progreso
                     
                 };
                 {% for message in messages %}
-                    {% if message.tags == "success" %}
+                    {% if message.tag == "success" %}
                     toastr.success("{{ message }}");  // Para un mensaje informativo
                     {% elif message.tags == "error" %}
                     toastr.error("{{ message }}", "Error"); 
