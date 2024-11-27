@@ -82,6 +82,10 @@ class Ingrediente(models.Model):
     def __str__(self):
         return self.nombre_ingrediente.nombre
     
+    def reponer(self, cantidad_a_reponer):
+        self.cantidad += cantidad_a_reponer
+        self.save()
+    
 class RecetaIngrediente(models.Model):
     id = models.AutoField(primary_key=True)  
     cantidad = models.DecimalField(max_digits=10, decimal_places=2)

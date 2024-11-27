@@ -31,7 +31,32 @@
                 <td>{{ ingrediente.unidades}}</td>
                 <td>{{ ingrediente.cantidad}}</td>
                 <td>
-                    <a href="" class="btn btn-secondary">Reponer</a>
+                  <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#reponerModal-{{ ingrediente.id }}">
+                    Reponer
+                  </button>
+
+                  <!-- Modal para reponer -->
+                <div class="modal fade" id="reponerModal-{{ ingrediente.id }}" tabindex="-1" aria-labelledby="reponerModalLabel-{{ ingrediente.id }}" aria-hidden="true">
+                  <div class="modal-dialog">
+                      <div class="modal-content">
+                          <div class="modal-header">
+                              <h5 class="modal-title" id="reponerModalLabel-{{ ingrediente.id }}">Reponer Stock: {{ ingrediente.nombre_ingrediente }}</h5>
+                              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                          </div>
+                          <form method="POST" action="{% url 'reponer_stock' ingrediente.id %}">
+                              {% csrf_token %}
+                              <div class="modal-body">
+                                  <label for="cantidad" class="form-label">Cantidad a Reponer:</label>
+                                  <input type="number" name="cantidad" min="1" placeholder="Ingrese la cantidad" required class="form-control">
+                              </div>
+                              <div class="modal-footer">
+                                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                  <button type="submit" class="btn btn-primary">Confirmar</button>
+                              </div>
+                          </form>
+                      </div>
+                  </div>
+              </div>
                 </td>
             </tr>
             {% empty %}

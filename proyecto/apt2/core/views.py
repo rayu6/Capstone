@@ -428,13 +428,6 @@ def update_receta(request):
             "message": f"Error: {str(e)}"
         }, status=500)
 
-from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
-from django.views.decorators.http import require_http_methods
-from asgiref.sync import async_to_sync
-from channels.layers import get_channel_layer
-from core.models import Pedido, Estado  # Asegúrate de usar los modelos correctos
-
 @csrf_exempt
 @require_http_methods(["POST"])
 def update_pedido_estado(request):
@@ -542,3 +535,19 @@ def crear_pedido(request):
         'status': 'error',
         'message': 'Método no permitido'
     }, status=405)
+
+def reponer_stock(request, ingrediente_id):
+    """
+    Vista para reponer el stock de un ingrediente.
+    """
+    if request.method == 'POST':
+        cantidad_a_reponer = int(request.POST.get('cantidad', 0))
+        ingrediente = get_object_or_404(Ingrediente, id=ingrediente_id)
+        
+        if cantidad_a_reponer > 0:
+            ingrediente.reponer(cantidad_a_reponer)
+            messages.success(request, f"Se han repuesto {cantidad_a_reponer} unidades de {ingrediente.nombre_ingrediente.nombre}.")
+        else:
+            messages.error(request, "La cantidad a reponer debe ser mayor a 0.")
+        
+        return redirect('stock')  
