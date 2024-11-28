@@ -37,41 +37,10 @@ class Estado(models.Model):
 
 
 
-class Pedido(models.Model):
-    id = models.AutoField(primary_key=True)
-    usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE)
-    tipo_de_orden = models.ForeignKey(TipoDeOrden, on_delete=models.CASCADE)
-    estado = models.ForeignKey(Estado, on_delete=models.CASCADE)
-    receta_pedido = models.ForeignKey('RecetaPedido', on_delete=models.CASCADE)
-
-    def descontar_ingredientes_del_stock(self):
-        receta_pedido = self.receta_pedido
-        
-        # recorrer ingredientes
-        for receta_ingrediente in receta_pedido.recetas.receta_ingrediente.all():
-            ingrediente = receta_ingrediente.ingrediente
-            cantidad_usada = receta_ingrediente.cantidad 
-            
-            # descontar cantidad de stock, validar que no sobrepase el limite
-            if ingrediente.cantidad >= cantidad_usada:
-                ingrediente.cantidad -= cantidad_usada
-                ingrediente.save()
-            else:
-                raise ValueError(f"No hay suficiente stock de {ingrediente.nombre_ingrediente.nombre}.")
-    
-    # sobrescribir el metodo save para descontar ingredientes despues de crear el pedido
-    def save(self, *args, **kwargs):
-        # Guardar el pedido
-        super().save(*args, **kwargs)
-        
-        # aplicar fucnion descontar 
-        self.descontar_ingredientes_del_stock()
-
-    def __str__(self):
-        return self.receta_pedido.recetas.nombre_receta.nombre
 
 
-    
+
+
 
 class Ingrediente(models.Model):
     id = models.AutoField(primary_key=True)  # Clave primaria
@@ -130,4 +99,46 @@ class NombreReceta(models.Model):
 
     def __str__(self):
         return self.nombre
+
+class RecetaModificada(models.Model):
+    id = models.AutoField(primary_key=True)
+    receta_original = models.ForeignKey(Recetas, on_delete=models.CASCADE, related_name='modificaciones')
+    receta_ingrediente = models.ManyToManyField(RecetaIngrediente)
+    fecha_modificacion = models.DateTimeField(auto_now_add=True)
+    usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE, null=True)
+
+    def __str__(self):
+        return f"Modificación de {self.receta_original.nombre_receta}"   
+class Pedido(models.Model):
+    id = models.AutoField(primary_key=True)
+    usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE)
+    tipo_de_orden = models.ForeignKey(TipoDeOrden, on_delete=models.CASCADE)
+    estado = models.ForeignKey(Estado, on_delete=models.CASCADE)
+    receta_pedido = models.ForeignKey('RecetaPedido', on_delete=models.CASCADE)
+    receta_modificada = models.ForeignKey(RecetaModificada, on_delete=models.SET_NULL, null=True, blank=True)
+
+    def descontar_ingredientes_del_stock(self):
+        receta_pedido = self.receta_pedido
+        
+        # recorrer ingredientes
+        for receta_ingrediente in receta_pedido.recetas.receta_ingrediente.all():
+            ingrediente = receta_ingrediente.ingrediente
+            cantidad_usada = receta_ingrediente.cantidad 
+            
+            # descontar cantidad de stock, validar que no sobrepase el limite
+            if ingrediente.cantidad >= cantidad_usada:
+                ingrediente.cantidad -= cantidad_usada
+                ingrediente.save()
+            else:
+                raise ValueError(f"No hay suficiente stock de {ingrediente.nombre_ingrediente.nombre}.")
     
+    # sobrescribir el metodo save para descontar ingredientes despues de crear el pedido
+    def save(self, *args, **kwargs):
+        # Guardar el pedido
+        super().save(*args, **kwargs)
+        
+        # aplicar fucnion descontar 
+        self.descontar_ingredientes_del_stock()
+
+    def __str__(self):
+        return self.receta_pedido.recetas.nombre_receta.nombre

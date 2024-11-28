@@ -28,14 +28,6 @@ pedidosSocket.onmessage = function(e) {
 
 
 function handleNuevoPedido(pedido) {
-    // Verificar si el pedido ya existe en el DOM
-    const existingPedido = document.querySelector(`[data-pedido-id="${pedido.id}"]`);
-    if (existingPedido) {
-        console.log(`Pedido #${pedido.id} ya existe en el DOM`);
-        return;
-    }
-
-    console.log('Insertando nuevo pedido:', pedido);
     const orderList = document.querySelector('.row');
     if (!orderList) return;
     
@@ -58,7 +50,20 @@ function handleNuevoPedido(pedido) {
     </div>
     `;
 
-    orderList.insertAdjacentHTML('afterbegin', pedidoHTML);
+    // Convert existing cards to array and sort
+    const existingCards = Array.from(orderList.querySelectorAll('.col-md-4'));
+    existingCards.push(new DOMParser().parseFromString(pedidoHTML, 'text/html').body.firstChild);
+    
+    // Sort cards by pedido ID
+    const sortedCards = existingCards.sort((a, b) => {
+        const idA = parseInt(a.getAttribute('data-pedido-id'));
+        const idB = parseInt(b.getAttribute('data-pedido-id'));
+        return idA - idB;
+    });
+
+    // Clear and re-append sorted cards
+    orderList.innerHTML = '';
+    sortedCards.forEach(card => orderList.appendChild(card));
 }
 
 function handleDatabaseUpdate(data) {
@@ -259,26 +264,35 @@ function fetchDetallePedido(pedidoId) {
     const url = new URL(window.location.href);
     url.searchParams.set('pedido_id', pedidoId);
 
+    // Add detailed logging
+    console.log('Fetching pedido details:', pedidoId);
+    console.log('Full URL:', url.toString());
+
     fetch(url)
         .then(response => {
+            console.log('Response received');
+            // Detailed error handling
             if (!response.ok) {
-                throw new Error(`No se pudo cargar el pedido: ${response.status} ${response.statusText}`);
+                throw new Error(`Fetch error: ${response.status}`);
             }
             return response.text();
         })
         .then(html => {
+            console.log('HTML received, parsing...');
+            // More robust parsing
             const parser = new DOMParser();
             const doc = parser.parseFromString(html, 'text/html');
-            
             const modalBody = doc.querySelector('#detallePedidoModal .modal-body');
+            
             if (modalBody) {
+                console.log('Modal body found, updating content');
                 document.querySelector('#detallePedidoModal .modal-body').innerHTML = modalBody.innerHTML;
-                
-                // Reinicializar los event listeners después de actualizar el contenido
                 initializeModalEventListeners();
             } else {
-                console.error('El contenido del modal no fue encontrado en la respuesta.');
+                console.error('Modal body not found in response');
             }
         })
-        .catch(err => console.error('Error al cargar detalles del pedido:', err));
+        .catch(err => {
+            console.error('Fetch details error:', err);
+        });
 }

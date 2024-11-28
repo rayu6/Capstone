@@ -101,34 +101,53 @@ def logout_view(request):
 def listar_pedidos2(request):
     pedidos = Pedido.objects.select_related(
         'usuario', 
-        'tipo_de_orden', 
+        'tipo_de_orden',
         'estado',
-        'receta_pedido__recetas__nombre_receta'
+        'receta_pedido__recetas__nombre_receta',
+        'receta_modificada'
+    ).prefetch_related(
+        'receta_pedido__recetas__receta_ingrediente',
+        'receta_modificada__receta_ingrediente'
     ).all()
-    
-    # Cargar los ingredientes para cada pedido
+
+    # Prepare ingredientes for each pedido
     for pedido in pedidos:
         pedido.ingredientes = []
-        for receta_ing in pedido.receta_pedido.recetas.receta_ingrediente.all():
+        
+        # Determine which recipe to use (modified or original)
+        if pedido.receta_modificada:
+            print("Modified recipe exists")
+            receta_ingredientes = pedido.receta_modificada.receta_ingrediente.all()
+        else:
+            print("Using original recipe")
+            receta_ingredientes = pedido.receta_pedido.recetas.receta_ingrediente.all()
+        
+        for receta_ing in receta_ingredientes:
             pedido.ingredientes.append({
                 'nombre': receta_ing.ingrediente.nombre_ingrediente.nombre,
                 'cantidad': receta_ing.cantidad,
                 'unidad': receta_ing.unidad
             })
 
-    # Si deseas acceder a los ingredientes de un solo pedido (con el GET de `pedido_id`)
+    # Single pedido handling
     pedido_id = request.GET.get('pedido_id')
     
     if pedido_id:
         try:
             pedido = Pedido.objects.get(id=pedido_id)
-            ingredientes = []
-            for receta_ing in pedido.receta_pedido.recetas.receta_ingrediente.all():
-                ingredientes.append({
-                    'nombre': receta_ing.ingrediente.nombre_ingrediente.nombre,
-                    'cantidad': receta_ing.cantidad,
-                    'unidad': receta_ing.unidad
-                })
+            
+            # Use modified recipe if exists, otherwise original
+            if pedido.receta_modificada:
+                receta_ingredientes = pedido.receta_modificada.receta_ingrediente.all()
+            else:
+                receta_ingredientes = pedido.receta_pedido.recetas.receta_ingrediente.all()
+            
+            ingredientes = [{
+                'nombre': receta_ing.ingrediente.nombre_ingrediente.nombre,
+                'cantidad': receta_ing.cantidad,
+                'unidad': receta_ing.unidad
+            } for receta_ing in receta_ingredientes]
+        
         except Pedido.DoesNotExist:
             pedido = None
             ingredientes = []
@@ -143,9 +162,9 @@ def listar_pedidos2(request):
         })
 
     return render(request, 'core/pedidos.html', {
-        'pedidos': pedidos,  # Pasa todos los pedidos
-        'pedido': pedido,    # Pasa el pedido único si hay
-        'ingredientes': ingredientes  # Pasa los ingredientes para el pedido seleccionado
+        'pedidos': pedidos,
+        'pedido': pedido,
+        'ingredientes': ingredientes
     })
 
 
