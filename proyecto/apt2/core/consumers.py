@@ -61,12 +61,6 @@ class RecetasConsumer(AsyncWebsocketConsumer):
             import traceback
             print(traceback.format_exc())
 
-# consumers.py
-import json
-from channels.generic.websocket import AsyncWebsocketConsumer
-from channels.db import database_sync_to_async
-from django.shortcuts import get_object_or_404
-from django.apps import apps
 
 class PedidosPorUsuarioConsumer(AsyncWebsocketConsumer):
     def __init__(self, *args, **kwargs):
@@ -82,7 +76,6 @@ class PedidosPorUsuarioConsumer(AsyncWebsocketConsumer):
     async def disconnect(self, close_code):
         await self.channel_layer.group_discard("pedidos_por_usuario_group", self.channel_name)
     
-
     async def receive(self, text_data):
         data = json.loads(text_data)
         uuid = data.get('uuid')
@@ -109,9 +102,26 @@ class PedidosPorUsuarioConsumer(AsyncWebsocketConsumer):
                         "type": "nuevo_pedido_mensaje",
                         "pedido": await self.serializar_pedido(pedido_creado),
                         "uuid": uuid,  # Añadimos el UUID al evento
+                        }
+                    )
+        if data.get('action') == 'update_estado':
+            pedido_id = data.get('pedido_id')
+            estado = data.get('estado')
+
+            updated_pedido = await self.actualizar_estado_pedido(pedido_id, estado)
+            
+            if updated_pedido:
+                await self.channel_layer.group_send(
+                    "pedidos_por_usuario_group",
+                    {
+                        "type": "update_pedido_estado",
+                        "pedido_id": pedido_id,
+                        "data": {
+                            "estado": str(updated_pedido.estado)
+                        }
                     }
                 )
-    
+
     async def nuevo_pedido_mensaje(self, event):
         # Enviamos el mensaje una sola vez
         await self.send(text_data=json.dumps({
@@ -121,6 +131,28 @@ class PedidosPorUsuarioConsumer(AsyncWebsocketConsumer):
 
         }))
 
+    async def update_pedido_estado(self, event):
+        await self.send(text_data=json.dumps({
+            'type': 'db_update',
+            'pedido_id': event['pedido_id'],
+            'data': event['data']
+        }))
+
+    @database_sync_to_async
+    def actualizar_estado_pedido(self, pedido_id, new_estado_id):
+        try:
+            Pedido = apps.get_model('core', 'Pedido')
+            Estado = apps.get_model('core', 'Estado')
+
+            pedido = Pedido.objects.get(id=pedido_id)
+            pedido.estado = Estado.objects.get(id=new_estado_id)
+            pedido.save()
+            
+            return pedido
+        except Exception as e:
+            print(f"Error al actualizar estado del pedido: {str(e)}")
+            return None
+        
     @database_sync_to_async
     def get_usuario(self, usuario_id):
         return get_object_or_404(Usuario, id=usuario_id)
@@ -128,26 +160,50 @@ class PedidosPorUsuarioConsumer(AsyncWebsocketConsumer):
     @database_sync_to_async
     def crear_pedido(self, receta_id, modifications=None):
         try:
-            # Obtenemos los modelos dinámicamente
+            # Obtener modelos
             Pedido = apps.get_model('core', 'Pedido')
             RecetaPedido = apps.get_model('core', 'RecetaPedido')
             Recetas = apps.get_model('core', 'Recetas')
             Estado = apps.get_model('core', 'Estado')
             TipoDeOrden = apps.get_model('core', 'TipoDeOrden')
-            
-            # Crear RecetaPedido
+            RecetaModificada = apps.get_model('core', 'RecetaModificada')
+            RecetaIngrediente = apps.get_model('core', 'RecetaIngrediente')
+
+            # Obtener receta original
             receta = Recetas.objects.get(id=receta_id)
             receta_pedido = RecetaPedido.objects.create(recetas=receta)
-            
+
+            # Inicializar receta modificada como None
+            receta_modificada = None
+
+            # Si hay modificaciones, crear RecetaModificada
+            if modifications:
+                receta_modificada = RecetaModificada.objects.create(
+                    receta_original=receta,
+                    usuario=self.usuario
+                )
+
+                # Añadir ingredientes modificados
+                for ing_id, cambios in modifications.items():
+                    ingrediente_original = RecetaIngrediente.objects.get(id=ing_id)
+                    nuevo_ingrediente = RecetaIngrediente.objects.create(
+                        cantidad=float(cambios['cantidad']),
+                        unidad=cambios['unidad'],
+                        ingrediente=ingrediente_original.ingrediente
+                    )
+                    receta_modificada.receta_ingrediente.add(nuevo_ingrediente)
+
             # Crear Pedido
             pedido = Pedido.objects.create(
                 usuario=self.usuario,
                 tipo_de_orden=TipoDeOrden.objects.get(id=1),
                 estado=Estado.objects.get(id=1),
-                receta_pedido=receta_pedido
+                receta_pedido=receta_pedido,
+                receta_modificada=receta_modificada  # Puede ser None o la nueva RecetaModificada
             )
-            
+
             return pedido
+
         except Exception as e:
             print(f"Error al crear pedido: {str(e)}")
             return None

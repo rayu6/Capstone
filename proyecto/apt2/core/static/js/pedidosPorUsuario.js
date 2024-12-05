@@ -3,25 +3,24 @@ function crearPedido(recetaId) {
     // Obtener modificaciones guardadas
     const tempMods = LocalStorageManager.getModifications(recetaId);
 
+    // Validar si hay modificaciones reales
+    const hasModifications = tempMods && 
+        Object.keys(tempMods.modifications).length > 0;
 
+    // Si tienes WebSocket configurado
+    if (typeof pedidosPorUsuarioSocket !== 'undefined') {
+        pedidosPorUsuarioSocket.send(JSON.stringify({
+            type: 'nuevo_pedido_modificado',
+            receta_id: recetaId,
+            modifications: hasModifications ? tempMods.modifications : null
+        }));
+    }
+    console.log(hasModifications);
+    // Limpiar modificaciones temporales
+    LocalStorageManager.clearModifications(recetaId);
     
-  
-            // Si tienes WebSocket configurado
-            if (typeof pedidosPorUsuarioSocket !== 'undefined') {
-                pedidosPorUsuarioSocket.send(JSON.stringify({
-                    type: 'nuevo_pedido_modificado',
-                    receta_id: recetaId,
-                    modifications: tempMods ? tempMods.modifications : null
-                }));
-            }
-            console.log(uuid);
-            
-            // Limpiar modificaciones temporales
-            LocalStorageManager.clearModifications(recetaId);
-            
-            toastr.success("¡Pedido creado con éxito!");
-        }
-
+    toastr.success("¡Pedido creado con éxito!");
+}
 
 const pedidosPorUsuarioSocket = new WebSocket('ws://' + window.location.host + '/ws/pedidos-por-usuario/');
     pedidosPorUsuarioSocket.onopen = function() {
