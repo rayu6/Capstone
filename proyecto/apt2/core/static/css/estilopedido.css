@@ -46,3 +46,12 @@
     100% { transform: scale(1); background-color: transparent; }
 }
 
+@keyframes pedidoAlert {
+    0% { background-color: #fff; }
+    50% { background-color: #e6f3ff; }
+    100% { background-color: #fff; }
+}
+
+.new-pedido-alert {
+    animation: pedidoAlert 3s ease-out;
+}

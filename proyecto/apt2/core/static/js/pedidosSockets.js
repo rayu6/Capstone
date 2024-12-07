@@ -31,6 +31,15 @@ function handleNuevoPedido(pedido) {
     const orderList = document.querySelector('.row');
     if (!orderList) return;
     
+    toastr.info(`Nuevo pedido #${pedido.id} recibido`, 'Pedido Nuevo', {
+        closeButton: true,
+        timeOut: 5000
+    });
+    // destacar el body temporalmente a modo de alerta de nuevo pedido
+    document.body.classList.add('new-pedido-alert');
+    setTimeout(() => {
+        document.body.classList.remove('new-pedido-alert');
+    }, 3000);
     const pedidoHTML = `
     <div class="col-md-4 mb-4" data-pedido-id="${pedido.id}">
     <div class="card">
