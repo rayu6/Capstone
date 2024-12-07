@@ -70,7 +70,7 @@ class PedidosPorUsuarioConsumer(AsyncWebsocketConsumer):
     async def connect(self):
         # Usamos solo este grupo
         await self.channel_layer.group_add("pedidos_por_usuario_group", self.channel_name)
-        self.usuario = await self.get_usuario(1)
+        self.usuario = await self.get_usuario(None)
         await self.accept()
     
     async def disconnect(self, close_code):
@@ -155,6 +155,7 @@ class PedidosPorUsuarioConsumer(AsyncWebsocketConsumer):
         
     @database_sync_to_async
     def get_usuario(self, usuario_id):
+        usuario_id = self.scope['session'].get('usuario_id')
         return get_object_or_404(Usuario, id=usuario_id)
     
     @database_sync_to_async

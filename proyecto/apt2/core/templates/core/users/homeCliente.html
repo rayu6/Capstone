@@ -6,11 +6,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.9.1/font/bootstrap-icons.min.css">
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
     <link rel="stylesheet" href="{% static 'css/homeCliente.css' %}">
     <title>{% block title %}App Cocina{% endblock %}</title>
 </head>
+<script src="{% static 'js/homeClienteSockets.js' %}" defer></script> <!-- El 'defer' asegura que el JS se cargue después de la carga del contenido -->
 <body>
+
   {% block nav %}
   {% endblock %}
 
@@ -22,26 +23,37 @@
         <!-- Columna Central con Blur -->
         <div class="col-6 d-flex justify-content-center align-items-center text-white">
             <div class="blur-div">
-                <h2 >Detalles del Pedido</h2>
-                <p ><strong>Nombre del Pedido:</strong> Pizza Margarita</p>
-                <p ><strong>ID del Pedido:</strong> #124578</p>
-                <p><strong>Solicitado por:</strong> Juan Pérez</p>
+                {% if pedido %}
+                <h2>Detalles del Pedido</h2>
+                <p><strong>Nombre del Pedido:</strong> {{ pedido.receta_pedido.recetas.nombre_receta.nombre }}</p>
+                <p><strong>ID del Pedido:</strong> #{{ pedido.id }}</p>
+                <p><strong>Solicitado por:</strong> Mesa N° #{{ pedido.usuario_id }}</p>
         
                 <div class="order-status">
-                    <span ><strong>Estado:</strong></span>
-                    <span class="status-icon">
-                        <i class="bi bi-clock-fill text-warning"></i> En Preparación
+                    <span><strong>Estado:</strong></span>
+                    <span class="status-icon estado-pedido" data-pedido-id="{{ pedido.id }}">
+                        {% if pedido.estado.nombre_estado == 'Proceso' %}
+                        <i class="bi bi-gear-fill status-icon-proceso"></i>
+                        {% elif pedido.estado.nombre_estado == 'Pendiente' %}
+                            <i class="bi bi-clock-fill status-icon-pendiente"></i>
+                        {% elif pedido.estado.nombre_estado == 'Completado' %}
+                            <i class="bi bi-check-circle-fill text-success"></i>
+                        {% elif pedido.estado.nombre_estado == 'Cancelado' %}
+                            <i class="bi bi-x-circle-fill text-danger"></i>
+                        {% endif %}
+                        {{ pedido.estado.nombre_estado }}
                     </span>
                 </div>
+                {% else %}
+                <p>No hay pedidos activos</p>
+                {% endif %}
             </div>
         </div>
-        
-        
         
         <!-- Columna Derecha -->
         <div class="col-3 bg-image"></div>
     </div>
-  </div>
+</div>
 
   {% block script %}
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
@@ -49,28 +61,3 @@
 </body>
 </html>
 
-
-<script>
-// En tu template HTML
-const socket = new WebSocket('ws://' + window.location.host + '/ws/pedidos/');
-
-socket.onopen = function(e) {
-    console.log("Conexión establecida!");
-    socket.send(JSON.stringify({
-        'mensaje': 'Hola desde el cliente!'
-    }));
-};
-
-socket.onmessage = function(e) {
-    const data = JSON.parse(e.data);
-    console.log('Mensaje recibido:', data.mensaje);
-};
-
-socket.onclose = function(e) {
-    console.log("Conexión cerrada!");
-};
-
-socket.onerror = function(e) {
-    console.error("Error en WebSocket:", e);
-};
-</script>

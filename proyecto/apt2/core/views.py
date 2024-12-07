@@ -73,11 +73,26 @@ def listar_recetas(request):
     ingredientes = Ingrediente.objects.all()
     return render(request, 'core/recetas.html', {'recetas': recetas, 'ingredientes':ingredientes})
 
-@role_required(allowed_roles=['cliente'])
+@role_required(allowed_roles=['cliente', 'admin'])
 def homeCliente(request):
-    return render(request, 'core/users/homeCliente.html')  # Renderiza el template 
+    pedido = Pedido.objects.select_related(
+        'usuario',
+        'tipo_de_orden',
+        'estado',
+        'receta_pedido__recetas__nombre_receta',
+        'receta_modificada'
+    ).prefetch_related(
+        'receta_pedido__recetas',
+        'receta_modificada'
+    ).order_by('-id').first()
+    
+    return render(request, 'core/users/homeCliente.html', {
+        'pedido': pedido
+    })
 
-@role_required(allowed_roles=['cocinero'])
+
+
+@role_required(allowed_roles=['cocinero','admin'])
 def homeUsuario(request):
     return render(request, 'core/users/homeUsuario.html')  # Renderiza el template
 
@@ -85,8 +100,10 @@ def pedidos(request):
     return render(request, 'core/pedidos.html')  # Renderiza el template 
 
 def pedidos_por_usuario(request):
+    user_id = request.session.get('usuario_id')
+    print(f"User ID from session: {user_id}")  # Server-side console log
     recetas = Recetas.objects.prefetch_related('receta_ingrediente__ingrediente').all()
-    return render(request, 'core/pedidosPorUsuario.html', {'recetas': recetas})
+    return render(request, 'core/pedidosPorUsuario.html', {'recetas': recetas,'current_user_id': user_id})
 
 @role_required(allowed_roles=[])
 def prueba(request):
@@ -518,10 +535,12 @@ def crear_pedido(request):
         try:
             data = json.loads(request.body)
             receta_id = data.get('receta_id')
-            
+
+            user_id = request.session.get('usuario_id')
+
             # Obtenemos o creamos los objetos necesarios
-            usuario = get_object_or_404(Usuario, id=1)  # Cliente fijo con ID 1
-            tipo_de_orden = get_object_or_404(TipoDeOrden, id=1)  # Asumimos que existe un tipo de orden básico
+            usuario = get_object_or_404(Usuario, id=user_id) 
+            tipo_de_orden = get_object_or_404(TipoDeOrden, id=6)  # Asumimos que existe un tipo de orden básico
             estado = get_object_or_404(Estado, id=1)  # Asumimos que existe un estado inicial
             receta = get_object_or_404(Recetas, id=receta_id)
             
@@ -532,7 +551,7 @@ def crear_pedido(request):
             
             # Creamos el pedido
             pedido = Pedido.objects.create(
-                usuario=usuario,
+                usuario=6,
                 tipo_de_orden=tipo_de_orden,
                 estado=estado,
                 receta_pedido=receta_pedido
