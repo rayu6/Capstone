@@ -1,25 +1,44 @@
 // Función mejorada para crear pedido
 function crearPedido(recetaId) {
-    // Obtener modificaciones guardadas
-    const tempMods = LocalStorageManager.getModifications(recetaId);
+    Swal.fire({
+        title: '¿Estás seguro?',
+        text: 'Confirmar la creación de este pedido',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Sí, crear pedido',
+        cancelButtonText: 'Cancelar'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            const tempMods = LocalStorageManager.getModifications(recetaId);
+            
+            const hasModifications = tempMods && 
+                Object.keys(tempMods.modifications).length > 0;
+            
+            if (typeof pedidosPorUsuarioSocket !== 'undefined') {
+                pedidosPorUsuarioSocket.send(JSON.stringify({
+                    type: 'nuevo_pedido_modificado',
+                    receta_id: recetaId,
+                    modifications: hasModifications ? tempMods.modifications : null
+                }));
+            }
 
-    // Validar si hay modificaciones reales
-    const hasModifications = tempMods && 
-        Object.keys(tempMods.modifications).length > 0;
-
-    // Si tienes WebSocket configurado
-    if (typeof pedidosPorUsuarioSocket !== 'undefined') {
-        pedidosPorUsuarioSocket.send(JSON.stringify({
-            type: 'nuevo_pedido_modificado',
-            receta_id: recetaId,
-            modifications: hasModifications ? tempMods.modifications : null
-        }));
-    }
-    console.log(hasModifications);
-    // Limpiar modificaciones temporales
-    LocalStorageManager.clearModifications(recetaId);
-    
-    toastr.success("¡Pedido creado con éxito!");
+            console.log(hasModifications);
+            
+            LocalStorageManager.clearModifications(recetaId);
+            
+            Swal.fire({
+                icon: 'success',
+                title: '¡Pedido creado!',
+                text: 'El pedido se ha creado exitosamente',
+                timer: 3000,
+                showConfirmButton: false
+            }).then(() => {
+                window.location.href = '/home/cliente';
+            });
+        }
+    });
 }
 
 const pedidosPorUsuarioSocket = new WebSocket('ws://' + window.location.host + '/ws/pedidos-por-usuario/');
@@ -147,5 +166,3 @@ function getCookie(name) {
     }
     return cookieValue;
 }
-
-

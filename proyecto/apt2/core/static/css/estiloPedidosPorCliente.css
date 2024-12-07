@@ -239,3 +239,8 @@
         margin: 0.5rem;
     }
 }
+
+.containerr {
+    background-size: cover; /* Ajusta la imagen para cubrir completamente */
+    background-position: center center; 
+}
