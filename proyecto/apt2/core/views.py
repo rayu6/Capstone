@@ -46,7 +46,7 @@ def login(request):
                 messages.success(request, "Has iniciado Sesion de forma exitosa ")
 
                 if usuario.role.nombre_role == 'cocinero':
-                    return redirect('homeUsuario')
+                    return redirect('home')
                 elif usuario.role.nombre_role == 'cliente':
                     return redirect('homeCliente')
                 elif usuario.role.nombre_role != 'cliente':
