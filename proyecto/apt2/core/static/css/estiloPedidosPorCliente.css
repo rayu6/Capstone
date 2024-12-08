@@ -153,28 +153,29 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    background-color:#E27D60 ;
 }
 
 .btn-modify {
-    background-color: white;
-    color: var(--primary-color);
-    border: 3px solid var(--primary-color);
+    background-color: #E27D60 ;
+    color: white;
+    border: 3px white;
 }
 
 .btn-modify:hover, .btn-modify:focus {
-    background-color: var(--primary-color);
+    background-color: #E27D60;
     color: white;
     transform: translateY(-2px);
 }
 
 .btn-order {
-    background-color: var(--primary-color);
+    background-color: #E27D60;
     color: white;
     border: none;
 }
 
 .btn-order:hover, .btn-order:focus {
-    background-color: var(--secondary-color);
+    background-color: #E27D60;
     transform: translateY(-2px);
 }
 
