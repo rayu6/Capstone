@@ -21,7 +21,7 @@
 <script src="{% static 'js/pedidosPorUsuario.js' %}" defer></script> <!-- El 'defer' asegura que el JS se cargue después de la carga del contenido -->
 
 <div class="containerr" 
-style='background-image: url("{% static "img/fondo.jpg" %}");'>
+style="background-image: url({% static 'imgs\fondo.jpg' %});">
 <div class="container py-4">
     <div class="row">
         {% for receta in recetas %}
