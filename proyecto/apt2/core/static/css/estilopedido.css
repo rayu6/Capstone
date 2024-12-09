@@ -39,7 +39,8 @@
     height: 100%; /* Full height to align cards */
     width: 100% !important; /* Ensure full width */
     transition: transform 0.3s ease, box-shadow 0.3s ease;
-    background-color: #FFFACD;
+    background-color: #fff3a717;
+
 }
 .new-order-animation {
     animation: highlightNew 2s ease-out;

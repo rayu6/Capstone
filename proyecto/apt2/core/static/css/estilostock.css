@@ -63,11 +63,12 @@
 }
 
 /* Botones */
-.btn {
+.btn-secondary {
     font-size: 1rem;
     padding: 10px 20px;
-    border-radius: 30px;
+    border-radius: 4px;
     transition: background-color 0.3s ease;
+    border-color: transparent;
 }
 
 .estilostock .btn-success {
@@ -83,6 +84,7 @@
 
 .estilostock .modal-title {
     font-size: 1.5rem;
+    color: #fff;
 }
 
 .estilostock .modal-header{
