@@ -10,10 +10,10 @@
 .card {
     border-radius: 16px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    transition: all 0.3s ease;
+    transition: all 0.3s ease;  
     margin-bottom: 25px;
     overflow: hidden;
-    background: white;
+    background-color: #fff3a717;
     display: flex;
     flex-direction: column;
     height: 600px; /* Aumentamos un poco la altura total */
