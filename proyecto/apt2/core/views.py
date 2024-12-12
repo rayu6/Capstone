@@ -48,7 +48,7 @@ def login(request):
                 if usuario.role.nombre_role == 'cocinero':
                     return redirect('home')
                 elif usuario.role.nombre_role == 'cliente':
-                    return redirect('homeCliente')
+                    return redirect(pedidos_por_usuario)
                 elif usuario.role.nombre_role != 'cliente':
                     return redirect(home)
             except Usuario.DoesNotExist:
