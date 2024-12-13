@@ -22,6 +22,7 @@ import json
 logger = logging.getLogger(__name__)
 
 # Vista para la página de inicio
+@role_required(allowed_roles=['admin','cocinero'])
 def home(request):
     return render(request, 'core/home.html')  # Renderiza el template 'home.html'
 
