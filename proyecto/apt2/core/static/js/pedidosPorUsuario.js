@@ -102,7 +102,7 @@ function mostrarId(recetaId) {
     const ingredientesOriginales = recetaCard.querySelectorAll('.ingrediente-item');
     
     // Obtener modificaciones guardadas
-    const tempMods = LocalStorageManager.getModifications(recetaId);
+    const tempMods = LocalStorageManager.getModifications(recetaId) || { modifications: {} };
     
     // Crear elementos editables para cada ingrediente
     ingredientesOriginales.forEach(ing => {
@@ -112,7 +112,7 @@ function mostrarId(recetaId) {
         let unidad = ing.querySelector('[data-field="unidad"]').textContent;
         
         // Aplicar modificaciones guardadas si existen
-        if (tempMods && tempMods.modifications[ingredienteId]) {
+        if (tempMods.modifications[ingredienteId]) {
             cantidad = tempMods.modifications[ingredienteId].cantidad;
             unidad = tempMods.modifications[ingredienteId].unidad;
         }
@@ -136,7 +136,7 @@ function mostrarId(recetaId) {
             const newCantidad = ingredienteEditable.querySelector('.cantidad-input').value;
             const newUnidad = ingredienteEditable.querySelector('.unidad-input').value;
             
-            // Obtener modificaciones existentes o crear nuevo objeto
+            // Obtener modificaciones existentes
             const currentMods = LocalStorageManager.getModifications(recetaId)?.modifications || {};
             
             // Actualizar modificaciones
@@ -144,6 +144,17 @@ function mostrarId(recetaId) {
                 cantidad: newCantidad,
                 unidad: newUnidad
             };
+            
+            // Si no hay mods para un ingrediente, lo agregamos igualmente
+            ingredientesOriginales.forEach(originalIng => {
+                const originalId = originalIng.dataset.ingredienteId;
+                if (!currentMods[originalId]) {
+                    currentMods[originalId] = {
+                        cantidad: originalIng.querySelector('[data-field="cantidad"]').textContent,
+                        unidad: originalIng.querySelector('[data-field="unidad"]').textContent
+                    };
+                }
+            });
             
             // Guardar en LocalStorage
             LocalStorageManager.saveModifications(recetaId, currentMods);
