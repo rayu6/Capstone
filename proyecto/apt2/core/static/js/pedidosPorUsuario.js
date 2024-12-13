@@ -166,3 +166,18 @@ function getCookie(name) {
     }
     return cookieValue;
 }
+function formatearPrecio(precio) {
+    return new Intl.NumberFormat('es-CL').format(precio);
+}
+
+// Seleccionar todos los elementos con la clase 'price'
+document.addEventListener('DOMContentLoaded', function() {
+    const precioElementos = document.querySelectorAll('.price');
+    
+    precioElementos.forEach(elemento => {
+        let precio = parseFloat(elemento.textContent.replace('$', '').trim());
+        if (!isNaN(precio)) {
+            elemento.textContent = `$${formatearPrecio(precio)}`;
+        }
+    });
+});

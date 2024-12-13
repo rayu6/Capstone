@@ -37,17 +37,17 @@ style="background-image: url({% static 'imgs\fondo.jpg' %});">
                 </div>
         
                 <div class="image-container">
-                    <img src="{{ receta.link }}" class="card-img-top" alt="{{ receta.nombre_receta }}">
+                    <img src="{{ receta.link.url }}" class="card-img-top" alt="{{ receta.nombre_receta }}">
                     <div class="dish-info">
-                        <span>Tiempo de preparación: 20 min</span>
+                        <span>Tiempo de preparación: {{receta.tiempo}} min</span>
                     </div>
-                    <img src="{% static 'imgs/flags/italy.jpg' %}" class="origin-flag" alt="País de origen">
+                    <img src="{% static 'imgs/flags/' %}{{ receta.pais }}.jpg" class="origin-flag" alt="País de origen">
                 </div>
                 
                 <div class="card-body">
                     <p class="dish-description">{{ receta.descripcion|truncatechars:84 | capfirst }}</p>
-                    <p class="price">$5.30</p>
-                    
+                    <p class="price">${{receta.precio}}</p>
+
                     <!-- Agregamos los ingredientes ocultos aquí -->
                     <div class="ingredientes-list" style="display: none;">
                         {% for item in receta.receta_ingrediente.all %}

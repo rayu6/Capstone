@@ -262,7 +262,9 @@ def guardar_receta(request):
     if request.method == 'POST':
         nombre_receta = request.POST.get('nombre_receta')
         descripcion = request.POST.get('descripcion_receta')
-
+        pais = request.POST.get('pais')
+        precio = request.POST.get('precio')
+        tiempo = request.POST.get('tiempo')
         # imagen
         link = request.FILES.get('link')  # Aquí es donde obtenemos el archivo subido
 
@@ -274,7 +276,7 @@ def guardar_receta(request):
         nombre_receta_obj, created = NombreReceta.objects.get_or_create(nombre=nombre_receta)
 
         # img save
-        receta = Recetas(nombre_receta=nombre_receta_obj, descripcion=descripcion, link=link)
+        receta = Recetas(nombre_receta=nombre_receta_obj, descripcion=descripcion, link=link, precio= precio, pais=pais, tiempo=tiempo)
         receta.save()
 
         # manejo de ingredientes de la receta
