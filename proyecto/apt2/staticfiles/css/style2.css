@@ -1,0 +1,100 @@
+.logo {
+    width: 100px;  /* Ajusta el ancho a 150px */
+   /* Mantén la proporción original */
+   border-radius: 30px;
+  }
+  
+  .navbar {
+      background-color: #E27D60;
+      padding: 10px;
+      display: flex;
+      align-items: center;
+    }
+  
+  
+  .container {
+    display: grid;
+    place-items: center; /* Centra en ambos ejes */
+    height: 100vh;
+  }
+  
+  .login-container {
+    background-color: white; /* Fondo blanco para el formulario */
+    border-radius: 8px; /* Bordes redondeados */
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1); /* Sombra suave */
+    padding: 20px; /* Espaciado interno */
+    width: 300px; /* Ancho del contenedor */
+    text-align: center; /* Centrar texto */
+    margin-left: auto;
+    margin-top: 10%;
+    margin-right: auto;
+  }
+  .background{
+    background-color:  
+    #FFFFFF;
+  }
+  
+  .input_login::placeholder{
+    text-align: center;
+  }
+  
+  .alert-custom {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1050;
+    display: none; /* Oculto por defecto */
+    padding: 15px;
+    border-radius: 5px;
+    color: white;
+  }
+  .alert-custom.error {
+    background-color: red; /* Color de fondo para errores */
+  }
+  
+  .imagenreceta{
+    height: 246px;
+    width: 100%;
+  }
+  
+  .btn-custom {
+    margin-top: 10px;
+    padding: 10px 20px;
+  }
+  .prueba {
+    position: absolute !important;
+        top: 70px; /* Mueve la notificación 70 píxeles desde la parte superior */
+        left: 50%; /* Mueve la notificación al 50% de la pantalla (centro horizontal) */
+        transform: translateX(-50%); /* Ajusta la notificación para que esté perfectamente centrada */
+    }
+
+.assign-form{
+  text-align: center;
+}
+.navbar-items-color {
+  color: #FFFFFF;
+  font-family: sans-serif;
+  font-weight: 600;
+  font-size: 16px;
+}
+.bg-terracota {
+  background-color: #E27D60 !important;
+}
+
+.navbar-nav .nav-link {
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.navbar-nav .nav-link:hover {
+  background-color: #F7B267;
+  color: #333333 !important;
+}
+
+.navbar-nav .nav-link.active {
+  background-color: #85BDA6; /* Verde Oliva */
+  color: #FFFFFF !important;
+}
+
+.navbar-brand {
+  font-size: 1.25rem;
+}

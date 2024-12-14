@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pedidos en Restaurante</title>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+</head>
+
+{% load static %}
+
+{% block extra_styles %}
+    <link rel="stylesheet" href="{% static 'css/estilopedido.css' %}">
+{% endblock %}
+
+{% block content %}
+<script src="{% static 'js/pedidosSockets.js' %}" defer></script>
+
+<div class="container">
+    <h2 class="text-center">Listado de Pedidos</h2>
+    <div class="row">
+        {% for pedido in pedidos %}
+            <div class="col-md-4 mb-4" data-pedido-id="{{ pedido.id }}">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Pedido #{{ pedido.id }}</h5>
+                        <p><strong>Estado:</strong> <span class="estado-pedido" data-pedido-id="{{ pedido.id }}">{{ pedido.estado.nombre_estado }}</span></p>
+                        <p><strong>Tipo de orden:</strong> {{ pedido.tipo_de_orden.nombre_tipo_de_orden }}</p>
+                        <p><strong>Receta:</strong> {{ pedido.receta_pedido.recetas.nombre_receta.nombre }}</p>
+
+                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" 
+                                data-bs-target="#detallePedidoModal" 
+                                onclick="fetchDetallePedido({{ pedido.id }})">
+                            Ver detalles
+                        </button>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Modal de Detalles (Primer modal) -->
+<div class="modal fade" id="detallePedidoModal" tabindex="-1" aria-labelledby="detallePedidoLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Detalles del Pedido</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                {% if pedido %}
+                    <input type="hidden" id="pedido_id" value="{{ pedido.id }}">
+                    <p><strong>Receta:</strong> {{ pedido.receta_pedido.recetas.nombre_receta.nombre }}</p>
+                    <p><strong>Ingredientes:</strong></p>
+                    <ul>
+                        {% for ingrediente in ingredientes %}
+                            <li>{{ ingrediente.nombre }}: {{ ingrediente.cantidad }} {{ ingrediente.unidad }}</li>
+                        {% endfor %}
+                    </ul>
+                    <div class="mb-3">
+                        <label>Estado: </label>
+                        <span id="Estado_pedido" class="estado-pedido" data-pedido-id="{{ pedido.id }}">{{ pedido.estado.nombre_estado }}</span>
+                        <select id="M_Estado" style="display: none;">
+                            <option value="En proceso">En proceso</option>
+                            <option value="Pendiente">Pendiente</option>
+                            <option value="Completado">Completado</option>
+                            <option value="Cancelado">Cancelado</option>
+                        </select>
+                    </div>
+                    <button id="cambiarLabelsPorInputs" type="button" class="btn btn-warning">Modificar</button>
+                    <button id="guardar_cambios" type="button" class="btn btn-success" style="display: none;" onclick="actualizarPedido()">Guardar Cambios</button>
+                    <button id="cambiarInputsPorLabels" type="button" class="btn btn-danger" style="display: none;">Cancelar</button>
+                {% else %}
+                    <p>Seleccione un pedido para ver sus detalles.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+
+{% endblock %}

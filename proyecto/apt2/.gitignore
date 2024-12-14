@@ -1,0 +1,10 @@
+proyecto/apt2/apt/.env
+proyecto/apt2/apt/__pycache__/*
+proyecto/apt2/core/__pycache__/*
+proyecto/apt2/core/migrations/__pycache__/*
+__pycache__
+**/__pycache__
+**/__pycache__/*
+__pycache__/
+__pycache__/*
+__pycache__/**

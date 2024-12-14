@@ -1,0 +1,140 @@
+/* Fondo de la página */
+.estilorecetas body {
+    background-color: #A9D6E5; /* Color suave de fondo */
+    font-family: 'Arial', sans-serif;
+    color: #333;
+}
+
+/* Contenedor de las recetas */
+.estilorecetas .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 30px;
+}
+
+/* Encabezado */
+.estilorecetas h2 {
+    font-size: 2.5rem;
+    color: #343a40;
+    font-weight: 600;
+    margin-bottom: 30px;
+}
+
+/* Tarjetas de recetas */
+.estilorecetas .card {
+    border-radius: 10px; /* Bordes redondeados */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Sombra sutil */
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    opacity: 0;
+    animation: fadeIn 0.6s forwards;
+    
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+/* Efecto al pasar el ratón por encima */
+.estilorecetas .card:hover {
+    transform: translateY(-10px); /* Mueve la tarjeta hacia arriba */
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); /* Sombra más intensa */
+}
+
+/* Imagen de la receta */
+.estilorecetas .card-img-top {
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    object-fit: cover;
+    height: 200px;
+}
+
+/* Título de la receta */
+.estilorecetas .card-title {
+    font-size: 1.5rem;
+    font-weight: 500;
+    color: #007bff;
+    margin-bottom: 15px;
+}
+
+/* Descripción corta de la receta */
+.estilorecetas .card-text {
+    font-size: 1rem;
+    color: #666;
+    margin-bottom: 15px;
+    line-height: 1.6;
+}
+
+/* Estilo de los ingredientes */
+.estilorecetas .ingredientes-list {
+    margin-top: 10px;
+    background-color: #f1f1f1;
+    padding: 10px;
+    border-radius: 5px;
+}
+
+.estilorecetas .ingrediente-item {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    font-size: 1rem;
+}
+
+.estilorecetas .ingrediente-item span {
+    font-size: 1rem;
+    color: #495057;
+}
+
+/* Botones */
+.estilorecetas .btn {
+    font-size: 1rem;
+    padding: 10px 20px;
+    border-radius: 30px;
+    transition: background-color 0.3s ease;
+}
+
+.estilorecetas .btn-primary {
+    background-color: #007bff;
+    color: #fff;
+}
+
+.estilorecetas .btn-primary:hover {
+    background-color: #0056b3;
+}
+
+.estilorecetas .btn-success {
+    background-color: #28a745;
+    color: #fff;
+}
+
+.estilorecetas .btn-success:hover {
+    background-color: #218838;
+}
+
+/* no recetas disponibles */
+.estilorecetas .no-recipes {
+    font-size: 1.2rem;
+    color: #888;
+    text-align: center;
+    margin-top: 40px;
+}
+
+/* Estilo para el botón "Crear Nueva Receta" */
+.estilorecetas .text-end a {
+    font-size: 1.2rem;
+    padding: 12px 20px;
+    border-radius: 5px;
+    background-color: #28a745;
+    color: white;
+    text-decoration: none;
+    transition: background-color 0.3s ease;
+}
+
+.estilorecetas .text-end a:hover {
+    background-color: #218838;
+}
+

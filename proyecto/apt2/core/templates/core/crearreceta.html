@@ -1,0 +1,104 @@
+{% extends 'base.html' %}
+
+{% block title %}Crear Receta{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="text-center">Crear Nueva Receta</h2>
+    <form method="POST" enctype="multipart/form-data" action="{% url 'guardar_receta' %}" >
+        {% csrf_token %}
+        
+        <!-- Nombre de la receta -->
+        <div class="mb-3">
+            <label for="nombre_receta" class="form-label">Nombre de la receta:</label>
+            <input type="text" class="form-control" id="nombre_receta" name="nombre_receta" required>
+        </div>
+        
+        <!-- Descripción de la receta -->
+        <div class="mb-4">
+            <label for="descripcion_receta" class="form-label">Descripción:</label>
+            <textarea class="form-control" id="descripcion_receta" name="descripcion_receta" rows="3" required></textarea>
+        </div>
+
+        <div class="mb-4">
+            <label for="pais" class="form-label">Pais:</label>
+            <textarea class="form-control" id="pais" name="pais" rows="3" required></textarea>
+        </div>
+
+        <div class="mb-4">
+            <label for="pais" class="form-label">Precio:</label>
+            <textarea class="form-control" id="precio" name="precio" rows="3" required></textarea>
+        </div>
+
+        <div class="mb-4">
+            <label for="tiempo" class="form-label">Tiempo: (en minutos)</label>
+            <textarea class="form-control" id="precio" name="tiempo" rows="3" required></textarea>
+        </div>
+
+        <!-- Enlace de la imagen -->
+        <div class="mb-4">
+            <label for="link" class="form-label">Subir imagen:</label>
+            <input type="file" class="form-control" id="link" name="link">
+        </div>
+
+        <!-- Selección de ingredientes -->
+        <h3 class="mt-4">Selecciona los Ingredientes:</h3>
+        <div class="row">
+            {% if ingredientes %}
+                {% for ingrediente in ingredientes %}
+                <div class="col-md-6 mb-3">
+                    <div class="d-flex align-items-center">
+                        <!-- Checkbox de ingrediente -->
+                        <input class="form-check-input me-2 ingrediente-checkbox" type="checkbox" 
+                               name="ingredientes" value="{{ ingrediente.id }}" id="ingrediente-{{ ingrediente.id }}">
+                        <label class="form-check-label me-2" for="ingrediente-{{ ingrediente.id }}">
+                            {{ ingrediente.nombre_ingrediente }} (Stock: {{ ingrediente.cantidad }})
+                        </label>
+                        
+                        <!-- Campo de cantidad (oculto por defecto) -->
+                        <input type="number" name="cantidad_{{ ingrediente.id }}" placeholder="Cantidad" 
+                        min="1" max="{{ ingrediente.cantidad }}" class="form-control cantidad-input" 
+                        style="width: 100px; display: none;">
+                                        
+                        <!-- Unidad de medida (oculta por defecto) -->
+                        <input type="hidden" name="unidad_{{ ingrediente.id }}" value="{{ ingrediente.unidades }}">
+                        <span class="unidad-text" style="display: none; margin-left: 10px;">{{ ingrediente.unidades }}</span>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <p>No hay ingredientes disponibles</p>
+            {% endif %}
+        </div>
+        
+        <!-- Botón de guardar -->
+        <div class="text-center mt-4">
+            <button type="submit" class="btn btn-primary">Guardar Receta</button>
+        </div>
+    </form>
+    
+    <!-- JavaScript para mostrar/ocultar cantidad y unidad cuando se selecciona un ingrediente -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.ingrediente-checkbox').forEach(function(checkbox) {
+                checkbox.addEventListener('change', function() {
+                    // Selecciona los elementos de cantidad y unidad correspondientes al checkbox actual
+                    const cantidadInput = this.parentNode.querySelector('.cantidad-input');
+                    const unidadText = this.parentNode.querySelector('.unidad-text');
+                    
+                    if (this.checked) {
+                        // Muestra los campos de cantidad y unidad
+                        cantidadInput.style.display = 'inline-block';
+                        unidadText.style.display = 'inline';
+                    } else {
+                        // Oculta y limpia el campo de cantidad y oculta el texto de unidad
+                        cantidadInput.style.display = 'none';
+                        unidadText.style.display = 'none';
+                        cantidadInput.value = '';  // Limpia el campo de cantidad
+                    }
+                });
+            });
+        });
+    </script>
+</div>
+{% endblock %}
