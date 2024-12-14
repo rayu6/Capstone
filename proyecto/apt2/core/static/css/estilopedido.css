@@ -36,6 +36,11 @@
 /* Si quieres más separación entre las tarjetas, puedes aumentar el margen en .card */
 .card {
     margin-bottom: 20px; /* Espacio entre las tarjetas */
+    height: 100%; /* Full height to align cards */
+    width: 100% !important; /* Ensure full width */
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    background-color: #fff3a717;
+
 }
 .new-order-animation {
     animation: highlightNew 2s ease-out;
@@ -44,4 +49,14 @@
 @keyframes highlightNew {
     0% { transform: scale(0.95); background-color: #e3f2fd; }
     100% { transform: scale(1); background-color: transparent; }
+}
+
+@keyframes pedidoAlert {
+    0% { background-color: #fff; }
+    50% { background-color: #e6f3ff; }
+    100% { background-color: #fff; }
+}
+
+.new-pedido-alert {
+    animation: pedidoAlert 3s ease-out;
 }

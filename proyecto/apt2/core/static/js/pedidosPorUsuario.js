@@ -1,48 +1,45 @@
 // Función mejorada para crear pedido
 function crearPedido(recetaId) {
-    // Obtener modificaciones guardadas
-    const tempMods = LocalStorageManager.getModifications(recetaId);
-    
-    const pedidoData = {
-        receta_id: recetaId,
-        modificaciones: tempMods ? tempMods.modifications : null
-    };
-    
-    fetch('/api/crear-pedido/', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': getCookie('csrftoken') // Asegúrate de tener esta función
-        },
-        body: JSON.stringify(pedidoData)
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.status === 'success') {
-            // Si tienes WebSocket configurado
+    Swal.fire({
+        title: '¿Estás seguro?',
+        text: 'Confirmar la creación de este pedido',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Sí, crear pedido',
+        cancelButtonText: 'Cancelar'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            const tempMods = LocalStorageManager.getModifications(recetaId);
+            
+            const hasModifications = tempMods && 
+                Object.keys(tempMods.modifications).length > 0;
+            
             if (typeof pedidosPorUsuarioSocket !== 'undefined') {
                 pedidosPorUsuarioSocket.send(JSON.stringify({
                     type: 'nuevo_pedido_modificado',
-                    pedido_id: data.pedido_id,
                     receta_id: recetaId,
-                    modifications: tempMods ? tempMods.modifications : null
+                    modifications: hasModifications ? tempMods.modifications : null
                 }));
             }
+
+            console.log(hasModifications);
             
-            // Limpiar modificaciones temporales
             LocalStorageManager.clearModifications(recetaId);
             
-            toastr.success("¡Pedido creado con éxito!");
-        } else {
-            toastr.error("Error al crear el pedido");
+            Swal.fire({
+                icon: 'success',
+                title: '¡Pedido creado!',
+                text: 'El pedido se ha creado exitosamente',
+                timer: 3000,
+                showConfirmButton: false
+            }).then(() => {
+                window.location.href = '/home/cliente';
+            });
         }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        toastr.error("Error al procesar el pedido");
     });
 }
-
 
 const pedidosPorUsuarioSocket = new WebSocket('ws://' + window.location.host + '/ws/pedidos-por-usuario/');
     pedidosPorUsuarioSocket.onopen = function() {
@@ -54,10 +51,7 @@ const pedidosPorUsuarioSocket = new WebSocket('ws://' + window.location.host + '
 pedidosPorUsuarioSocket.onmessage = function(e) {
     const data = JSON.parse(e.data);
     console.log("WebSocket message received:", data);
-
-    if (data.type === 'db_update') {
-        handleDatabaseUpdate(data);
-    } else if (data.type === 'temp_modification') {
+     if (data.type === 'temp_modification') {
         console.log('DB UPDATEEE DATA:' ,data);
         handleTemporaryModification(data);
     }
@@ -108,7 +102,7 @@ function mostrarId(recetaId) {
     const ingredientesOriginales = recetaCard.querySelectorAll('.ingrediente-item');
     
     // Obtener modificaciones guardadas
-    const tempMods = LocalStorageManager.getModifications(recetaId);
+    const tempMods = LocalStorageManager.getModifications(recetaId) || { modifications: {} };
     
     // Crear elementos editables para cada ingrediente
     ingredientesOriginales.forEach(ing => {
@@ -118,7 +112,7 @@ function mostrarId(recetaId) {
         let unidad = ing.querySelector('[data-field="unidad"]').textContent;
         
         // Aplicar modificaciones guardadas si existen
-        if (tempMods && tempMods.modifications[ingredienteId]) {
+        if (tempMods.modifications[ingredienteId]) {
             cantidad = tempMods.modifications[ingredienteId].cantidad;
             unidad = tempMods.modifications[ingredienteId].unidad;
         }
@@ -142,7 +136,7 @@ function mostrarId(recetaId) {
             const newCantidad = ingredienteEditable.querySelector('.cantidad-input').value;
             const newUnidad = ingredienteEditable.querySelector('.unidad-input').value;
             
-            // Obtener modificaciones existentes o crear nuevo objeto
+            // Obtener modificaciones existentes
             const currentMods = LocalStorageManager.getModifications(recetaId)?.modifications || {};
             
             // Actualizar modificaciones
@@ -150,6 +144,17 @@ function mostrarId(recetaId) {
                 cantidad: newCantidad,
                 unidad: newUnidad
             };
+            
+            // Si no hay mods para un ingrediente, lo agregamos igualmente
+            ingredientesOriginales.forEach(originalIng => {
+                const originalId = originalIng.dataset.ingredienteId;
+                if (!currentMods[originalId]) {
+                    currentMods[originalId] = {
+                        cantidad: originalIng.querySelector('[data-field="cantidad"]').textContent,
+                        unidad: originalIng.querySelector('[data-field="unidad"]').textContent
+                    };
+                }
+            });
             
             // Guardar en LocalStorage
             LocalStorageManager.saveModifications(recetaId, currentMods);
@@ -172,5 +177,18 @@ function getCookie(name) {
     }
     return cookieValue;
 }
+function formatearPrecio(precio) {
+    return new Intl.NumberFormat('es-CL').format(precio);
+}
 
-
+// Seleccionar todos los elementos con la clase 'price'
+document.addEventListener('DOMContentLoaded', function() {
+    const precioElementos = document.querySelectorAll('.price');
+    
+    precioElementos.forEach(elemento => {
+        let precio = parseFloat(elemento.textContent.replace('$', '').trim());
+        if (!isNaN(precio)) {
+            elemento.textContent = `$${formatearPrecio(precio)}`;
+        }
+    });
+});

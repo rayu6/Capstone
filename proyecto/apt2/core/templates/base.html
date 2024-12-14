@@ -18,12 +18,23 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <body class="background">
+{% if request.session.role %}
   {% block nav %}
   <header>
     <nav class="navbar navbar-expand-lg">
         <div class="container-fluid ">
             
-            <a class="navbar-brand" href="#">{{ request.session.role|capfirst}}</a> <!-- Aquí puedes poner un logotipo si lo deseas -->
+            <a class="navbar-brand" href="#">
+                <!-- icono según el rol -->
+                {% if request.session.role == 'admin' %}
+                    <img src="{% static 'imgs/adminicon.png' %}" alt="Admin" class="role-icon icon-white">
+                {% else %}
+                    <img src="{% static 'imgs/cheficon.png' %}" alt="Cocinero" class="icon-white" style="width: 30px; margin-right: 5px; margin-left: 5px;">
+                {% endif %}
+                
+                <!-- rol -->
+                {{ request.session.role|capfirst }}
+            </a> 
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
@@ -51,11 +62,14 @@
                             <i class="fas fa-shopping-cart"></i> Pedidos
                         </a>
                     </li>
+                    {% if request.session.role == 'admin' %}
                     <li class="nav-item">
                         <a class="nav-link navbar-items-color" href="{% url 'pedidosPorUsuario' %}">
                             <i class="fas fa-shopping-cart"></i> Pedir por Cliente
                         </a>
                     </li>
+                    {% endif %}
+
                     {% if request.session.role %}
                     <li class="nav-item">
                         <a class="nav-link navbar-items-color" href="{% url 'logout' %}">
@@ -71,6 +85,8 @@
     </nav>
 </header>
   {% endblock %}
+  {%endif%}
+
     <div class="content">
         {% block content %}
         <body class="background">

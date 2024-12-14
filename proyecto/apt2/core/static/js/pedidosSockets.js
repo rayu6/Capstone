@@ -1,8 +1,9 @@
 // Configuración del WebSocket
-const pedidosSocket = new WebSocket('ws://' + window.location.host + '/ws/pedidos/');
+const pedidosSocket = new WebSocket('ws://' + window.location.host + '/ws/pedidos-por-usuario/');
 pedidosSocket.onopen = function() {
     console.log("Conexión WebSocket establecida para pedidos.");
 };
+const processedPedidos = new Set(); // Conjunto para trackear pedidos procesados
 
 pedidosSocket.onmessage = function(e) {
     const data = JSON.parse(e.data);
@@ -14,18 +15,33 @@ pedidosSocket.onmessage = function(e) {
         console.log('DB UPDATEEE DATA:' ,data);
         handleTemporaryModification(data);
     } else if (data.type === 'nuevo_pedido') {
-        handleNuevoPedido(data.pedido);
-        console.log('Nuevo pedido recibido:', data.pedido);
+        // Verificar si el pedido ya ha sido procesado
+        if (!processedPedidos.has(data.pedido.id)) {
+            handleNuevoPedido(data.pedido);
+            processedPedidos.add(data.pedido.id); // Agregar el ID al conjunto de procesados
+            console.log('Nuevo pedido procesado:', data.pedido);
+        } else {
+            console.log('Pedido duplicado ignorado:', data.pedido);
+        }
     }
 };
 
 
 function handleNuevoPedido(pedido) {
-    console.log(pedido);
     const orderList = document.querySelector('.row');
     if (!orderList) return;
+    
+    toastr.info(`Nuevo pedido #${pedido.id} recibido`, 'Pedido Nuevo', {
+        closeButton: true,
+        timeOut: 5000
+    });
+    // destacar el body temporalmente a modo de alerta de nuevo pedido
+    document.body.classList.add('new-pedido-alert');
+    setTimeout(() => {
+        document.body.classList.remove('new-pedido-alert');
+    }, 3000);
     const pedidoHTML = `
-    <div class="col-md-4 mb-4">
+    <div class="col-md-4 mb-4" data-pedido-id="${pedido.id}">
     <div class="card">
         <div class="card-body">
             <h5 class="card-title">Pedido #${pedido.id}</h5>
@@ -41,11 +57,22 @@ function handleNuevoPedido(pedido) {
         </div>
     </div>
     </div>
-
     `;
 
-    orderList.insertAdjacentHTML('afterbegin', pedidoHTML);
+    // Convert existing cards to array and sort
+    const existingCards = Array.from(orderList.querySelectorAll('.col-md-4'));
+    existingCards.push(new DOMParser().parseFromString(pedidoHTML, 'text/html').body.firstChild);
+    
+    // Sort cards by pedido ID
+    const sortedCards = existingCards.sort((a, b) => {
+        const idA = parseInt(a.getAttribute('data-pedido-id'));
+        const idB = parseInt(b.getAttribute('data-pedido-id'));
+        return idA - idB;
+    });
 
+    // Clear and re-append sorted cards
+    orderList.innerHTML = '';
+    sortedCards.forEach(card => orderList.appendChild(card));
 }
 
 function handleDatabaseUpdate(data) {
@@ -246,26 +273,35 @@ function fetchDetallePedido(pedidoId) {
     const url = new URL(window.location.href);
     url.searchParams.set('pedido_id', pedidoId);
 
+    // Add detailed logging
+    console.log('Fetching pedido details:', pedidoId);
+    console.log('Full URL:', url.toString());
+
     fetch(url)
         .then(response => {
+            console.log('Response received');
+            // Detailed error handling
             if (!response.ok) {
-                throw new Error(`No se pudo cargar el pedido: ${response.status} ${response.statusText}`);
+                throw new Error(`Fetch error: ${response.status}`);
             }
             return response.text();
         })
         .then(html => {
+            console.log('HTML received, parsing...');
+            // More robust parsing
             const parser = new DOMParser();
             const doc = parser.parseFromString(html, 'text/html');
-            
             const modalBody = doc.querySelector('#detallePedidoModal .modal-body');
+            
             if (modalBody) {
+                console.log('Modal body found, updating content');
                 document.querySelector('#detallePedidoModal .modal-body').innerHTML = modalBody.innerHTML;
-                
-                // Reinicializar los event listeners después de actualizar el contenido
                 initializeModalEventListeners();
             } else {
-                console.error('El contenido del modal no fue encontrado en la respuesta.');
+                console.error('Modal body not found in response');
             }
         })
-        .catch(err => console.error('Error al cargar detalles del pedido:', err));
+        .catch(err => {
+            console.error('Fetch details error:', err);
+        });
 }
