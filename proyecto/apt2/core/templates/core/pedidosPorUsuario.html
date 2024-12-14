@@ -1,0 +1,128 @@
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pedidos por el cliente</title>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet" />
+    {% block extra_js %}
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    {% endblock %}
+</head>
+
+{% load static %}
+
+{% block extra_styles %}
+    <link rel="stylesheet" href="{% static 'css/estiloPedidosPorCliente.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<script src="{% static 'js/pedidosPorUsuario.js' %}" defer></script> <!-- El 'defer' asegura que el JS se cargue después de la carga del contenido -->
+
+<div class="containerr" 
+style="background-image: url({% static 'imgs\fondo.jpg' %});">
+<div class="container py-4">
+    <div class="row">
+        {% for receta in recetas %}
+        <div class="col-lg-4 col-md-6">
+            <div class="card" data-receta-id="{{ receta.id }}">
+                <div class="card-header">
+                    <h5 class="card-title">{{ receta.nombre_receta | capfirst }}</h5>
+                    <div class="category-tags">
+                        {% if receta.categoria %}
+                        <span class="category-tag">{{ receta.categoria }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+        
+                <div class="image-container">
+                    <img src="{{ receta.link.url }}" class="card-img-top" alt="{{ receta.nombre_receta }}">
+                    <div class="dish-info">
+                        <span>Tiempo de preparación: {{receta.tiempo}} min</span>
+                    </div>
+                    <img src="{% static 'imgs/flags/' %}{{ receta.pais }}.jpg" class="origin-flag" alt="País de origen">
+                </div>
+                
+                <div class="card-body">
+                    <p class="dish-description">{{ receta.descripcion|truncatechars:84 | capfirst }}</p>
+                    <p class="price">${{receta.precio}}</p>
+
+                    <!-- Agregamos los ingredientes ocultos aquí -->
+                    <div class="ingredientes-list" style="display: none;">
+                        {% for item in receta.receta_ingrediente.all %}
+                        <div class="ingrediente-item" data-ingrediente-id="{{ item.id }}">
+                            <span data-field="ingrediente">{{item.ingrediente | capfirst}}</span>
+                            <span data-field="cantidad">{{ item.cantidad|floatformat:"g" }}</span>
+                            <span data-field="unidad">{{item.unidad | capfirst}}</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                
+                <div class="button-container">
+                    <button type="button" class="btn btn-modify" data-bs-toggle="modal" 
+                        data-bs-target="#agregarIngredienteModal" 
+                        onclick="mostrarId('{{ receta.id }}')">
+                        Modificar
+                    </button>
+                    <button type="button" class="btn btn-order" 
+                            onclick="crearPedido('{{ receta.id }}')">
+                        Ordenar
+                    </button>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+</div>
+
+
+<!-- Modal para cada receta -->
+<div class="modal fade" id="agregarIngredienteModal" tabindex="-1" aria-labelledby="agregarIngredienteLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="detalle">Detalles de la receta</h5>
+                <h5 class="modal-title" id="receta_id"></h5>
+                <!-- Corregimos el botón de cerrar -->
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3 d-none">
+                    <label class="form-label">Receta N°: </label>
+                    <label id="Id_receta" ></label>
+                </div>
+                <div class="mb-3 d-none">
+                    <label class="form-label">Nombre: </label>
+                    <label id="Nombre_receta"></label>
+                </div>
+                <div class="mb-3 d-none">
+                    <label class="form-label">Descripción: </label>
+                    <label id="Descripcion_Receta"></label>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Ingredientes:</label>
+                    <div id="ingredientes_Receta" class="ingredientes-container" contenteditable="true">
+                        <!-- Los ingredientes se cargarán aquí dinámicamente -->
+                    </div>
+                </div>
+
+        </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"rel="stylesheet"/>
+
+{% endblock %}
+
+
+

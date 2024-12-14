@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block title %}Login{% endblock %}
+
+{% block content %}
+<div class="login-wrapper">
+    <div class="branding-section">
+      <div class="text-center text-white">
+        <h1>Food Experience</h1>
+        <h2>Sistema</h2>
+      </div>
+    </div>
+    <div class="form-section">
+      <div class="login-card">
+        <form method="POST" action="{% url 'login' %}">
+          {% csrf_token %}
+          <h5>Inicie sesión en el sistema</h5>
+          <label for="email">Email</label><br>
+          <input type="email" id="email" name="correo" placeholder="Enter your email" required class="form-input">
+          <label for="password">Contraseña</label>
+          <input type="password" id="password" name="password" placeholder="Enter your password" required class="form-input">
+          <br>
+          <br>
+          <button type="submit" class="btn btn-primary btn-sm w-100">Ingresar</button>
+        </form>
+      </div>
+    </div>
+  </div>
+{% endblock %}

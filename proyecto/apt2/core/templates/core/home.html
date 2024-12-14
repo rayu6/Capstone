@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+
+{% block title %}Inicio{% endblock %}
+
+{% load static %}
+
+{% block extra_styles %}
+
+    <link rel="stylesheet" href="{% static 'css/homestyle.css' %}">
+
+{% endblock %}
+
+{% block content %}
+
+    <center><h2>Bienvenido al Sistema</h2></center> 
+
+    <!-- Fila de cartas -->
+    <div class="row">
+        <!-- recetas card -->
+        <div class="col-md-4 mb-4">
+            <a href="/listarecetas" style="text-decoration: none;">
+                <div class="card">
+                    <img src="{% static 'imgs/recipe_icon.png' %}" class="card-img-top" alt="Recetas">
+                    <div class="card-body">
+                        <h5 class="card-title">Recetas</h5>
+                        <p class="card-text">Consulta las recetas</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <!-- stock card -->
+        <div class="col-md-4 mb-4">
+            <a href="/stock" style="text-decoration: none;">
+                <div class="card">
+                    <img src="{% static 'imgs/stock_icon.png' %}" class="card-img-top" alt="Stock" style="height: 200px; object-fit: cover;">
+                    <div class="card-body">
+                        <h5 class="card-title">Stock</h5>
+                        <p class="card-text">Consulta el inventario</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <!-- pedidos card -->
+        <div class="col-md-4 mb-4">
+            <a href="/pedidos" style="text-decoration: none;">
+                <div class="card">
+                    <img src="{% static 'imgs/orders_icon.png' %}" class="card-img-top" alt="Pedidos" style="height: 200px; object-fit: cover;">
+                    <div class="card-body">
+                        <h5 class="card-title">Pedidos</h5>
+                        <p class="card-text">Gestion de Pedidos</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </div>
+{% endblock %}

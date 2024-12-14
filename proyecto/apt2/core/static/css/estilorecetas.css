@@ -1,0 +1,94 @@
+/* Responsive Recipe Card Layout */
+.row {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px; /* Consistent spacing between cards */
+}
+
+.col-md-4 {
+    display: flex;
+    flex-direction: column;
+    width: calc(33.333% - 20px); /* Responsive width with gap consideration */
+    min-width: 280px; /* Minimum width for smaller screens */
+    max-width: 350px; /* Maximum width to prevent oversized cards */
+}
+
+.card {
+    display: flex;
+    flex-direction: column;
+    height: 100%; /* Full height to align cards */
+    width: 100% !important; /* Ensure full width */
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    background-color: #fff3a717;
+}
+
+.card-body {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1; /* Allow body to expand */
+    position: relative;
+}
+
+.card-img-top {
+    width: 100%;
+    height: 100px; /* Consistent image height */
+    object-fit: cover; /* Maintain image aspect ratio */
+}
+
+.ingredientes-list {
+    flex-grow: 1; /* Allow ingredients list to expand */
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-height: 250px; /* Limit height */
+    overflow-y: auto; /* Scrollable if content is long */
+    margin-bottom: 15px; /* Space before button */
+}
+
+.ingrediente-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 5px;
+    background-color: #fff3a717;
+    border-radius: 4px;
+}
+
+/* Card Interaction Effects */
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+}
+
+/* Responsive Adjustments */
+@media (max-width: 992px) {
+    .col-md-4 {
+        width: calc(50% - 20px); /* Two columns on medium screens */
+    }
+}
+
+@media (max-width: 576px) {
+    .col-md-4 {
+        width: 100%; /* Single column on small screens */
+        max-width: none;
+    }
+}
+
+/* Button Styling (Maintaining existing color scheme) */
+.btn-primary {
+    background-color: #E27D60;
+    border-color: #E27D60;
+    transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+    background-color: #d1694c;
+    transform: scale(1.05);
+}
+
+.card-title {
+    color: #E27D60;
+    font-size: 1.5rem;
+    margin-bottom: 15px;
+}
