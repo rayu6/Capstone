@@ -1,4 +1,4 @@
-correr comandos en capstone/proyecto/apt2
+**correr comandos en capstone/proyecto/apt2**
 
 instalar dependencias de python para el proyecto
 ```bash
@@ -17,6 +17,6 @@ comando parainciar proyecto sin websocket
 $ python manage.py runserver
 ```
 
-requerimientos:
-python
+requerimientos:  
+python  
 mysql
