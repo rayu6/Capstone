@@ -31,3 +31,24 @@ body {
 .blur-div h2 {
     font-size: 4rem; /* Tamaño mayor para el título */
 }
+
+.estado-actualizado {
+    animation: highlight 2s ease-out;
+}
+
+@keyframes highlight {
+    0% { background-color: #ffeb3b; }
+    100% { background-color: transparent; }
+}
+
+.status-icon i {
+    margin-right: 5px;
+}
+
+.status-icon-proceso {
+    color: #17a2b8; /* Bootstrap info blue */
+}
+
+.status-icon-pendiente {
+    color: #ffc107; /* Bootstrap warning yellow */
+}

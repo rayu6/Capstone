@@ -5,7 +5,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 
 urlpatterns = [
-    path('', views.login, name='login'),  # Ruta iniclal
+    path('', views.home, name='home'),  # Ruta iniclal
     path('stock', views.listar_ingredientes, name='stock'),  # Ruta para la vista "stock"
     path('register', views.register, name='register'),  # Ruta para la vista "register"
     path('pedidos/',views.listar_pedidos2, name='pedidos'), # Ruta para la vista "pedidos"
@@ -24,6 +24,7 @@ urlpatterns = [
     path('api/update-pedido/', views.update_pedido_estado, name='update_pedido_estado'),
     path('api/eliminar_ing_receta/', views.eliminar_ing_receta, name='eliminar_ing_receta'),
     path('api/crear-pedido/', views.crear_pedido, name='crear_pedido'),
+    path('reponer/<int:ingrediente_id>/', views.reponer_stock, name='reponer_stock'),
 
     #path('agregar-pedido/', views.agregar_pedido, name='agregar_pedido'),
     #path('pedido-crear/', views.crear_pedido, name='crear_pedido'),

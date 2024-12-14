@@ -10,6 +10,14 @@
     display: flex;
     align-items: center;
   }
+.role-icon{
+  width: 50px;
+  height: 50px;
+}
+
+.icon-white {
+  filter: invert(100%) brightness(100%) contrast(100%);
+}
 
   .navbar-brand {
     color: White;
@@ -196,4 +204,50 @@ body {
 
 .navbar-brand {
   font-size: 1.25rem;
+}
+.login-wrapper {
+  display: flex;
+  height: 100vh;
+}
+
+.branding-section {
+  flex: 1;
+  background: linear-gradient(45deg, #7b1fa2, #F7B267);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40px;
+}
+
+.form-section {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40px;
+}
+
+.login-card {
+  background-color: white;
+  padding: 40px;
+  border-radius: 8px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 400px;
+}
+
+.form-input {
+  width: 100%;
+  padding: 12px 20px;
+  margin: 8px 0;
+  display: inline-block;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+
+@media (max-width: 767px) {
+  .login-wrapper {
+    flex-direction: column;
+  }
 }

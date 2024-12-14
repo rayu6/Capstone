@@ -468,6 +468,9 @@ function crear_receta(){
     const Text_area_id=document.getElementById('M_Id');
     const Text_area_Descrip=document.getElementById('M_descripcion');
     const Text_area_nombre_i=document.getElementById('M_Nombre_Receta');
+    const text_area_pais=document.getElementById('M_Pais');
+    const text_area_precio=document.getElementById('M_Precio');
+    const text_area_tiempo=document.getElementById('M_Tiempo');
 
     const recetaCard = document.querySelector(`[data-receta-id="${recetaId}"]`);
     if (!recetaCard) {

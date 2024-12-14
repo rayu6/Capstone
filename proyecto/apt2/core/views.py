@@ -22,6 +22,7 @@ import json
 logger = logging.getLogger(__name__)
 
 # Vista para la página de inicio
+@role_required(allowed_roles=['admin','cocinero'])
 def home(request):
     return render(request, 'core/home.html')  # Renderiza el template 'home.html'
 
@@ -46,9 +47,9 @@ def login(request):
                 messages.success(request, "Has iniciado Sesion de forma exitosa ")
 
                 if usuario.role.nombre_role == 'cocinero':
-                    return redirect('homeUsuario')
+                    return redirect('home')
                 elif usuario.role.nombre_role == 'cliente':
-                    return redirect('homeCliente')
+                    return redirect(pedidos_por_usuario)
                 elif usuario.role.nombre_role != 'cliente':
                     return redirect(home)
             except Usuario.DoesNotExist:
@@ -73,11 +74,26 @@ def listar_recetas(request):
     ingredientes = Ingrediente.objects.all()
     return render(request, 'core/recetas.html', {'recetas': recetas, 'ingredientes':ingredientes})
 
-@role_required(allowed_roles=['cliente'])
+@role_required(allowed_roles=['cliente', 'admin'])
 def homeCliente(request):
-    return render(request, 'core/users/homeCliente.html')  # Renderiza el template 
+    pedido = Pedido.objects.select_related(
+        'usuario',
+        'tipo_de_orden',
+        'estado',
+        'receta_pedido__recetas__nombre_receta',
+        'receta_modificada'
+    ).prefetch_related(
+        'receta_pedido__recetas',
+        'receta_modificada'
+    ).order_by('-id').first()
+    
+    return render(request, 'core/users/homeCliente.html', {
+        'pedido': pedido
+    })
 
-@role_required(allowed_roles=['cocinero'])
+
+
+@role_required(allowed_roles=['cocinero','admin'])
 def homeUsuario(request):
     return render(request, 'core/users/homeUsuario.html')  # Renderiza el template
 
@@ -85,8 +101,10 @@ def pedidos(request):
     return render(request, 'core/pedidos.html')  # Renderiza el template 
 
 def pedidos_por_usuario(request):
+    user_id = request.session.get('usuario_id')
+    print(f"User ID from session: {user_id}")  # Server-side console log
     recetas = Recetas.objects.prefetch_related('receta_ingrediente__ingrediente').all()
-    return render(request, 'core/pedidosPorUsuario.html', {'recetas': recetas})
+    return render(request, 'core/pedidosPorUsuario.html', {'recetas': recetas,'current_user_id': user_id})
 
 @role_required(allowed_roles=[])
 def prueba(request):
@@ -101,34 +119,53 @@ def logout_view(request):
 def listar_pedidos2(request):
     pedidos = Pedido.objects.select_related(
         'usuario', 
-        'tipo_de_orden', 
+        'tipo_de_orden',
         'estado',
-        'receta_pedido__recetas__nombre_receta'
+        'receta_pedido__recetas__nombre_receta',
+        'receta_modificada'
+    ).prefetch_related(
+        'receta_pedido__recetas__receta_ingrediente',
+        'receta_modificada__receta_ingrediente'
     ).all()
-    
-    # Cargar los ingredientes para cada pedido
+
+    # Prepare ingredientes for each pedido
     for pedido in pedidos:
         pedido.ingredientes = []
-        for receta_ing in pedido.receta_pedido.recetas.receta_ingrediente.all():
+        
+        # Determine which recipe to use (modified or original)
+        if pedido.receta_modificada:
+            print("Modified recipe exists")
+            receta_ingredientes = pedido.receta_modificada.receta_ingrediente.all()
+        else:
+            print("Using original recipe")
+            receta_ingredientes = pedido.receta_pedido.recetas.receta_ingrediente.all()
+        
+        for receta_ing in receta_ingredientes:
             pedido.ingredientes.append({
                 'nombre': receta_ing.ingrediente.nombre_ingrediente.nombre,
                 'cantidad': receta_ing.cantidad,
                 'unidad': receta_ing.unidad
             })
 
-    # Si deseas acceder a los ingredientes de un solo pedido (con el GET de `pedido_id`)
+    # Single pedido handling
     pedido_id = request.GET.get('pedido_id')
     
     if pedido_id:
         try:
             pedido = Pedido.objects.get(id=pedido_id)
-            ingredientes = []
-            for receta_ing in pedido.receta_pedido.recetas.receta_ingrediente.all():
-                ingredientes.append({
-                    'nombre': receta_ing.ingrediente.nombre_ingrediente.nombre,
-                    'cantidad': receta_ing.cantidad,
-                    'unidad': receta_ing.unidad
-                })
+            
+            # Use modified recipe if exists, otherwise original
+            if pedido.receta_modificada:
+                receta_ingredientes = pedido.receta_modificada.receta_ingrediente.all()
+            else:
+                receta_ingredientes = pedido.receta_pedido.recetas.receta_ingrediente.all()
+            
+            ingredientes = [{
+                'nombre': receta_ing.ingrediente.nombre_ingrediente.nombre,
+                'cantidad': receta_ing.cantidad,
+                'unidad': receta_ing.unidad
+            } for receta_ing in receta_ingredientes]
+        
         except Pedido.DoesNotExist:
             pedido = None
             ingredientes = []
@@ -143,9 +180,9 @@ def listar_pedidos2(request):
         })
 
     return render(request, 'core/pedidos.html', {
-        'pedidos': pedidos,  # Pasa todos los pedidos
-        'pedido': pedido,    # Pasa el pedido único si hay
-        'ingredientes': ingredientes  # Pasa los ingredientes para el pedido seleccionado
+        'pedidos': pedidos,
+        'pedido': pedido,
+        'ingredientes': ingredientes
     })
 
 
@@ -226,7 +263,9 @@ def guardar_receta(request):
     if request.method == 'POST':
         nombre_receta = request.POST.get('nombre_receta')
         descripcion = request.POST.get('descripcion_receta')
-
+        pais = request.POST.get('pais')
+        precio = request.POST.get('precio')
+        tiempo = request.POST.get('tiempo')
         # imagen
         link = request.FILES.get('link')  # Aquí es donde obtenemos el archivo subido
 
@@ -238,7 +277,7 @@ def guardar_receta(request):
         nombre_receta_obj, created = NombreReceta.objects.get_or_create(nombre=nombre_receta)
 
         # img save
-        receta = Recetas(nombre_receta=nombre_receta_obj, descripcion=descripcion, link=link)
+        receta = Recetas(nombre_receta=nombre_receta_obj, descripcion=descripcion, link=link, precio= precio, pais=pais, tiempo=tiempo)
         receta.save()
 
         # manejo de ingredientes de la receta
@@ -428,13 +467,6 @@ def update_receta(request):
             "message": f"Error: {str(e)}"
         }, status=500)
 
-from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
-from django.views.decorators.http import require_http_methods
-from asgiref.sync import async_to_sync
-from channels.layers import get_channel_layer
-from core.models import Pedido, Estado  # Asegúrate de usar los modelos correctos
-
 @csrf_exempt
 @require_http_methods(["POST"])
 def update_pedido_estado(request):
@@ -506,10 +538,12 @@ def crear_pedido(request):
         try:
             data = json.loads(request.body)
             receta_id = data.get('receta_id')
-            
+
+            user_id = request.session.get('usuario_id')
+
             # Obtenemos o creamos los objetos necesarios
-            usuario = get_object_or_404(Usuario, id=1)  # Cliente fijo con ID 1
-            tipo_de_orden = get_object_or_404(TipoDeOrden, id=1)  # Asumimos que existe un tipo de orden básico
+            usuario = get_object_or_404(Usuario, id=user_id) 
+            tipo_de_orden = get_object_or_404(TipoDeOrden, id=6)  # Asumimos que existe un tipo de orden básico
             estado = get_object_or_404(Estado, id=1)  # Asumimos que existe un estado inicial
             receta = get_object_or_404(Recetas, id=receta_id)
             
@@ -520,7 +554,7 @@ def crear_pedido(request):
             
             # Creamos el pedido
             pedido = Pedido.objects.create(
-                usuario=usuario,
+                usuario=6,
                 tipo_de_orden=tipo_de_orden,
                 estado=estado,
                 receta_pedido=receta_pedido
@@ -542,3 +576,19 @@ def crear_pedido(request):
         'status': 'error',
         'message': 'Método no permitido'
     }, status=405)
+
+def reponer_stock(request, ingrediente_id):
+    """
+    Vista para reponer el stock de un ingrediente.
+    """
+    if request.method == 'POST':
+        cantidad_a_reponer = int(request.POST.get('cantidad', 0))
+        ingrediente = get_object_or_404(Ingrediente, id=ingrediente_id)
+        
+        if cantidad_a_reponer > 0:
+            ingrediente.reponer(cantidad_a_reponer)
+            messages.success(request, f"Se han repuesto {cantidad_a_reponer} unidades de {ingrediente.nombre_ingrediente.nombre}.")
+        else:
+            messages.error(request, "La cantidad a reponer debe ser mayor a 0.")
+        
+        return redirect('stock')  

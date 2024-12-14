@@ -54,7 +54,7 @@
     text-decoration: underline;
 }
 
-/* Estilo para el mensaje de "No hay ingredientes disponibles" */
+/* mensaje de "No hay ingredientes disponibles" */
 .estilostock .no-ingredientes {
     font-size: 1.2rem;
     color: #888;
@@ -63,29 +63,12 @@
 }
 
 /* Botones */
-.estilostock .btn {
+.btn-secondary {
     font-size: 1rem;
     padding: 10px 20px;
-    border-radius: 30px;
+    border-radius: 4px;
     transition: background-color 0.3s ease;
-}
-
-.estilostock .btn-primary {
-    background-color: #007bff;
-    color: #fff;
-}
-
-.estilostock .btn-primary:hover {
-    background-color: #0056b3;
-}
-
-.estilostock .btn-secondary {
-    background-color: #6c757d;
-    color: #fff;
-}
-
-.estilostock .btn-secondary:hover {
-    background-color: #5a6268;
+    border-color: transparent;
 }
 
 .estilostock .btn-success {
@@ -98,22 +81,25 @@
 }
 
 /* Modal */
-.estilostock .modal-header {
-    background-color: #007bff;
-    color: white;
-}
 
 .estilostock .modal-title {
     font-size: 1.5rem;
+    color: #fff;
+}
+
+.estilostock .modal-header{
+    background-color: #d1694c;
 }
 
 .estilostock .form-control {
     margin-bottom: 10px;
 }
 
-/* Estilo para el botón de agregar ingrediente */
+/* botón de agregar ingrediente */
 .estilostock .btn-primary {
-    background-color: #007bff;
+    background-color: #E27D60;
+    border-color: #E27D60;
+    transition: all 0.3s ease;
     color: white;
     border-radius: 5px;
     font-size: 1rem;
@@ -121,14 +107,16 @@
 }
 
 .estilostock .btn-primary:hover {
-    background-color: #0056b3;
+    background-color: #d1694c;
+    transform: scale(1.05);
 }
 
 .estilostock .btn-flotante {
     position: fixed;
     bottom: 20px;  /* 20px desde la parte inferior */
     right: 20px;   /* 20px desde la parte derecha */
-    z-index: 9999; /* Asegura que el botón quede encima de otros elementos */
-    border-radius: 50%;  /* Si quieres un botón circular */
+    z-index: 9999; /* botón encima de otros elementos */
+    border-radius: 50%;  /* botón circular */
     padding: 15px 30px;  /* Tamaño del botón */
 }
+
